@@ -50,7 +50,7 @@ namespace SaleManagerApi.Controllers
         [HttpPost]
         public async Task<ActionResult<DailyKiemtravesinhxe>> PostDailyKiemtravesinhxe(DailyKiemtravesinhxe dailyKiemtravesinhxe)
         {
-            dailyKiemtravesinhxe.CreatedAt = DateTime.UtcNow;
+            dailyKiemtravesinhxe.CreatedAt = DateTime.UtcNow.AddHours(7);
             
             _context.DailyKiemtravesinhxes.Add(dailyKiemtravesinhxe);
             await _context.SaveChangesAsync();

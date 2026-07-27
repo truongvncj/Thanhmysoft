@@ -396,6 +396,61 @@ public class DangTaisController : ControllerBase
         return Ok(history);
     }
 
+    [HttpGet("history/dangky")]
+    public async Task<IActionResult> GetDangKyHistory([FromQuery] string sothe)
+    {
+        if (string.IsNullOrEmpty(sothe)) return BadRequest(new { message = "Số thẻ không hợp lệ" });
+        
+        var history = await _context.DangTais
+            .Where(x => x.Sothe == sothe)
+            .OrderByDescending(x => x.NgayDangTai)
+            .Take(50)
+            .ToListAsync();
+
+        var allChungTus = await _context.ChungTuVaoKhos
+            .Where(c => c.Sothe == sothe)
+            .ToListAsync();
+
+        var result = history.Select(h => {
+            var ct = allChungTus.Where(c => c.DangTaiId == h.Id).ToList();
+
+            // Fallback for older records without DangTaiId: use the previous interval logic
+            if (!ct.Any())
+            {
+                var index = history.IndexOf(h);
+                var nextDt = index > 0 ? history[index - 1] : null;
+                ct = allChungTus.Where(c => 
+                    c.DangTaiId == null && 
+                    c.NgayDangKy >= h.NgayDangTai.AddSeconds(-5) && 
+                    (nextDt == null || c.NgayDangKy < nextDt.NgayDangTai.AddSeconds(-5))
+                ).ToList();
+            }
+
+            var docList = ct.Select(c => 
+                c.LyDo == "Nhập hàng" ? (
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) && !string.IsNullOrWhiteSpace(c.SoSTO) ? $"{c.SoTransferOut} - {c.SoSTO}" :
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) ? c.SoTransferOut : c.SoSTO
+                ) : c.SoShipment
+            ).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+            return new {
+                h.Id,
+                h.Sothe,
+                h.NgayDangTai,
+                h.KhohangId,
+                h.LyDo,
+                h.BienSo,
+                h.TrangThai,
+                h.DaDangTai,
+                h.DaVeSinh,
+                h.DaDangKyChungTu,
+                ChungTus = docList
+            };
+        });
+            
+        return Ok(result);
+    }
+
     public class ChungTuSubmitRequest
     {
         public string Sothe { get; set; } = string.Empty;
@@ -437,7 +492,8 @@ public class DangTaisController : ControllerBase
                 Id = Guid.NewGuid(),
                 Sothe = sothe,
                 KhohangId = dangTai.KhohangId,
-                NgayDangKy = DateTime.UtcNow.AddHours(7),
+                NgayDangKy = dangTai.NgayDangTai,
+                DangTaiId = dangTai.Id,
                 LyDo = item.LyDo,
                 SoTransferOut = item.SoTransferOut,
                 SoSTO = item.SoSTO,

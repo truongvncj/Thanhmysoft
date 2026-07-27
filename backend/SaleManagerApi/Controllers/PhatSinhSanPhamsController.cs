@@ -25,11 +25,11 @@ public class PhatSinhSanPhamsController : ControllerBase
             return BadRequest(new { message = "Ngày không hợp lệ" });
         }
         
-        var dateUtc = parsedDate.ToUniversalTime().Date;
-        var nextDateUtc = dateUtc.AddDays(1);
+        var targetDate = DateTime.SpecifyKind(parsedDate.Date, DateTimeKind.Utc);
+        var nextDate = targetDate.AddDays(1);
 
         var data = await _context.PhatSinhSanPhams
-            .Where(p => p.KhohangId == khohangId && p.ThoiGian >= dateUtc && p.ThoiGian < nextDateUtc)
+            .Where(p => p.KhohangId == khohangId && p.ThoiGian >= targetDate && p.ThoiGian < nextDate)
             .OrderByDescending(p => p.ThoiGian)
             .ToListAsync();
 

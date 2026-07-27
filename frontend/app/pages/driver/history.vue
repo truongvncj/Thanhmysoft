@@ -6,6 +6,13 @@
       <!-- Tabs -->
       <div class="flex flex-col sm:flex-row gap-2 border-b border-slate-200 mb-6">
         <button 
+          @click="activeTab = 'dangky'"
+          :class="activeTab === 'dangky' ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold' : 'text-slate-500 hover:text-slate-700 font-medium'"
+          class="px-6 py-3 transition-colors text-center sm:text-left"
+        >
+          Đăng ký vào kho
+        </button>
+        <button 
           @click="activeTab = 'pretrip'"
           :class="activeTab === 'pretrip' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-700 font-medium'"
           class="px-6 py-3 transition-colors text-center sm:text-left"
@@ -17,13 +24,52 @@
           :class="activeTab === 'vesinh' ? 'border-b-2 border-teal-600 text-teal-600 font-bold' : 'text-slate-500 hover:text-slate-700 font-medium'"
           class="px-6 py-3 transition-colors text-center sm:text-left"
         >
-          Kiểm tra vệ sinh xe (Vào kho)
+          Kiểm tra vệ sinh xe
         </button>
       </div>
 
       <div v-if="loading" class="text-center py-12">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
         <p class="mt-4 text-slate-500 font-medium">Đang tải dữ liệu lịch sử...</p>
+      </div>
+
+      <!-- Tab Content: Đăng ký vào kho -->
+      <div v-else-if="activeTab === 'dangky'" class="space-y-4">
+        <div v-if="dangkyHistory.length === 0" class="text-center py-10 text-slate-500">
+          Chưa có lịch sử Đăng ký vào kho nào.
+        </div>
+        <div v-else v-for="item in dangkyHistory" :key="item.id" class="p-5 border border-slate-200 rounded-xl hover:shadow-md transition-shadow bg-slate-50">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
+                {{ formatDate(item.ngayDangTai) }}
+              </span>
+              <h3 class="font-bold text-slate-800">Đăng ký vào kho</h3>
+            </div>
+            <span class="text-indigo-600 bg-indigo-50 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            </span>
+          </div>
+          <div class="mt-4 pl-2 border-l-2 border-slate-300 space-y-2 text-sm text-slate-600">
+            <div class="flex gap-2 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" /></svg>
+              <span>Lý do: <span class="font-bold text-slate-800">{{ item.lyDo }}</span></span>
+            </div>
+            <div v-if="item.chungTus && item.chungTus.length > 0" class="flex gap-2 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" /></svg>
+              <span>Chứng từ: <span class="font-bold text-slate-800">{{ item.chungTus.join(', ') }}</span></span>
+            </div>
+            <div class="flex gap-2 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+              <span>Trạng thái: 
+                <span class="font-bold" :class="item.trangThai === 0 ? 'text-amber-600' : (item.trangThai === 1 ? 'text-blue-600' : 'text-emerald-600')">
+                  {{ item.trangThai === 0 ? 'Đã đăng ký' : (item.trangThai === 1 ? 'Trong sân' : (item.trangThai === 2 ? 'Chuẩn bị ra sân' : 'Đã hoàn thành')) }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Tab Content: Pre-Trip -->
@@ -101,8 +147,9 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBaseUrl
 
-const activeTab = ref('pretrip') // 'pretrip' or 'vesinh'
+const activeTab = ref('dangky') // 'dangky', 'pretrip' or 'vesinh'
 const loading = ref(true)
+const dangkyHistory = ref([])
 const preTripHistory = ref([])
 const veSinhHistory = ref([])
 const sothe = ref('')
@@ -132,10 +179,12 @@ const parseChecklist = (jsonStr) => {
 const fetchHistory = async () => {
   loading.value = true
   try {
-    const [preTripRes, veSinhRes] = await Promise.all([
+    const [dangkyRes, preTripRes, veSinhRes] = await Promise.all([
+      $fetch(`${apiBase}/DangTais/history/dangky?sothe=${sothe.value}`),
       $fetch(`${apiBase}/DangTais/history/pre-trip?sothe=${sothe.value}`),
       $fetch(`${apiBase}/DangTais/history/vesinh?sothe=${sothe.value}`)
     ])
+    dangkyHistory.value = dangkyRes || []
     preTripHistory.value = preTripRes || []
     veSinhHistory.value = veSinhRes || []
   } catch (err) {

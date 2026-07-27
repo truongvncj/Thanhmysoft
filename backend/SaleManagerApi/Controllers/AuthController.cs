@@ -76,9 +76,9 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Thẻ nhà thầu chưa được duyệt hoặc đã bị khóa." });
         }
 
-        if (driver.Thoihanthe.Date < DateTime.UtcNow.Date)
+        if (driver.Thoihanthe.Date < DateTime.UtcNow.AddHours(7).Date)
         {
-            return Unauthorized(new { message = "Thẻ nhà thầu đã hết hạn." });
+            return Unauthorized(new { message = "Thẻ đã hết hạn. Vui lòng liên hệ nhà vận tải để gia hạn." });
         }
 
         return Ok(new { message = "Đăng nhập thành công", driver = new { driver.MaLx, driver.Ten, driver.Sothe, driver.TenNvt } });

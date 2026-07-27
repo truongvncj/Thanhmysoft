@@ -1,0 +1,8 @@
+*.db
+*.db-shm
+*.db-wal
+*.csx
+bin/
+obj/
+node_modules/
+.DS_Store

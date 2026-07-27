@@ -18,6 +18,9 @@ public class ChungTuVaoKho
     [Column("ngaydangky")]
     public DateTime NgayDangKy { get; set; }
     
+    [Column("dangtaiid")]
+    public Guid? DangTaiId { get; set; }
+    
     [Column("lydo")]
     public string LyDo { get; set; } = string.Empty; // Nhập hàng / Xuất hàng
     

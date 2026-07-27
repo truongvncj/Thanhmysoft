@@ -40,19 +40,41 @@ public class DanhsachxetrongkhoController : ControllerBase
             .Distinct()
             .ToListAsync();
 
+        var allChungTusToday = await _context.ChungTuVaoKhos
+            .Where(c => c.NgayDangKy >= sevenDaysAgo && c.NgayDangKy < tomorrow)
+            .ToListAsync();
+
+        var allDanhsachToday = await _context.Danhsachxetrongkhos
+            .Where(d => d.GioDangKy >= sevenDaysAgo && d.GioDangKy < tomorrow)
+            .ToListAsync();
+
         var result = new List<object>();
         foreach (var dt in list)
         {
-            var chungTus = await _context.ChungTuVaoKhos
-                .Where(c => c.Sothe == dt.Sothe && c.NgayDangKy.Date == dt.GioDangKy.Date)
-                .ToListAsync();
+            var nextDt = allDanhsachToday.Where(d => d.Sothe == dt.Sothe && d.GioDangKy > dt.GioDangKy)
+                             .OrderBy(d => d.GioDangKy)
+                             .FirstOrDefault();
+
+            var chungTus = allChungTusToday
+                .Where(c => c.Sothe == dt.Sothe && 
+                            c.NgayDangKy >= dt.GioDangKy && 
+                            (nextDt == null || c.NgayDangKy < nextDt.GioDangKy))
+                .ToList();
 
             var chungTuList = chungTus.Select(c => 
-                c.LyDo == "Nhập hàng" ? $"{c.SoTransferOut} - {c.SoSTO}" : c.SoShipment
-            ).Where(s => !string.IsNullOrEmpty(s)).ToList();
+                c.LyDo == "Nhập hàng" ? (
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) && !string.IsNullOrWhiteSpace(c.SoSTO) ? $"{c.SoTransferOut} - {c.SoSTO}" :
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) ? c.SoTransferOut : c.SoSTO
+                ) : c.SoShipment
+            ).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
-            var stos = chungTus.Select(c => c.SoSTO).Where(s => !string.IsNullOrEmpty(s)).ToList();
-            var shipments = chungTus.Select(c => c.SoShipment).Where(s => !string.IsNullOrEmpty(s)).ToList();
+            var stos = chungTus.Where(c => c.LyDo == "Nhập hàng")
+                .Select(c => 
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) && !string.IsNullOrWhiteSpace(c.SoSTO) ? $"{c.SoTransferOut} - {c.SoSTO}" :
+                    !string.IsNullOrWhiteSpace(c.SoTransferOut) ? c.SoTransferOut : c.SoSTO)
+                .Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+            var shipments = chungTus.Select(c => c.SoShipment).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
             var baoVeDaKiemTraPreTripHomNay = sothesCheckedToday.Contains(dt.Sothe);
 
@@ -75,6 +97,7 @@ public class DanhsachxetrongkhoController : ControllerBase
                 dt.BaoVeKiemTra_Time,
                 dt.BaoVeKiemTra_PreTrip_Time,
                 dt.BaoVeKiemTraTrongKho_Time,
+                dt.NhapKho_Time,
                 BaoVeDaKiemTraPreTripHomNay = baoVeDaKiemTraPreTripHomNay,
                 ChungTus = chungTuList,
                 STOs = stos,

@@ -39,7 +39,7 @@ namespace SaleManagerApi.Models
         public int LanVaoKhoTrongNgay { get; set; }
 
         [Column("createdat")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(7);
 
         public virtual ICollection<DailyKiemtravesinhxeDetail> Details { get; set; } = new List<DailyKiemtravesinhxeDetail>();
     }

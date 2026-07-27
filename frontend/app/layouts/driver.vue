@@ -23,7 +23,7 @@
           </li>
           <li>
             <NuxtLink :to="state.daVeSinh ? '/driver/dangky' : undefined" :class="['flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl transition-all duration-200 whitespace-nowrap', state.daVeSinh ? 'hover:bg-blue-600 hover:text-white' : 'opacity-50 cursor-not-allowed']" exactActiveClass="bg-blue-600 text-white shadow-md">
-              <span class="font-medium text-sm md:text-base">Đăng ký xe vào sân</span>
+              <span class="font-medium text-sm md:text-base">Đăng ký xe vào kho</span>
             </NuxtLink>
           </li>
           <li>

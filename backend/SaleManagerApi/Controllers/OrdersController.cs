@@ -38,7 +38,7 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Order>> PostOrder(Order order)
     {
-        order.OrderDate = DateTime.UtcNow;
+        order.OrderDate = DateTime.UtcNow.AddHours(7);
         _context.Orders.Add(order);
         await _context.SaveChangesAsync();
 
