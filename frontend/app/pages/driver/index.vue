@@ -44,16 +44,16 @@
                 </div>
               </div>
               
-              <div class="md:w-72 space-y-4">
-                <div class="flex gap-2 sm:gap-4">
-                  <label class="flex-1 flex items-center justify-center gap-2 p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all duration-200"
-                         :class="checklistAnswers[param.id] === true ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-blue-200'">
-                    <input type="radio" :name="'check_' + param.id" :value="true" v-model="checklistAnswers[param.id]" class="hidden" />
+              <div class="w-full sm:w-auto mt-3 sm:mt-0">
+                <div class="flex flex-row gap-2" :class="{ 'pointer-events-none opacity-80': isReadOnly }">
+                  <label class="flex-1 flex items-center justify-center gap-2 p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 transition-all duration-200"
+                         :class="checklistAnswers[param.id] === true ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-blue-200', !isReadOnly ? 'cursor-pointer' : ''">
+                    <input type="radio" :name="'check_' + param.id" :value="true" v-model="checklistAnswers[param.id]" class="hidden" :disabled="isReadOnly" />
                     <span class="font-bold text-sm sm:text-base">Đạt</span>
                   </label>
-                  <label class="flex-1 flex items-center justify-center gap-2 p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all duration-200"
-                         :class="checklistAnswers[param.id] === false ? 'bg-red-50 border-red-500 text-red-700 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-red-200'">
-                    <input type="radio" :name="'check_' + param.id" :value="false" v-model="checklistAnswers[param.id]" class="hidden" />
+                  <label class="flex-1 flex items-center justify-center gap-2 p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 transition-all duration-200"
+                         :class="checklistAnswers[param.id] === false ? 'bg-red-50 border-red-500 text-red-700 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-red-200', !isReadOnly ? 'cursor-pointer' : ''">
+                    <input type="radio" :name="'check_' + param.id" :value="false" v-model="checklistAnswers[param.id]" class="hidden" :disabled="isReadOnly" />
                     <span class="font-bold text-sm sm:text-base">Không đạt</span>
                   </label>
                 </div>
@@ -63,11 +63,14 @@
         </div>
         
         <div class="mt-10 flex flex-col items-center">
-          <button @click="submitDangTai" :disabled="!isAllAnswered" :class="isAllAnswered ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 hover:-translate-y-1' : 'bg-slate-300 cursor-not-allowed'" class="text-white font-bold py-4 px-12 rounded-xl transition-all duration-300 flex items-center gap-2 text-lg">
+          <button v-if="!isReadOnly" @click="submitDangTai" :disabled="!isAllAnswered" :class="isAllAnswered ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 hover:-translate-y-1' : 'bg-slate-300 cursor-not-allowed'" class="text-white font-bold py-4 px-12 rounded-xl transition-all duration-300 flex items-center gap-2 text-lg">
             Xác nhận
             <svg v-if="isAllAnswered" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </button>
-          <p v-if="!isAllAnswered" class="text-center text-red-500 mt-4 font-medium flex items-center gap-1">
+          <button v-else @click="useRouter().push('/driver/vesinh')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-xl transition-all duration-300 flex items-center gap-2 text-lg shadow-lg shadow-blue-500/30 hover:-translate-y-1">
+            Chuyển sang Kiểm tra vệ sinh
+          </button>
+          <p v-if="!isAllAnswered && !isReadOnly" class="text-center text-red-500 mt-4 font-medium flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
             Vui lòng kiểm tra và đảm bảo Đạt tất cả các chỉ tiêu
           </p>
@@ -110,6 +113,7 @@ const apiBase = config.public.apiBaseUrl
 const checklistParams = ref([])
 const loadingParams = ref(false)
 const checklistAnswers = ref({})
+const isReadOnly = ref(false)
 
 const isAllAnswered = computed(() => {
   if (checklistParams.value.length === 0) return false
@@ -133,13 +137,28 @@ const fetchState = async () => {
     const res = await $fetch(`${apiBase}/DangTais/state?sothe=${sothe.value}`)
     state.value = res
     if (res.daDangTai) {
-      useRouter().push('/driver/vesinh')
+      isReadOnly.value = true
+      await fetchPreTripResult()
     }
   } catch (err) {
     console.error(err)
     alert("Có lỗi xảy ra khi lấy thông tin")
   } finally {
     loading.value = false
+  }
+}
+
+const fetchPreTripResult = async () => {
+  try {
+    const res = await $fetch(`${apiBase}/DangTais/pre-trip-result?sothe=${sothe.value}`)
+    if (res && res.checklistData) {
+      const data = JSON.parse(res.checklistData)
+      for (const item of data) {
+        checklistAnswers.value[item.id] = item.isPassed
+      }
+    }
+  } catch(e) {
+    console.error("Lỗi lấy dữ liệu Pre-trip", e)
   }
 }
 

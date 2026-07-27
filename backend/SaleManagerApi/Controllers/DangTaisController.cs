@@ -28,19 +28,56 @@ public class DangTaisController : ControllerBase
         sothe = sothe.Trim();
         var today = DateTime.UtcNow.AddHours(7).Date;
 
-        var dangTai = await _context.DangTais
-            .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
-            .FirstOrDefaultAsync();
-
         var hasPreTrip = await _context.DailyPreTripChecklists
             .AnyAsync(p => p.Sothe == sothe && p.Date.Date == today);
 
-        if (dangTai == null)
+        var lastVeSinh = await _context.DailyKiemtravesinhxes
+            .Where(v => v.Sothe == sothe && v.NgayKiemTra.Date == today)
+            .OrderByDescending(v => v.NgayKiemTra)
+            .FirstOrDefaultAsync();
+
+        var lastDangTai = await _context.DangTais
+            .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
+            .OrderByDescending(d => d.NgayDangTai)
+            .FirstOrDefaultAsync();
+
+        bool daVeSinh = false;
+        if (lastVeSinh != null)
         {
-            return Ok(new { sothe, daDangTai = hasPreTrip, daVeSinh = false });
+            if (lastDangTai == null) daVeSinh = true;
+            else if (lastVeSinh.NgayKiemTra > lastDangTai.NgayDangTai) daVeSinh = true;
         }
 
-        return Ok(new { sothe, daDangTai = hasPreTrip, daVeSinh = dangTai.DaVeSinh });
+        return Ok(new { sothe, daDangTai = hasPreTrip, daVeSinh });
+    }
+
+    [HttpGet("pre-trip-result")]
+    public async Task<IActionResult> GetPreTripResult([FromQuery] string sothe)
+    {
+        if (string.IsNullOrEmpty(sothe)) return BadRequest();
+        var today = DateTime.UtcNow.AddHours(7).Date;
+        var result = await _context.DailyPreTripChecklists
+            .Where(p => p.Sothe == sothe.Trim() && p.Date.Date == today)
+            .OrderByDescending(p => p.Date)
+            .FirstOrDefaultAsync();
+        
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpGet("vesinh-result")]
+    public async Task<IActionResult> GetVesinhResult([FromQuery] string sothe)
+    {
+        if (string.IsNullOrEmpty(sothe)) return BadRequest();
+        var today = DateTime.UtcNow.AddHours(7).Date;
+        var result = await _context.DailyKiemtravesinhxes
+            .Include(v => v.Details)
+            .Where(v => v.Sothe == sothe.Trim() && v.NgayKiemTra.Date == today)
+            .OrderByDescending(v => v.NgayKiemTra)
+            .FirstOrDefaultAsync();
+        
+        if (result == null) return NotFound();
+        return Ok(result);
     }
 
     [HttpPost("dangtai")]

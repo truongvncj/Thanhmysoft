@@ -17,8 +17,13 @@
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink to="/driver/vesinh" class="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl transition-all duration-200 hover:bg-blue-600 hover:text-white whitespace-nowrap" exactActiveClass="bg-blue-600 text-white shadow-md">
+            <NuxtLink :to="state.daDangTai ? '/driver/vesinh' : undefined" :class="['flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl transition-all duration-200 whitespace-nowrap', state.daDangTai ? 'hover:bg-blue-600 hover:text-white' : 'opacity-50 cursor-not-allowed']" exactActiveClass="bg-blue-600 text-white shadow-md">
               <span class="font-medium text-sm md:text-base">Kiểm tra vệ sinh</span>
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink :to="state.daVeSinh ? '/driver/dangky' : undefined" :class="['flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl transition-all duration-200 whitespace-nowrap', state.daVeSinh ? 'hover:bg-blue-600 hover:text-white' : 'opacity-50 cursor-not-allowed']" exactActiveClass="bg-blue-600 text-white shadow-md">
+              <span class="font-medium text-sm md:text-base">Đăng ký xe vào sân</span>
             </NuxtLink>
           </li>
           <li>
@@ -80,13 +85,29 @@
 </style>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 const router = useRouter()
+const route = useRoute()
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBaseUrl
 
 const driverSothe = ref('')
 const driverTen = ref('')
 const driverTenNvt = ref('')
 const driverBienSo = ref('')
+
+const state = ref({ daDangTai: false, daVeSinh: false })
+
+const fetchState = async () => {
+  if (driverSothe.value) {
+    try {
+      const res = await $fetch(`${apiBase}/DangTais/state?sothe=${driverSothe.value}`)
+      state.value = res
+    } catch (e) {}
+  }
+}
+
+watch(() => route.path, fetchState)
 
 onMounted(() => {
   if (process.client) {
@@ -97,16 +118,15 @@ onMounted(() => {
     if (driverTenNvt.value === 'undefined') driverTenNvt.value = ''
     if (!driverSothe.value) {
       router.push('/')
+    } else {
+      fetchState()
     }
   }
 })
 
 const logout = () => {
   if (process.client) {
-    localStorage.removeItem('driver_maLx')
-    localStorage.removeItem('driver_sothe')
-    localStorage.removeItem('driver_ten')
-    localStorage.removeItem('driver_tenNvt')
+    localStorage.clear()
   }
   router.push('/')
 }
