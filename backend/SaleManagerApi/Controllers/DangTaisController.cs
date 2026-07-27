@@ -32,12 +32,15 @@ public class DangTaisController : ControllerBase
             .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
             .FirstOrDefaultAsync();
 
+        var hasPreTrip = await _context.DailyPreTripChecklists
+            .AnyAsync(p => p.Sothe == sothe && p.Date.Date == today);
+
         if (dangTai == null)
         {
-            return Ok(new { sothe, daDangTai = false, daVeSinh = false });
+            return Ok(new { sothe, daDangTai = hasPreTrip, daVeSinh = false });
         }
 
-        return Ok(new { sothe, daDangTai = dangTai.DaDangTai, daVeSinh = dangTai.DaVeSinh });
+        return Ok(new { sothe, daDangTai = hasPreTrip, daVeSinh = dangTai.DaVeSinh });
     }
 
     [HttpPost("dangtai")]
@@ -48,39 +51,48 @@ public class DangTaisController : ControllerBase
 
         var today = DateTime.UtcNow.AddHours(7).Date;
 
-        var dangTai = await _context.DangTais
+        var activeTrip = await _context.Danhsachxetrongkhos
+            .FirstOrDefaultAsync(x => x.Sothe == sothe && x.TrangThai < 3);
+
+        if (activeTrip != null)
+        {
+            return Conflict(new { message = "Bạn đang có một chuyến xe chưa hoàn thành! Vui lòng hoàn tất chuyến hiện tại trước khi đăng ký chuyến mới." });
+        }
+
+        var lastDangTai = await _context.DangTais
             .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
+            .OrderByDescending(d => d.NgayDangTai)
             .FirstOrDefaultAsync();
 
-        if (dangTai != null)
-        {
-            if (dangTai.DaDangTai)
-                return Conflict(new { message = "Bạn đã đăng tài hôm nay rồi!" });
-            
-            dangTai.DaDangTai = true;
-            dangTai.KhohangId = request.KhohangId;
-            dangTai.LyDo = request.LyDo;
-            _context.Entry(dangTai).State = EntityState.Modified;
-        }
-        else
-        {
-            var driver = await _context.Thenhathaus.FirstOrDefaultAsync(t => t.Sothe.Trim() == sothe);
-            string tenNvt = driver != null ? driver.TenNvt : "";
+        var lastVeSinh = await _context.DailyKiemtravesinhxes
+            .Where(v => v.Sothe == sothe && v.NgayKiemTra.Date == today)
+            .OrderByDescending(v => v.NgayKiemTra)
+            .FirstOrDefaultAsync();
 
-            dangTai = new DangTai
-            {
-                Id = Guid.NewGuid(),
-                Sothe = sothe,
-                NgayDangTai = DateTime.UtcNow.AddHours(7),
-                DaDangTai = true,
-                DaVeSinh = false,
-                TenNvt = tenNvt,
-                KhohangId = request.KhohangId,
-                LyDo = request.LyDo,
-                TrangThai = 0 // Đã đăng ký
-            };
-            _context.DangTais.Add(dangTai);
+        if (lastVeSinh == null || (lastDangTai != null && lastVeSinh.NgayKiemTra < lastDangTai.NgayDangTai))
+        {
+            return Conflict(new { message = "Bạn cần thực hiện kiểm tra vệ sinh xe mới cho chuyến đi này!" });
         }
+
+        var driver = await _context.Thenhathaus.FirstOrDefaultAsync(t => t.Sothe.Trim() == sothe);
+        string tenNvt = driver != null ? driver.TenNvt : "";
+
+        var dangTai = new DangTai
+        {
+            Id = Guid.NewGuid(),
+            Sothe = sothe,
+            NgayDangTai = DateTime.UtcNow.AddHours(7),
+            DaDangTai = true,
+            DaVeSinh = true,
+            TenNvt = tenNvt,
+            KhohangId = request.KhohangId,
+            LyDo = request.LyDo,
+            BienSo = request.BienSo,
+            TrangThai = 0 // Đã đăng ký
+        };
+        _context.DangTais.Add(dangTai);
+
+        await SyncDanhsachxetrongkho(dangTai, sothe, driver);
 
         await _context.SaveChangesAsync();
         return Ok(new { message = "Đăng tài thành công" });
@@ -107,14 +119,6 @@ public class DangTaisController : ControllerBase
 
         var today = DateTime.UtcNow.AddHours(7).Date;
 
-        var dangTai = await _context.DangTais
-            .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
-            .FirstOrDefaultAsync();
-
-        if (dangTai == null || !dangTai.DaDangTai)
-        {
-            return BadRequest(new { message = "Bạn cần phải Đăng tài trước khi Kiểm tra vệ sinh." });
-        }
 
         var driver = await _context.Thenhathaus.FirstOrDefaultAsync(t => t.Sothe.Trim() == sothe);
         if (driver == null) return NotFound(new { message = "Không tìm thấy thẻ nhà thầu" });
@@ -161,11 +165,6 @@ public class DangTaisController : ControllerBase
 
         _context.DailyKiemtravesinhxes.Add(hygieneCheck);
 
-        dangTai.DaVeSinh = true;
-        _context.Entry(dangTai).State = EntityState.Modified;
-
-        await SyncDanhsachxetrongkho(dangTai, sothe, driver);
-
         await _context.SaveChangesAsync();
         return Ok(new { message = "Xác nhận vệ sinh xe thành công" });
     }
@@ -175,6 +174,7 @@ public class DangTaisController : ControllerBase
         public string Sothe { get; set; } = string.Empty;
         public int? KhohangId { get; set; }
         public string LyDo { get; set; } = string.Empty;
+        public string BienSo { get; set; } = string.Empty;
     }
 
     public class ChecklistSubmitRequest
@@ -194,11 +194,11 @@ public class DangTaisController : ControllerBase
 
         var today = DateTime.UtcNow.AddHours(7).Date;
 
-        var dangTai = await _context.DangTais
-            .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
-            .FirstOrDefaultAsync();
 
-        if (dangTai != null && dangTai.DaDangTai)
+        var hasPreTrip = await _context.DailyPreTripChecklists
+            .AnyAsync(p => p.Sothe == sothe && p.Date.Date == today);
+
+        if (hasPreTrip)
         {
             return Conflict(new { message = "Bạn đã hoàn thành Pre-Trip Checklist hôm nay rồi!" });
         }
@@ -218,34 +218,6 @@ public class DangTaisController : ControllerBase
             ChecklistData = request.ChecklistData
         };
         _context.DailyPreTripChecklists.Add(checklistRecord);
-
-        if (dangTai != null)
-        {
-            dangTai.DaDangTai = true;
-            if (request.KhohangId.HasValue) dangTai.KhohangId = request.KhohangId;
-            if (!string.IsNullOrEmpty(request.LyDo)) dangTai.LyDo = request.LyDo;
-            if (!string.IsNullOrEmpty(request.BienSo)) dangTai.BienSo = request.BienSo;
-            _context.Entry(dangTai).State = EntityState.Modified;
-        }
-        else
-        {
-            dangTai = new DangTai
-            {
-                Id = Guid.NewGuid(),
-                Sothe = sothe,
-                NgayDangTai = DateTime.UtcNow.AddHours(7),
-                DaDangTai = true,
-                DaVeSinh = false,
-                TenNvt = driver.TenNvt,
-                KhohangId = request.KhohangId,
-                LyDo = request.LyDo,
-                BienSo = request.BienSo,
-                TrangThai = 0
-            };
-            _context.DangTais.Add(dangTai);
-        }
-
-        await SyncDanhsachxetrongkho(dangTai, sothe, driver);
 
         await _context.SaveChangesAsync();
         return Ok(new { message = "Hoàn thành Pre-Trip Checklist" });
@@ -310,7 +282,7 @@ public class DangTaisController : ControllerBase
         {
             var today = DateTime.UtcNow.AddHours(7).Date;
             var record = await _context.Danhsachxetrongkhos
-                .FirstOrDefaultAsync(x => x.Sothe == sothe && x.GioDangKy.Date == today);
+                .FirstOrDefaultAsync(x => x.Sothe == sothe && x.GioDangKy == dangTai.NgayDangTai);
                 
             var preTrip = await _context.DailyPreTripChecklists
                 .Where(p => p.Sothe == sothe && p.Date.Date == today)
@@ -410,6 +382,7 @@ public class DangTaisController : ControllerBase
         var today = DateTime.UtcNow.AddHours(7).Date;
         var dangTai = await _context.DangTais
             .Where(d => d.Sothe == sothe && d.NgayDangTai.Date == today)
+            .OrderByDescending(d => d.NgayDangTai)
             .FirstOrDefaultAsync();
 
         if (dangTai == null || !dangTai.DaDangTai || !dangTai.DaVeSinh)

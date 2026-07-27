@@ -22,6 +22,8 @@ public class Danhsachxetrongkho
     
     public DateTime? XacNhanVaoCong_Time { get; set; }
     public DateTime? ThuKhoXacNhan_Time { get; set; }
+    public DateTime? XuatKho_Time { get; set; }
+    public DateTime? NhapKho_Time { get; set; }
     public DateTime? XacNhanRaCong_Time { get; set; }
     public DateTime? BaoVeKiemTra_Time { get; set; }
     public DateTime? BaoVeKiemTra_PreTrip_Time { get; set; }
@@ -29,4 +31,6 @@ public class Danhsachxetrongkho
     
     // TrangThai: 0: Đã đăng ký, 1: Trong sân, 2: Chuẩn bị ra sân, 3: Đã hoàn thành
     public int TrangThai { get; set; } = 0; 
+    
+    public string? LyDoHuy { get; set; }
 }

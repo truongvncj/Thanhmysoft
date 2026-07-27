@@ -59,6 +59,18 @@
           </div>
         </NuxtLink>
 
+        <!-- Layout Kho Card -->
+        <NuxtLink to="/admin/layoutkho" class="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:border-pink-200 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-pink-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-pink-100 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+              <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-pink-600 transition-colors">Layout Kho</h2>
+            <p class="text-slate-500 text-sm leading-relaxed">Thiết kế sơ đồ kho và sắp xếp các vị trí local trực quan.</p>
+          </div>
+        </NuxtLink>
+
         <!-- Kho Hàng Card -->
         <NuxtLink to="/admin/khohang" class="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
           <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
@@ -104,6 +116,30 @@
             </div>
             <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">Vệ Sinh Xe Tải</h2>
             <p class="text-slate-500 text-sm leading-relaxed">Cấu hình thông số kiểm tra vệ sinh xe tải hàng ngày.</p>
+          </div>
+        </NuxtLink>
+
+        <!-- Tồn Kho Đầu Kỳ Card -->
+        <NuxtLink to="/admin/tonkhodauky" class="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+              <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-orange-600 transition-colors">Tồn Kho Đầu Kỳ</h2>
+            <p class="text-slate-500 text-sm leading-relaxed">Quản lý lượng hàng hóa tồn kho hiện tại theo từng kho.</p>
+          </div>
+        </NuxtLink>
+
+        <!-- Sản Phẩm Card -->
+        <NuxtLink to="/admin/sanpham" class="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:border-cyan-200 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 bg-cyan-100 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+              <svg class="w-7 h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-cyan-600 transition-colors">Sản Phẩm</h2>
+            <p class="text-slate-500 text-sm leading-relaxed">Quản lý danh mục sản phẩm và định lượng theo từng kho.</p>
           </div>
         </NuxtLink>
 

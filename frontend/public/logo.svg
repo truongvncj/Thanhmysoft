@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150" width="100%" height="100%">
+  <defs>
+    <style>
+      .dark-blue { fill: #004d5a; }
+      .orange { fill: #f59e1d; }
+      .outline-blue { fill: none; stroke: #004d5a; stroke-width: 4; }
+      .text-tm { font-family: 'Arial Black', Impact, sans-serif; font-size: 75px; font-weight: bold; fill: white; stroke: #004d5a; stroke-width: 3; letter-spacing: -2px; }
+      .text-title { font-family: 'Arial Black', Impact, sans-serif; font-size: 60px; font-weight: 900; letter-spacing: 1px; }
+      .text-sub { font-family: Arial, sans-serif; font-size: 22px; letter-spacing: 6px; }
+    </style>
+  </defs>
+
+  <!-- Left Logo Mark -->
+  <!-- Orange Roof -->
+  <polygon points="10,50 65,10 120,50 95,50 65,28 35,50" class="orange" />
+  <polygon points="65,15 120,50 10,50" class="orange" />
+  <path d="M10,50 L65,10 L120,50 L95,50 L65,28 L35,50 Z" class="orange" />
+  <path d="M35 50 L65 28 L95 50 Z" class="orange" />
+  
+  <polygon points="10,50 65,10 120,50 90,50 65,30 40,50" class="orange"/>
+  
+  <polygon points="15,48 65,12 115,48 85,48 65,32 45,48" class="orange" />
+  
+  <!-- Let's just use simpler shapes for the roof -->
+  <polygon points="10,48 65,10 120,48 95,48 65,28 35,48" class="orange" />
+  <polygon points="45,48 65,33 85,48" class="orange" />
+
+  <!-- TM Text -->
+  <text x="18" y="120" class="text-tm">TM</text>
+  
+  <!-- Orange Base Line -->
+  <rect x="10" y="130" width="110" height="15" class="orange" />
+
+  <!-- Right Text Area -->
+  <text x="140" y="100" class="text-title dark-blue">THANH MY IN.,JSC</text>
+  <text x="145" y="140" class="text-sub orange">DEVELOPMENT WITH US</text>
+</svg>

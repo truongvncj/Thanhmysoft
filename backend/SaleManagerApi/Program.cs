@@ -30,7 +30,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated(); // Creates DB and tables if they don't exist
+    dbContext.Database.Migrate(); // Applies pending migrations on startup
 }
 
 // Configure the HTTP request pipeline.

@@ -51,6 +51,9 @@ public class DanhsachxetrongkhoController : ControllerBase
                 c.LyDo == "Nhập hàng" ? $"{c.SoTransferOut} - {c.SoSTO}" : c.SoShipment
             ).Where(s => !string.IsNullOrEmpty(s)).ToList();
 
+            var stos = chungTus.Select(c => c.SoSTO).Where(s => !string.IsNullOrEmpty(s)).ToList();
+            var shipments = chungTus.Select(c => c.SoShipment).Where(s => !string.IsNullOrEmpty(s)).ToList();
+
             var baoVeDaKiemTraPreTripHomNay = sothesCheckedToday.Contains(dt.Sothe);
 
             result.Add(new
@@ -67,12 +70,15 @@ public class DanhsachxetrongkhoController : ControllerBase
                 dt.KiemTraVeSinh_Time,
                 dt.XacNhanVaoCong_Time,
                 dt.ThuKhoXacNhan_Time,
+                dt.XuatKho_Time,
                 dt.XacNhanRaCong_Time,
                 dt.BaoVeKiemTra_Time,
                 dt.BaoVeKiemTra_PreTrip_Time,
                 dt.BaoVeKiemTraTrongKho_Time,
                 BaoVeDaKiemTraPreTripHomNay = baoVeDaKiemTraPreTripHomNay,
                 ChungTus = chungTuList,
+                STOs = stos,
+                Shipments = shipments,
                 ThoiGianTrongSan = GetThoiGianTrongSan(dt)
             });
         }
@@ -130,6 +136,89 @@ public class DanhsachxetrongkhoController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Cập nhật trạng thái thành công." });
+    }
+
+    [HttpPost("update-xuatkho/{id}")]
+    public async Task<IActionResult> UpdateXuatKho(Guid id)
+    {
+        var record = await _context.Danhsachxetrongkhos.FindAsync(id);
+        if (record == null) return NotFound(new { message = "Không tìm thấy chuyến xe." });
+
+        if (record.TrangThai != 1) return BadRequest(new { message = "Chuyến xe không ở trạng thái Trong sân." });
+
+        record.XuatKho_Time = DateTime.UtcNow.AddHours(7);
+        _context.Entry(record).State = EntityState.Modified;
+        
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Xác nhận xuất kho thành công." });
+    }
+
+    [HttpPost("update-nhapkho/{id}")]
+    public async Task<IActionResult> UpdateNhapKho(Guid id)
+    {
+        var record = await _context.Danhsachxetrongkhos.FindAsync(id);
+        if (record == null) return NotFound(new { message = "Không tìm thấy chuyến xe." });
+
+        if (record.TrangThai != 1) return BadRequest(new { message = "Chuyến xe không ở trạng thái Trong sân." });
+
+        record.NhapKho_Time = DateTime.UtcNow.AddHours(7);
+        _context.Entry(record).State = EntityState.Modified;
+        
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Xác nhận nhập kho thành công." });
+    }
+
+    [HttpPost("reject-nhapkho/{id}")]
+    public async Task<IActionResult> RejectNhapKho(Guid id, [FromBody] RejectXuatKhoRequest request)
+    {
+        var record = await _context.Danhsachxetrongkhos.FindAsync(id);
+        if (record == null) return NotFound(new { message = "Không tìm thấy chuyến xe." });
+
+        if (record.TrangThai != 1) return BadRequest(new { message = "Chuyến xe không ở trạng thái Trong sân." });
+
+        record.TrangThai = 2; // Cho ra cổng luôn
+        record.NhapKho_Time = DateTime.UtcNow.AddHours(7);
+        record.LyDoHuy = request.LyDoHuy;
+        
+        _context.Entry(record).State = EntityState.Modified;
+        
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Đã hủy yêu cầu nhập kho và chuyển trạng thái ra cổng." });
+    }
+
+    public class RejectXuatKhoRequest
+    {
+        public string LyDoHuy { get; set; } = string.Empty;
+    }
+
+    [HttpPost("reject-xuatkho/{id}")]
+    public async Task<IActionResult> RejectXuatKho(Guid id, [FromBody] RejectXuatKhoRequest request)
+    {
+        var record = await _context.Danhsachxetrongkhos.FindAsync(id);
+        if (record == null) return NotFound(new { message = "Không tìm thấy chuyến xe." });
+
+        if (record.TrangThai != 1) return BadRequest(new { message = "Chuyến xe không ở trạng thái Trong sân." });
+
+        record.TrangThai = 2;
+        record.ThuKhoXacNhan_Time = DateTime.UtcNow.AddHours(7);
+        record.LyDoHuy = request.LyDoHuy;
+        _context.Entry(record).State = EntityState.Modified;
+        
+        var today = DateTime.UtcNow.AddHours(7).Date;
+        var dangTai = await _context.DangTais.FirstOrDefaultAsync(d => d.Sothe == record.Sothe && d.NgayDangTai.Date == today);
+        if (dangTai != null)
+        {
+            dangTai.TrangThai = 2;
+            dangTai.LyDoHuy = request.LyDoHuy;
+            _context.Entry(dangTai).State = EntityState.Modified;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Hủy yêu cầu xuất kho thành công. Xe đã chuyển ra cổng." });
     }
 
     [HttpPost("update-changbuoc/{id}")]

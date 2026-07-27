@@ -7,6 +7,9 @@
     </button>
 
     <div class="w-full max-w-sm flex flex-col items-center">
+      <!-- Logo -->
+      <img src="/logo.svg" alt="Thanh My In.,JSC" class="w-full -mt-10 mb-8 object-contain" />
+
       <!-- Dòng chữ tiêu đề ở phía trên -->
       <h1 v-if="!selectedRole" class="text-[18px] font-bold text-slate-800 mb-10 uppercase tracking-wide text-center w-full">
         Hệ thống quản lý
@@ -108,78 +111,6 @@
       </div>
     </div>
 
-    <!-- Modal chọn Kho và Lý do cho Lái xe -->
-    <div v-if="showDriverModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 transform transition-all">
-        <h3 class="text-lg font-bold text-gray-900 mb-4 text-center border-b pb-2">Chọn Kho & Lý do</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Kho hàng</label>
-            <select v-model="driverKhohangId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="" disabled>-- Chọn kho --</option>
-              <option v-for="kho in activeKhohangs" :key="kho.id" :value="kho.id">{{ kho.tenKho }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Biển số xe</label>
-            <input v-model="driverBienSo" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="Ví dụ: 29A-123.45">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Lý do</label>
-            <div class="flex gap-4 mb-4">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="driverLyDo" value="Nhập hàng" class="text-blue-600 w-4 h-4">
-                <span class="text-sm font-medium">Nhập hàng</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="driverLyDo" value="Xuất hàng" class="text-blue-600 w-4 h-4">
-                <span class="text-sm font-medium">Xuất hàng</span>
-              </label>
-            </div>
-          </div>
-          
-          <!-- STO / Shipment Fields -->
-          <div v-if="driverLyDo === 'Nhập hàng'" class="space-y-3 bg-slate-50 p-3 rounded-lg border">
-            <label class="block text-xs font-semibold text-slate-600 uppercase">Chứng từ Nhập hàng</label>
-            <div v-for="(item, index) in nhapHangItems" :key="index" class="flex gap-2 relative group pb-2">
-              <div class="flex-1">
-                <input v-model="item.soTransferOut" type="text" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Số Transfer Out">
-              </div>
-              <div class="flex-1">
-                <input v-model="item.soSTO" type="text" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Số STO">
-              </div>
-              <button @click="removeNhapHangItem(index)" v-if="nhapHangItems.length > 1" class="text-red-500 hover:bg-red-100 p-1.5 rounded-md transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <button @click="addNhapHangItem" class="w-full py-1.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded hover:bg-blue-50 transition-colors">
-              + Thêm cặp Transfer Out & STO
-            </button>
-          </div>
-
-          <div v-if="driverLyDo === 'Xuất hàng'" class="space-y-3 bg-slate-50 p-3 rounded-lg border">
-            <label class="block text-xs font-semibold text-slate-600 uppercase">Chứng từ Xuất hàng</label>
-            <div v-for="(item, index) in xuatHangItems" :key="index" class="flex gap-2 relative group pb-2">
-              <div class="flex-1">
-                <input v-model="item.soShipment" type="text" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Số Shipment">
-              </div>
-              <button @click="removeXuatHangItem(index)" v-if="xuatHangItems.length > 1" class="text-red-500 hover:bg-red-100 p-1.5 rounded-md transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <button @click="addXuatHangItem" class="w-full py-1.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded hover:bg-blue-50 transition-colors">
-              + Thêm Số Shipment
-            </button>
-          </div>
-          <div class="flex justify-end gap-3 mt-6">
-            <button @click="showDriverModal = false" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-semibold">Hủy</button>
-            <button @click="handleDriverLoginFinish" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-semibold" :disabled="!driverKhohangId || !driverLyDo || !driverBienSo">
-              Xác nhận
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
   </div>
 </template>
@@ -205,19 +136,6 @@ const carrierUsername = ref('')
 const carrierPassword = ref('')
 
 const driverSothe = ref('')
-const showDriverModal = ref(false)
-const driverKhohangId = ref('')
-const driverBienSo = ref('')
-const driverLyDo = ref('')
-const driverTempAuthData = ref(null)
-
-const nhapHangItems = ref([{ soTransferOut: '', soSTO: '' }])
-const addNhapHangItem = () => nhapHangItems.value.push({ soTransferOut: '', soSTO: '' })
-const removeNhapHangItem = (index) => nhapHangItems.value.splice(index, 1)
-
-const xuatHangItems = ref([{ soShipment: '' }])
-const addXuatHangItem = () => xuatHangItems.value.push({ soShipment: '' })
-const removeXuatHangItem = (index) => xuatHangItems.value.splice(index, 1)
 
 const employeeMnv = ref('')
 const employeePassword = ref('')
@@ -248,34 +166,18 @@ const handleDriverAuth = async () => {
         sothe: driverSothe.value
       }
     })
-    // Save temp data and show modal
-    driverTempAuthData.value = res.driver
-    showDriverModal.value = true
+    
+    if (process.client) {
+      localStorage.setItem('driver_maLx', res.driver.maLx)
+      localStorage.setItem('driver_sothe', res.driver.sothe)
+      localStorage.setItem('driver_ten', res.driver.ten)
+      localStorage.setItem('driver_tenNvt', res.driver.tenNvt || '')
+    }
+    
+    router.push('/driver')
   } catch (err) {
     alert(err.response?._data?.message || 'Số thẻ không hợp lệ hoặc không tồn tại.')
   }
-}
-
-const handleDriverLoginFinish = () => {
-  if (process.client && driverTempAuthData.value) {
-    localStorage.setItem('driver_maLx', driverTempAuthData.value.maLx)
-    localStorage.setItem('driver_sothe', driverTempAuthData.value.sothe)
-    localStorage.setItem('driver_ten', driverTempAuthData.value.ten)
-    localStorage.setItem('driver_tenNvt', driverTempAuthData.value.tenNvt || '')
-    localStorage.setItem('driver_khohang_id', driverKhohangId.value)
-    localStorage.setItem('driver_bienSo', driverBienSo.value)
-    localStorage.setItem('driver_lydo', driverLyDo.value)
-
-    if (driverLyDo.value === 'Nhập hàng') {
-      const validItems = nhapHangItems.value.filter(item => item.soTransferOut || item.soSTO)
-      localStorage.setItem('driver_chungtus', JSON.stringify(validItems))
-    } else if (driverLyDo.value === 'Xuất hàng') {
-      const validItems = xuatHangItems.value.filter(item => item.soShipment)
-      localStorage.setItem('driver_chungtus', JSON.stringify(validItems))
-    }
-  }
-  showDriverModal.value = false
-  router.push('/driver')
 }
 
 const handleLogin = async () => {

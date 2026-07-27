@@ -164,8 +164,7 @@ const openModal = (message, type = 'info') => {
 const closeModal = () => {
   showModal.value = false
   if (modalType.value === 'success') {
-    localStorage.clear()
-    router.push('/')
+    router.push('/driver/dangky')
   }
 }
 
@@ -191,6 +190,9 @@ const fetchState = async () => {
   try {
     const res = await $fetch(`${apiBase}/DangTais/state?sothe=${sothe.value}`)
     state.value = res
+    if (res.daVeSinh) {
+      router.push('/driver/dangky')
+    }
   } catch (err) {
     console.error(err)
     openModal("Có lỗi xảy ra khi lấy trạng thái đăng tài", "error")
@@ -246,36 +248,11 @@ const submitVeSinh = async () => {
         answers: answersData
       }
     })
-    
-    // Submit chứng từ
-    const chungtusStr = localStorage.getItem('driver_chungtus')
-    let chungtusData = []
-    if (chungtusStr) {
-      try {
-        chungtusData = JSON.parse(chungtusStr)
-      } catch (e) {}
-    }
-    
-    if (chungtusData.length > 0) {
-      await $fetch(`${apiBase}/DangTais/submit-chungtu`, {
-        method: 'POST',
-        body: {
-          sothe: sothe.value,
-          chungTus: chungtusData
-        }
-      })
-    }
-    
-    await fetchState()
-    
-    // Đánh dấu session hiện tại là đã hoàn thành
-    sessionCompleted.value = true
-    
     // Xoá trắng cho lần đăng nhập sau
     checklistAnswers.value = {}
     validationErrors.value = []
     
-    openModal('Đăng ký xe vào kho thành công! Xe đã được đưa vào bãi chờ.', 'success')
+    openModal('Kiểm tra vệ sinh hoàn tất! Chuyển sang bước Đăng ký.', 'success')
   } catch (err) {
     openModal(err.response?._data?.message || 'Có lỗi xảy ra khi lưu dữ liệu.', 'error')
   } finally {

@@ -132,6 +132,9 @@ const fetchState = async () => {
   try {
     const res = await $fetch(`${apiBase}/DangTais/state?sothe=${sothe.value}`)
     state.value = res
+    if (res.daDangTai) {
+      useRouter().push('/driver/vesinh')
+    }
   } catch (err) {
     console.error(err)
     alert("Có lỗi xảy ra khi lấy thông tin")
@@ -164,22 +167,15 @@ const submitDangTai = async () => {
       isPassed: checklistAnswers.value[p.id]
     }))
 
-    const driverKhohangId = localStorage.getItem('driver_khohang_id')
-    const driverLyDo = localStorage.getItem('driver_lydo')
-    const driverBienSo = localStorage.getItem('driver_bienSo') || ''
-
     await $fetch(`${apiBase}/DangTais/submit-checklist`, {
       method: 'POST',
       body: { 
         sothe: sothe.value,
-        khohangId: driverKhohangId ? parseInt(driverKhohangId) : null,
-        lyDo: driverLyDo || '',
-        bienSo: driverBienSo,
         checklistData: JSON.stringify(checklistData)
       }
     })
-    await fetchState()
     alert('Đã xác nhận thành công!')
+    useRouter().push('/driver/vesinh')
   } catch (err) {
     alert(err.response?._data?.message || 'Có lỗi xảy ra khi xác nhận.')
     loading.value = false

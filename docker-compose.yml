@@ -14,5 +14,33 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: salemanager-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=SaleManagerDB;Username=postgres;Password=postgres
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - db
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: salemanager-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # TODO: NUXT_PUBLIC_API_BASE should match your backend URL if applicable
+      - NUXT_PUBLIC_API_BASE=http://103.249.158.42:8080
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:

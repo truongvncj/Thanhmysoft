@@ -25,4 +25,6 @@ public class DangTai
     public string LyDo { get; set; } = string.Empty;
 
     public string BienSo { get; set; } = string.Empty;
+    
+    public string? LyDoHuy { get; set; }
 }

@@ -41,7 +41,7 @@
       <!-- Header -->
       <header class="bg-white border-b border-slate-200 min-h-16 flex flex-col sm:flex-row items-center justify-between px-4 sm:px-8 py-3 shadow-sm gap-3 sm:gap-0 shrink-0">
         <div class="font-semibold text-slate-700 text-base md:text-lg w-full sm:w-1/3 text-center sm:text-left">
-          Xe {{ driverBienSo || '...' }}
+
         </div>
 
         <!-- Center Content: Driver Name and Card Number -->

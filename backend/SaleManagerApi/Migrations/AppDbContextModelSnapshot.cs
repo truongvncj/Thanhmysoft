@@ -248,6 +248,9 @@ namespace SaleManagerApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("LyDoHuy")
+                        .HasColumnType("text");
+
                     b.Property<string>("MaLx")
                         .IsRequired()
                         .HasColumnType("text");
@@ -299,6 +302,9 @@ namespace SaleManagerApi.Migrations
                     b.Property<DateTime?>("KiemTraVeSinh_Time")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("LyDoHuy")
+                        .HasColumnType("text");
+
                     b.Property<string>("LyDoVaoKho")
                         .IsRequired()
                         .HasColumnType("text");
@@ -306,6 +312,9 @@ namespace SaleManagerApi.Migrations
                     b.Property<string>("MaNhanVienLaiXe")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("NhapKho_Time")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("Pre_Tripchecklist_Time")
                         .HasColumnType("timestamp with time zone");
@@ -332,6 +341,9 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("XacNhanVaoCong_Time")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("XuatKho_Time")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -399,6 +411,76 @@ namespace SaleManagerApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("kiemtravesinhxeparam");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.Layoutkho", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("BorderRadius")
+                        .HasColumnType("double precision")
+                        .HasColumnName("border_radius");
+
+                    b.Property<string>("Cot")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cot");
+
+                    b.Property<string>("ElementType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("element_type");
+
+                    b.Property<string>("GhiChu")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ghi_chu");
+
+                    b.Property<string>("Hang")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hang");
+
+                    b.Property<double>("Height")
+                        .HasColumnType("double precision")
+                        .HasColumnName("height");
+
+                    b.Property<int>("KhohangId")
+                        .HasColumnType("integer")
+                        .HasColumnName("khohang_id");
+
+                    b.Property<string>("MaLocal")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("ma_local");
+
+                    b.Property<double>("PositionX")
+                        .HasColumnType("double precision")
+                        .HasColumnName("position_x");
+
+                    b.Property<double>("PositionY")
+                        .HasColumnType("double precision")
+                        .HasColumnName("position_y");
+
+                    b.Property<double>("Rotation")
+                        .HasColumnType("double precision")
+                        .HasColumnName("rotation");
+
+                    b.Property<double>("Width")
+                        .HasColumnType("double precision")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KhohangId");
+
+                    b.ToTable("layoutkho");
                 });
 
             modelBuilder.Entity("SaleManagerApi.Models.NhaVanTai", b =>
@@ -477,6 +559,74 @@ namespace SaleManagerApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.PhatSinhSanPham", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("HanSuDung")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("KhohangId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LoaiPhatSinh")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MaSanPham")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int?>("SoLuongChan")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SoLuongLe")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SoSTO")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("SoShipment")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Sothe")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TenNhanVien")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("TenSanPham")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ThoiGian")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("User")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ViTri")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("phatsinhsanpham");
                 });
 
             modelBuilder.Entity("SaleManagerApi.Models.PreTripChecklistParam", b =>
@@ -569,6 +719,37 @@ namespace SaleManagerApi.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SaleManagerApi.Models.Sanphamnuoc", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DinhLuong")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KhohangId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MaSanPham")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("TenSanPham")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KhohangId");
+
+                    b.ToTable("sanphamnuoc");
+                });
+
             modelBuilder.Entity("SaleManagerApi.Models.Thenhathau", b =>
                 {
                     b.Property<string>("MaLx")
@@ -623,6 +804,148 @@ namespace SaleManagerApi.Migrations
                     b.ToTable("thenhathau");
                 });
 
+            modelBuilder.Entity("SaleManagerApi.Models.TonKhoDauKy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DayHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int?>("DinhLuong")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("HanSuDung")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("KhohangId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MaHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("NgaySanXuat")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhanTramHanSuDung")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int?>("SoLuongPalletChan")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SoThungLe")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SttDayHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("TenSanPham")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ThoiDiemGhiNhan")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Tong")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TrangThaiDOD")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ViTri")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KhohangId");
+
+                    b.ToTable("tonkhodauky");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.TonKhoHienTai", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DayHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int?>("DinhLuong")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("HanSuDung")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("KhohangId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MaHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("NgaySanXuat")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhanTramHanSuDung")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int?>("SoLuongPalletChan")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SoThungLe")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SttDayHang")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("TenSanPham")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ThoiDiemGhiNhan")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Tong")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TrangThaiDOD")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ViTri")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KhohangId");
+
+                    b.ToTable("tonkhohientai");
+                });
+
             modelBuilder.Entity("SaleManagerApi.Models.DailyKiemtravesinhxeDetail", b =>
                 {
                     b.HasOne("SaleManagerApi.Models.DailyKiemtravesinhxe", "DailyKiemtravesinhxe")
@@ -640,6 +963,50 @@ namespace SaleManagerApi.Migrations
                     b.Navigation("DailyKiemtravesinhxe");
 
                     b.Navigation("Param");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.Layoutkho", b =>
+                {
+                    b.HasOne("SaleManagerApi.Models.Khohang", "Khohang")
+                        .WithMany()
+                        .HasForeignKey("KhohangId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Khohang");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.Sanphamnuoc", b =>
+                {
+                    b.HasOne("SaleManagerApi.Models.Khohang", "Khohang")
+                        .WithMany()
+                        .HasForeignKey("KhohangId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Khohang");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.TonKhoDauKy", b =>
+                {
+                    b.HasOne("SaleManagerApi.Models.Khohang", "Khohang")
+                        .WithMany()
+                        .HasForeignKey("KhohangId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Khohang");
+                });
+
+            modelBuilder.Entity("SaleManagerApi.Models.TonKhoHienTai", b =>
+                {
+                    b.HasOne("SaleManagerApi.Models.Khohang", "Khohang")
+                        .WithMany()
+                        .HasForeignKey("KhohangId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Khohang");
                 });
 
             modelBuilder.Entity("SaleManagerApi.Models.DailyKiemtravesinhxe", b =>

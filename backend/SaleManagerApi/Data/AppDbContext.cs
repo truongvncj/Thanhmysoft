@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Thenhathau> Thenhathaus { get; set; }
     public DbSet<DangTai> DangTais { get; set; }
+    public DbSet<Layoutkho> Layoutkhos { get; set; }
     public DbSet<PreTripChecklistParam> PreTripChecklistParams { get; set; }
     public DbSet<DailyPreTripChecklist> DailyPreTripChecklists { get; set; }
     public DbSet<KiemtravesinhxeParam> KiemtravesinhxeParams { get; set; }
@@ -24,6 +25,10 @@ public class AppDbContext : DbContext
     public DbSet<Khohang> Khohangs { get; set; }
     public DbSet<Danhsachxetrongkho> Danhsachxetrongkhos { get; set; }
     public DbSet<ChungTuVaoKho> ChungTuVaoKhos { get; set; }
+    public DbSet<TonKhoDauKy> TonKhoDauKies { get; set; }
+    public DbSet<TonKhoHienTai> TonKhoHienTais { get; set; }
+    public DbSet<PhatSinhSanPham> PhatSinhSanPhams { get; set; }
+    public DbSet<Sanphamnuoc> Sanphamnuocs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
