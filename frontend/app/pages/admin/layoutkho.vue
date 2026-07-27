@@ -304,7 +304,7 @@ const createLine = async () => {
 
 const createText = async () => {
   if (!selectedKhohangId.value) return
-  const textContent = prompt('Nhập nội dung chữ muốn hiển thị:')
+  const textContent = await prompt('Nhập nội dung chữ muốn hiển thị:')
   if (!textContent) return
   
   try {
@@ -352,7 +352,7 @@ const toggleBold = async (item) => {
 }
 
 const deleteLocal = async (id) => {
-  if (!confirm('Bạn có chắc muốn xóa Local này?')) return
+  if (!await confirm('Bạn có chắc muốn xóa Local này?')) return
   try {
     await $fetch(`${apiBase}/Layoutkhos/${id}`, { method: 'DELETE' })
     layoutItems.value = layoutItems.value.filter(i => i.id !== id)
@@ -362,7 +362,7 @@ const deleteLocal = async (id) => {
 }
 
 // --- DRAG LOGIC ---
-const startDrag = (item, e) => {
+const startDrag = async (item, e) => {
   if (e.button !== 0) return // Only left click
   activeItem.value = item
   actionType.value = 'drag'
@@ -373,7 +373,7 @@ const startDrag = (item, e) => {
 }
 
 // --- RESIZE LOGIC ---
-const startResize = (item, e) => {
+const startResize = async (item, e) => {
   if (e.button !== 0) return
   activeItem.value = item
   actionType.value = 'resize'
@@ -383,7 +383,7 @@ const startResize = (item, e) => {
   startItemH.value = item.height
 }
 
-const startRotate = (item, e) => {
+const startRotate = async (item, e) => {
   if (e.button !== 0) return
   activeItem.value = item
   actionType.value = 'rotate'
@@ -396,7 +396,7 @@ const startRotate = (item, e) => {
   }
 }
 
-const onMouseMove = (e) => {
+const onMouseMove = async (e) => {
   if (!activeItem.value) return
   
   const dx = e.clientX - startMouseX.value

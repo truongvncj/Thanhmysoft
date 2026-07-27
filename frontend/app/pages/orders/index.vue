@@ -89,13 +89,13 @@ const form = reactive({
   totalAmount: 0
 })
 
-const openModal = () => {
+const openModal = async () => {
   form.customerName = ''
   form.totalAmount = 0
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -117,7 +117,7 @@ const saveOrder = async () => {
 }
 
 const deleteOrder = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) return
   
   try {
     await $fetch(`${apiBase}/Orders/${id}`, {

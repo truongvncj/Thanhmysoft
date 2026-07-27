@@ -105,7 +105,7 @@ const form = reactive({
   password: ''
 })
 
-const openModal = (nvt = null) => {
+const openModal = async (nvt = null) => {
   if (nvt) {
     isEdit.value = true
     form.maNvt = nvt.maNvt
@@ -120,7 +120,7 @@ const openModal = (nvt = null) => {
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -149,7 +149,7 @@ const saveNhaVanTai = async () => {
 }
 
 const deleteNhaVanTai = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa nhà vận tải này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa nhà vận tải này?')) return
   
   try {
     await $fetch(`${apiBase}/NhaVanTais/${id}`, {

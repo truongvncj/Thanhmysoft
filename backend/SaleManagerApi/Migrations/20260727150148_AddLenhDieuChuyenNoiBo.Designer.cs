@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SaleManagerApi.Data;
@@ -11,9 +12,11 @@ using SaleManagerApi.Data;
 namespace SaleManagerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727150148_AddLenhDieuChuyenNoiBo")]
+    partial class AddLenhDieuChuyenNoiBo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,7 +62,7 @@ namespace SaleManagerApi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("HanSuDung")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("LenhDieuChuyenNoiBoId")
                         .HasColumnType("integer");
@@ -70,7 +73,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("NgaySanXuat")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SoLuongChan")
                         .HasColumnType("integer");
@@ -119,7 +122,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnName("lydo");
 
                     b.Property<DateTime>("NgayDangKy")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("ngaydangky");
 
                     b.Property<string>("SoSTO")
@@ -154,7 +157,7 @@ namespace SaleManagerApi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdat");
 
                     b.Property<int>("LanVaoKhoTrongNgay")
@@ -172,7 +175,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnName("manvt");
 
                     b.Property<DateTime>("NgayKiemTra")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("ngaykiemtra");
 
                     b.Property<string>("Sothe")
@@ -242,7 +245,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnName("checklistdata");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("date");
 
                     b.Property<string>("MaLx")
@@ -309,7 +312,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("NgayDangTai")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Sothe")
                         .IsRequired()
@@ -334,26 +337,26 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("BaoVeKiemTraTrongKho_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("BaoVeKiemTra_PreTrip_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("BaoVeKiemTra_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("BienSo")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("GioDangKy")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("KhohangId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("KiemTraVeSinh_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LyDoHuy")
                         .HasColumnType("text");
@@ -367,10 +370,10 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("NhapKho_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("Pre_Tripchecklist_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Sothe")
                         .IsRequired()
@@ -385,19 +388,19 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ThuKhoXacNhan_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("TrangThai")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("XacNhanRaCong_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("XacNhanVaoCong_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("XuatKho_Time")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -562,10 +565,10 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("ThoiGianHoanThanh")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ThoiGianTao")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("TrangThai")
                         .IsRequired()
@@ -647,7 +650,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
@@ -666,7 +669,7 @@ namespace SaleManagerApi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("HanSuDung")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("KhohangId")
                         .HasColumnType("integer");
@@ -680,7 +683,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("NgaySanXuat")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("SoLuongChan")
                         .HasColumnType("integer");
@@ -713,7 +716,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("ThoiGian")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("User")
                         .HasMaxLength(255)
@@ -891,7 +894,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnName("tennvt");
 
                     b.Property<DateTime>("Thoihanthe")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("thoihanthe");
 
                     b.Property<int>("TrangThai")
@@ -923,7 +926,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime?>("HanSuDung")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("KhohangId")
                         .HasColumnType("integer");
@@ -933,7 +936,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("NgaySanXuat")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhanTramHanSuDung")
                         .HasMaxLength(255)
@@ -954,7 +957,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("ThoiDiemGhiNhan")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("Tong")
                         .HasColumnType("integer");
@@ -994,7 +997,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime?>("HanSuDung")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("KhohangId")
                         .HasColumnType("integer");
@@ -1004,7 +1007,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("NgaySanXuat")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhanTramHanSuDung")
                         .HasMaxLength(255)
@@ -1025,7 +1028,7 @@ namespace SaleManagerApi.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("ThoiDiemGhiNhan")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("Tong")
                         .HasColumnType("integer");

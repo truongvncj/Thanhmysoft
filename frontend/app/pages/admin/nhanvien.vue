@@ -184,7 +184,7 @@ const fetchList = async () => {
   }
 }
 
-const openModal = (item = null) => {
+const openModal = async (item = null) => {
   if (item) {
     isEdit.value = true
     form.mnv = item.mnv
@@ -204,7 +204,7 @@ const openModal = (item = null) => {
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -244,7 +244,7 @@ const saveItem = async () => {
 }
 
 const deleteItem = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) return
   
   try {
     await $fetch(`${apiBase}/Nhanviens/${id}`, {

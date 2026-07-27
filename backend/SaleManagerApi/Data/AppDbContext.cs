@@ -23,6 +23,8 @@ public class AppDbContext : DbContext
     public DbSet<DailyKiemtravesinhxeDetail> DailyKiemtravesinhxeDetails { get; set; }
     public DbSet<Nhanvien> Nhanviens { get; set; }
     public DbSet<Khohang> Khohangs { get; set; }
+    public DbSet<LenhDieuChuyenNoiBo> LenhDieuChuyenNoiBos { get; set; }
+    public DbSet<ChiTietDieuChuyenNoiBo> ChiTietDieuChuyenNoiBos { get; set; }
     public DbSet<Danhsachxetrongkho> Danhsachxetrongkhos { get; set; }
     public DbSet<ChungTuVaoKho> ChungTuVaoKhos { get; set; }
     public DbSet<TonKhoDauKy> TonKhoDauKies { get; set; }

@@ -449,9 +449,202 @@
           </div>
         </div>
 
-        <div v-else-if="activeMenu === 'dieuchuyen'" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500 h-full flex flex-col items-center justify-center">
-          <h2 class="text-xl font-bold mb-2 text-slate-800">Điều chuyển nội bộ</h2>
-          <p>Chức năng đang được phát triển...</p>
+        <div v-else-if="activeMenu === 'dieuchuyen'" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-slate-500 h-full flex flex-col text-left">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-slate-800">Điều chuyển nội bộ</h2>
+            <div class="flex gap-2">
+              <button @click="activeDieuChuyenTab = 'taolenh'" :class="['px-4 py-2 rounded-lg font-medium text-sm transition-colors', activeDieuChuyenTab === 'taolenh' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']">Tạo lệnh</button>
+              <button @click="activeDieuChuyenTab = 'dangdieuchuyen'; fetchPendingLenhDcnb()" :class="['px-4 py-2 rounded-lg font-medium text-sm transition-colors', activeDieuChuyenTab === 'dangdieuchuyen' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']">Đang điều chuyển</button>
+            </div>
+          </div>
+
+          <div v-if="activeDieuChuyenTab === 'taolenh'" class="flex-1 overflow-y-auto">
+            <!-- Chọn Vị trí đi -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-6">
+              <div class="flex items-end gap-4 mb-4">
+                <div class="flex-1">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Vị trí chuyển đi</label>
+                  <input v-model="dcnbViTriDiInput" type="text" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 uppercase font-medium text-slate-900" placeholder="VD: A12" @keyup.enter="fetchDcnbTonKhoList" />
+                </div>
+                <button @click="openLayoutModalFor('dcnb_di')" :disabled="dcnbLoadingTonKho" class="px-6 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-lg shadow-sm disabled:opacity-50 transition-colors flex items-center justify-center gap-2 h-[46px]">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                  Chọn vị trí
+                </button>
+              </div>
+
+              <!-- Bảng tồn kho vị trí đi -->
+              <div v-if="dcnbTonKhoList.length > 0" class="border border-slate-200 rounded-lg overflow-hidden mt-4">
+                <div class="overflow-x-auto">
+                  <table class="w-full whitespace-nowrap">
+                    <thead class="bg-slate-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Mã Hàng</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tên Sản Phẩm</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">NSX</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">HSD</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Tồn Chẵn</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Tồn Lẻ</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-blue-600 uppercase">Chuyển Chẵn</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-blue-600 uppercase">Chuyển Lẻ</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                      <tr v-for="tk in dcnbTonKhoList" :key="tk.id" class="hover:bg-slate-50">
+                        <td class="px-4 py-3 text-sm font-medium text-slate-900">{{ tk.maHang }}</td>
+                        <td class="px-4 py-3 text-sm text-slate-700">{{ tk.tenSanPham }}</td>
+                        <td class="px-4 py-3 text-sm text-center text-slate-600">{{ tk.ngaySanXuat ? new Date(tk.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                        <td class="px-4 py-3 text-sm text-center text-slate-600">{{ tk.hanSuDung ? new Date(tk.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
+                        <td class="px-4 py-3 text-sm text-center font-medium">{{ tk.soLuongPalletChan }}</td>
+                        <td class="px-4 py-3 text-sm text-center font-medium">{{ tk.soThungLe }}</td>
+                        <td class="px-4 py-3">
+                          <input v-model.number="tk.xuatChan" type="number" min="0" :max="tk.soLuongPalletChan" class="w-20 px-2 py-1.5 text-sm text-center border border-blue-300 rounded focus:ring-1 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                          <input v-model.number="tk.xuatLe" type="number" min="0" :max="tk.soThungLe" class="w-20 px-2 py-1.5 text-sm text-center border border-blue-300 rounded focus:ring-1 focus:ring-blue-500" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+                  <button @click="addDcnbToDraft" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm">
+                    Thêm vào lệnh chuyển
+                  </button>
+                </div>
+              </div>
+              <div v-else-if="dcnbViTriDi && !dcnbLoadingTonKho" class="text-center py-6 text-slate-500 bg-slate-50 rounded-lg mt-4 border border-dashed border-slate-300">
+                Không có hàng hoá tại vị trí này
+              </div>
+            </div>
+
+            <!-- Vị trí đến & Danh sách lệnh -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-end gap-4 mb-6">
+                <div class="flex-1">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Vị trí chuyển đến (Đích)</label>
+                  <input v-model="dcnbViTriDenInput" type="text" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 uppercase font-medium text-slate-900" placeholder="VD: B05" />
+                </div>
+                <button @click="openLayoutModalFor('dcnb_den')" class="px-6 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 h-[46px]">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                  Chọn vị trí
+                </button>
+              </div>
+
+              <h3 class="text-lg font-bold text-slate-800 mb-4">Chi tiết lệnh điều chuyển trong kho</h3>
+
+              <div class="border border-slate-200 rounded-lg overflow-hidden mb-6">
+                <table class="w-full whitespace-nowrap">
+                  <thead class="bg-slate-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Mã SP</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tên SP</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">NSX</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">HSD</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Vị trí đi</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Chuyển Chẵn</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Chuyển Lẻ</th>
+                      <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 bg-white">
+                    <tr v-for="(item, index) in dcnbDraftItems" :key="index">
+                      <td class="px-4 py-3 text-sm font-medium">{{ item.maSanPham }}</td>
+                      <td class="px-4 py-3 text-sm truncate max-w-[200px]" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-slate-600">{{ formatDate(item.ngaySanXuat) }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-slate-600">{{ formatDate(item.hanSuDung) }}</td>
+                      <td class="px-4 py-3 text-sm text-center font-bold text-slate-700">{{ item.viTriDi }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-blue-600 font-semibold">{{ item.soLuongChan }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-blue-600 font-semibold">{{ item.soLuongLe }}</td>
+                      <td class="px-4 py-3 text-center">
+                        <button @click="removeDcnbDraftItem(index)" class="text-red-500 hover:text-red-700">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr v-if="dcnbDraftItems.length === 0">
+                      <td colspan="8" class="px-4 py-8 text-center text-slate-500 italic">Chưa có hàng hoá nào được thêm vào lệnh</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="flex justify-end">
+                <button @click="createLenhDcnb" :disabled="dcnbDraftItems.length === 0 || isCreatingLenh" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md disabled:opacity-50 transition-colors text-lg flex items-center gap-2">
+                  Tạo lệnh chuyển
+                  <svg v-if="isCreatingLenh" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tab Đang điều chuyển -->
+          <div v-else-if="activeDieuChuyenTab === 'dangdieuchuyen'" class="flex-1 overflow-y-auto">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div v-if="loadingPendingLenhDCNB" class="p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600"></div>
+                <p class="mt-2 text-slate-500">Đang tải...</p>
+              </div>
+              <div v-else-if="pendingLenhDCNBList.length === 0" class="p-12 text-center">
+                <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                </div>
+                <h3 class="text-lg font-medium text-slate-800 mb-1">Không có lệnh đang điều chuyển</h3>
+                <p class="text-slate-500 text-sm">Các lệnh sau khi tạo sẽ hiển thị ở đây.</p>
+              </div>
+              <div v-else class="divide-y divide-slate-200">
+                <div v-for="lenh in pendingLenhDCNBList" :key="lenh.id" class="p-5 hover:bg-slate-50 transition-colors">
+                  <div class="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        {{ lenh.maLenh }}
+                        <span v-if="!lenh.trangThai || lenh.trangThai === 'Pending'" class="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 font-medium">Pending</span>
+                        <span v-else class="px-2 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-700 font-medium capitalize">{{ lenh.trangThai }}</span>
+                      </h4>
+                      <p class="text-sm text-slate-500 mt-1">Người tạo: <span class="font-medium text-slate-700">{{ lenh.nguoiTao }}</span> - {{ new Date(lenh.thoiGianTao).toLocaleString('vi-VN') }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                      <button @click="printLenhDcnb(lenh)" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-medium text-sm flex items-center gap-1 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        In lệnh
+                      </button>
+                      <button @click="completeLenhDcnb(lenh)" :disabled="isCompletingLenh || lenh.trangThai === 'updated'" :class="['px-4 py-2 text-white rounded-lg font-medium text-sm transition-colors shadow-sm disabled:opacity-50', lenh.trangThai === 'updated' ? 'bg-slate-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700']">
+                        Hoàn thành lệnh
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                    <table class="w-full text-sm">
+                      <thead class="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase">
+                        <tr>
+                          <th class="px-4 py-2 text-left font-semibold">Mã Hàng</th>
+                          <th class="px-4 py-2 text-left font-semibold">Tên Sản Phẩm</th>
+                          <th class="px-4 py-2 text-center font-semibold">NSX</th>
+                          <th class="px-4 py-2 text-center font-semibold">HSD</th>
+                          <th class="px-4 py-2 text-center font-semibold">Từ Vị trí</th>
+                          <th class="px-4 py-2 text-center font-semibold">Đến Vị trí</th>
+                          <th class="px-4 py-2 text-right font-semibold">Số Chẵn</th>
+                          <th class="px-4 py-2 text-right font-semibold">Số Lẻ</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100">
+                        <tr v-for="ct in lenh.chiTiets" :key="ct.id">
+                          <td class="px-4 py-2 font-medium">{{ ct.maSanPham }}</td>
+                          <td class="px-4 py-2 text-slate-600 truncate max-w-[200px]" :title="ct.tenSanPham">{{ ct.tenSanPham }}</td>
+                          <td class="px-4 py-2 text-center text-slate-600">{{ formatDate(ct.ngaySanXuat) }}</td>
+                          <td class="px-4 py-2 text-center text-slate-600">{{ formatDate(ct.hanSuDung) }}</td>
+                          <td class="px-4 py-2 text-center font-bold text-amber-600">{{ ct.viTriDi }}</td>
+                          <td class="px-4 py-2 text-center font-bold text-emerald-600">{{ ct.viTriDen }}</td>
+                          <td class="px-4 py-2 text-right font-semibold">{{ ct.soLuongChan }}</td>
+                          <td class="px-4 py-2 text-right font-semibold">{{ ct.soLuongLe }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div v-else-if="activeMenu === 'baocao'" class="bg-white rounded-xl shadow-sm border border-slate-200 h-full flex flex-col overflow-hidden">
@@ -945,7 +1138,7 @@
                   </div>
                 </div>
                 <div class="w-full md:w-1/2">
-                  <button @click="openNhapKhoLayoutModal" class="w-full px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 h-[42px]">
+                  <button @click="openLayoutModalFor('nhapkho')" class="w-full px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 h-[42px]">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     Mở sơ đồ kho để chọn vị trí
                   </button>
@@ -1249,7 +1442,7 @@ const startDragY = ref(0)
 const startScrollLeft = ref(0)
 const startScrollTop = ref(0)
 
-const onLayoutMouseDown = (e) => {
+const onLayoutMouseDown = async (e) => {
   isDraggingLayout.value = true
   startDragX.value = e.clientX
   startDragY.value = e.clientY
@@ -1257,7 +1450,7 @@ const onLayoutMouseDown = (e) => {
   startScrollTop.value = layoutContainer.value.scrollTop
 }
 
-const onLayoutMouseMove = (e) => {
+const onLayoutMouseMove = async (e) => {
   if (!isDraggingLayout.value || !layoutContainer.value) return
   e.preventDefault()
   const dx = e.clientX - startDragX.value
@@ -1266,11 +1459,11 @@ const onLayoutMouseMove = (e) => {
   layoutContainer.value.scrollTop = startScrollTop.value - dy
 }
 
-const onLayoutMouseUp = () => {
+const onLayoutMouseUp = async () => {
   isDraggingLayout.value = false
 }
 
-const onLayoutMouseLeave = () => {
+const onLayoutMouseLeave = async () => {
   isDraggingLayout.value = false
 }
 const loadingLayout = ref(false)
@@ -1336,7 +1529,253 @@ const tabs = [
 const activeTab = ref(0)
 const activeMenu = ref('dashboard')
 
-const hasPermission = (code) => {
+// --- ĐIỀU CHUYỂN NỘI BỘ ---
+const activeDieuChuyenTab = ref('taolenh')
+
+const dcnbViTriDiInput = ref('')
+const dcnbViTriDi = ref('')
+const dcnbTonKhoList = ref([])
+const dcnbLoadingTonKho = ref(false)
+const dcnbDraftItems = ref([])
+const dcnbViTriDenInput = ref('')
+const isCreatingLenh = ref(false)
+
+const pendingLenhDCNBList = ref([])
+const loadingPendingLenhDCNB = ref(false)
+const isCompletingLenh = ref(false)
+
+const fetchDcnbTonKhoList = async () => {
+  if (!dcnbViTriDiInput.value.trim() || !khohangInfo.value?.id) return
+  dcnbLoadingTonKho.value = true
+  try {
+    const viTri = dcnbViTriDiInput.value.trim().toUpperCase()
+    dcnbViTriDi.value = viTri
+    const res = await $fetch(`${apiBase}/DieuChuyenNoiBo/Kho/${khohangInfo.value.id}/ViTri/${viTri}`)
+    dcnbTonKhoList.value = res.map(item => ({
+      ...item,
+      xuatChan: 0,
+      xuatLe: 0
+    }))
+  } catch (err) {
+    console.error(err)
+    alert('Lỗi khi tải tồn kho vị trí')
+  } finally {
+    dcnbLoadingTonKho.value = false
+  }
+}
+
+const addDcnbToDraft = async () => {
+  const itemsToAdd = dcnbTonKhoList.value.filter(tk => tk.xuatChan > 0 || tk.xuatLe > 0)
+  if (itemsToAdd.length === 0) return
+
+  itemsToAdd.forEach(item => {
+    // Check if already in draft
+    const existing = dcnbDraftItems.value.find(d => 
+      d.maSanPham === item.maHang && 
+      d.ngaySanXuat === item.ngaySanXuat && 
+      d.hanSuDung === item.hanSuDung
+    )
+
+    if (existing) {
+      existing.soLuongChan += item.xuatChan
+      existing.soLuongLe += item.xuatLe
+    } else {
+      dcnbDraftItems.value.push({
+        maSanPham: item.maHang,
+        tenSanPham: item.tenSanPham,
+        ngaySanXuat: item.ngaySanXuat ? item.ngaySanXuat : null,
+        hanSuDung: item.hanSuDung ? item.hanSuDung : null,
+        viTriDi: item.viTri,
+        viTriDen: '', // To be filled before creating
+        soLuongChan: item.xuatChan,
+        soLuongLe: item.xuatLe,
+        tonChan: item.soLuongPalletChan,
+        tonLe: item.soThungLe
+      })
+    }
+    
+    // Reset inputs
+    item.xuatChan = 0
+    item.xuatLe = 0
+  })
+}
+
+const removeDcnbDraftItem = async (index) => {
+  dcnbDraftItems.value.splice(index, 1)
+}
+
+const createLenhDcnb = async () => {
+  if (dcnbDraftItems.value.length === 0) return
+  if (!dcnbViTriDenInput.value.trim()) {
+    alert("Vui lòng nhập Vị trí chuyển đến")
+    return
+  }
+
+  // Update viTriDen for all items
+  const viTriDen = dcnbViTriDenInput.value.trim().toUpperCase()
+  dcnbDraftItems.value.forEach(item => {
+    item.viTriDen = viTriDen
+  })
+
+  isCreatingLenh.value = true
+  try {
+    const payload = {
+      maLenh: "TEMP",
+      khohangId: khohangInfo.value.id,
+      nguoiTao: nhanvienInfo.value?.hoTen || 'Thủ kho',
+      chiTiets: dcnbDraftItems.value
+    }
+    await $fetch(`${apiBase}/DieuChuyenNoiBo/Create`, {
+      method: 'POST',
+      body: payload
+    })
+    
+    alert('Tạo Lệnh điều chuyển nội bộ thành công!')
+    // Reset form
+    dcnbDraftItems.value = []
+    dcnbViTriDiInput.value = ''
+    dcnbViTriDi.value = ''
+    dcnbTonKhoList.value = []
+    dcnbViTriDenInput.value = ''
+    
+    // Switch to Pending tab
+    activeDieuChuyenTab.value = 'dangdieuchuyen'
+    fetchPendingLenhDcnb()
+  } catch (err) {
+    console.error(err)
+    alert('Có lỗi khi tạo lệnh điều chuyển')
+  } finally {
+    isCreatingLenh.value = false
+  }
+}
+
+const fetchPendingLenhDcnb = async () => {
+  if (!khohangInfo.value?.id) return
+  loadingPendingLenhDCNB.value = true
+  try {
+    const res = await $fetch(`${apiBase}/DieuChuyenNoiBo/Pending/${khohangInfo.value.id}`)
+    pendingLenhDCNBList.value = res || []
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loadingPendingLenhDCNB.value = false
+  }
+}
+
+const completeLenhDcnb = async (lenh) => {
+  if (!await confirm('Xác nhận hoàn thành lệnh điều chuyển nội bộ này? (Hệ thống sẽ cập nhật tồn kho)')) return
+  
+  isCompletingLenh.value = true
+  try {
+    await $fetch(`${apiBase}/DieuChuyenNoiBo/Complete/${lenh.id}?nguoiHoanThanh=${nhanvienInfo.value?.hoTen}`, {
+      method: 'POST'
+    })
+    alert('Đã hoàn thành lệnh điều chuyển nội bộ!')
+    // Cập nhật trạng thái trực tiếp trên UI thay vì gọi fetchPendingLenhDcnb để giữ lệnh hiển thị
+    lenh.trangThai = 'updated'
+    // fetchPendingLenhDcnb()
+  } catch (err) {
+    console.error(err)
+    alert(err.data || 'Có lỗi khi hoàn thành lệnh')
+  } finally {
+    isCompletingLenh.value = false
+  }
+}
+
+const printLenhDcnb = async (lenh) => {
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) return
+
+  let rowsHtml = ''
+  lenh.chiTiets.forEach((item, index) => {
+    rowsHtml += `
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${index + 1}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${item.maSanPham}</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${item.tenSanPham}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : ''}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : ''}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.viTriDi}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.viTriDen}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.soLuongChan}</td>
+        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.soLuongLe}</td>
+      </tr>
+    `
+  })
+
+  const html = `
+    <html>
+      <head>
+        <title>Phiếu lệnh điều chuyển nội bộ</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h2 { text-align: center; margin-bottom: 20px; }
+          .header-info { margin-bottom: 20px; display: flex; justify-content: space-between; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          th { border: 1px solid #ddd; padding: 8px; background-color: #f5f5f5; text-align: center; }
+          .signature { display: flex; justify-content: space-around; margin-top: 50px; }
+          .signature div { text-align: center; }
+        </style>
+      </head>
+      <body>
+        <h2>PHIẾU LỆNH ĐIỀU CHUYỂN NỘI BỘ</h2>
+        <div class="header-info">
+          <div>
+            <p><strong>Mã lệnh:</strong> ${lenh.maLenh}</p>
+            <p><strong>Ngày tạo:</strong> ${new Date(lenh.thoiGianTao).toLocaleString('vi-VN')}</p>
+          </div>
+          <div>
+            <p><strong>Người tạo:</strong> ${lenh.nguoiTao}</p>
+            <p><strong>Kho:</strong> ${khohangInfo.value?.tenKho}</p>
+          </div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Mã Hàng</th>
+              <th>Tên Hàng</th>
+              <th>NSX</th>
+              <th>HSD</th>
+              <th>Vị trí đi</th>
+              <th>Vị trí đến</th>
+              <th>Chẵn</th>
+              <th>Lẻ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+
+        <div class="signature">
+          <div>
+            <p><strong>Người lập phiếu</strong></p>
+            <p>(Ký, ghi rõ họ tên)</p>
+          </div>
+          <div>
+            <p><strong>Thủ kho</strong></p>
+            <p>(Ký, ghi rõ họ tên)</p>
+          </div>
+          <div>
+            <p><strong>Người vận chuyển</strong></p>
+            <p>(Ký, ghi rõ họ tên)</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `
+
+  printWindow.document.write(html)
+  printWindow.document.close()
+  setTimeout(() => {
+    printWindow.print()
+  }, 500)
+}
+
+
+const hasPermission = async (code) => {
   if (!nhanvienInfo.value?.permissions) return false
   const perms = nhanvienInfo.value.permissions.split(',').map(p => p.trim())
   return perms.includes(code)
@@ -1372,7 +1811,7 @@ const loadingTonKho = ref(false)
 const sortTonKhoKey = ref('')
 const sortTonKhoAsc = ref(true)
 
-const handleSortTonKho = (key) => {
+const handleSortTonKho = async (key) => {
   if (sortTonKhoKey.value === key) {
     sortTonKhoAsc.value = !sortTonKhoAsc.value
   } else {
@@ -1456,7 +1895,7 @@ const computedViewLoadTicketSummary = computed(() => {
   return summary
 })
 
-const printTicket = () => {
+const printTicket = async () => {
   const printContents = document.getElementById('print-load-ticket').innerHTML;
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   printWindow.document.write(`
@@ -1491,7 +1930,7 @@ const printTicket = () => {
 }
 
 // --- XUẤT KHO ---
-const openXuatKhoModal = (xe) => {
+const openXuatKhoModal = async (xe) => {
   if (activeXuatKhoTab.value === 1) {
     openViewLoadTicketModal(xe)
     return
@@ -1500,7 +1939,7 @@ const openXuatKhoModal = (xe) => {
   showXuatKhoModal.value = true
 }
 
-const openXuatKhoSTOModal = (sto) => {
+const openXuatKhoSTOModal = async (sto) => {
   selectedXuatKhoType.value = 'STO'
   selectedXuatKhoDoc.value = sto
   showXuatKhoSTOModal.value = true
@@ -1534,33 +1973,33 @@ const filteredNhapKhoViTri = computed(() => {
   }).slice(0, 50)
 })
 
-const selectNhapKhoViTri = (maLocal) => {
+const selectNhapKhoViTri = async (maLocal) => {
   selectedNhapKhoViTri.value = maLocal
   nhapKhoViTriSearchQuery.value = maLocal
   showNhapKhoViTriDropdown.value = false
   selectedNhapKhoViTriIndex.value = -1
 }
 
-const onNhapKhoViTriInput = (e) => {
+const onNhapKhoViTriInput = async (e) => {
   nhapKhoViTriSearchQuery.value = e.target.value
   selectedNhapKhoViTri.value = '' 
   showNhapKhoViTriDropdown.value = true
   selectedNhapKhoViTriIndex.value = -1
 }
 
-const onNhapKhoViTriFocus = () => {
+const onNhapKhoViTriFocus = async () => {
   if (layoutItems.value.length === 0) fetchLayout()
   showNhapKhoViTriDropdown.value = true
   selectedNhapKhoViTriIndex.value = -1
 }
 
-const handleNhapKhoViTriBlur = () => {
+const handleNhapKhoViTriBlur = async () => {
   setTimeout(() => {
     showNhapKhoViTriDropdown.value = false
   }, 200)
 }
 
-const onNhapKhoViTriArrowDown = () => {
+const onNhapKhoViTriArrowDown = async () => {
   if (!showNhapKhoViTriDropdown.value || filteredNhapKhoViTri.value.length === 0) return
   if (selectedNhapKhoViTriIndex.value < filteredNhapKhoViTri.value.length - 1) {
     selectedNhapKhoViTriIndex.value++
@@ -1568,7 +2007,7 @@ const onNhapKhoViTriArrowDown = () => {
   }
 }
 
-const onNhapKhoViTriArrowUp = () => {
+const onNhapKhoViTriArrowUp = async () => {
   if (!showNhapKhoViTriDropdown.value || filteredNhapKhoViTri.value.length === 0) return
   if (selectedNhapKhoViTriIndex.value > 0) {
     selectedNhapKhoViTriIndex.value--
@@ -1576,7 +2015,7 @@ const onNhapKhoViTriArrowUp = () => {
   }
 }
 
-const onNhapKhoViTriEnter = () => {
+const onNhapKhoViTriEnter = async () => {
   if (showNhapKhoViTriDropdown.value && selectedNhapKhoViTriIndex.value >= 0 && selectedNhapKhoViTriIndex.value < filteredNhapKhoViTri.value.length) {
     selectNhapKhoViTri(filteredNhapKhoViTri.value[selectedNhapKhoViTriIndex.value].maLocal)
     setTimeout(() => {
@@ -1585,7 +2024,7 @@ const onNhapKhoViTriEnter = () => {
   }
 }
 
-const scrollToViTriItem = () => {
+const scrollToViTriItem = async () => {
   if (!nhapKhoViTriDropdownList.value) return
   const list = nhapKhoViTriDropdownList.value.querySelector('ul')
   if (!list) return
@@ -1598,36 +2037,45 @@ const scrollToViTriItem = () => {
 // Layout Nhập kho state
 const showNhapKhoLayoutModal = ref(false)
 const selectedLayoutViTri = ref('')
+const layoutModalTarget = ref('nhapkho')
 const nhapKhoQuantityChan = ref(0)
 const nhapKhoQuantityLe = ref(0)
 const nhapKhoNgaySanXuat = ref('')
 const nhapKhoHanSuDung = ref('')
 
-const openNhapKhoLayoutModal = () => {
+const openLayoutModalFor = async (target) => {
+  layoutModalTarget.value = target
   if (layoutItems.value.length === 0) fetchLayout()
   showNhapKhoLayoutModal.value = true
   selectedLayoutViTri.value = ''
 }
 
-const confirmNhapKhoLayoutSelection = () => {
+const confirmNhapKhoLayoutSelection = async () => {
   if (!selectedLayoutViTri.value) {
     alert('Vui lòng chọn vị trí')
     return
   }
-  // Convert layout selection to the format expected by draft ticket
-  selectedNhapKhoViTri.value = selectedLayoutViTri.value
-  nhapKhoViTriSearchQuery.value = selectedLayoutViTri.value
+  
+  if (layoutModalTarget.value === 'nhapkho') {
+    selectedNhapKhoViTri.value = selectedLayoutViTri.value
+    nhapKhoViTriSearchQuery.value = selectedLayoutViTri.value
+  } else if (layoutModalTarget.value === 'dcnb_di') {
+    dcnbViTriDiInput.value = selectedLayoutViTri.value
+    fetchDcnbTonKhoList()
+  } else if (layoutModalTarget.value === 'dcnb_den') {
+    dcnbViTriDenInput.value = selectedLayoutViTri.value
+  }
   showNhapKhoLayoutModal.value = false
 }
 
-const onNhapKhoLayoutElementDblClick = (item) => {
+const onNhapKhoLayoutElementDblClick = async (item) => {
   if (item.elementType !== 'line' && !item.maLocal.startsWith('LINE_') && item.elementType !== 'text') {
     selectedLayoutViTri.value = item.maLocal
     confirmNhapKhoLayoutSelection()
   }
 }
 
-const addNhapKhoDraftTicketFromMain = () => {
+const addNhapKhoDraftTicketFromMain = async () => {
   if (!selectedProductIdForNhapKho.value) {
     alert('Chưa chọn sản phẩm')
     return
@@ -1686,7 +2134,7 @@ const addNhapKhoDraftTicketFromMain = () => {
 }
 
 
-const openXuatKhoShipmentModal = (shipment) => {
+const openXuatKhoShipmentModal = async (shipment) => {
   selectedXuatKhoType.value = 'Shipment'
   selectedXuatKhoDoc.value = shipment
   showXuatKhoSTOModal.value = true
@@ -1714,18 +2162,18 @@ const filteredXuatKhoProducts = computed(() => {
   }).slice(0, 50)
 })
 
-const selectXuatKhoProduct = (sp) => {
+const selectXuatKhoProduct = async (sp) => {
   xuatKhoSearchQuery.value = sp.maSanPham
   selectedProductIdForXuatKho.value = sp.maSanPham
   showXuatKhoProductDropdown.value = false
   fetchTonKhoLocations()
 }
 
-const handleXuatKhoProductBlur = () => {
+const handleXuatKhoProductBlur = async () => {
   showXuatKhoProductDropdown.value = false
 }
 
-const onXuatKhoProductInput = (e) => {
+const onXuatKhoProductInput = async (e) => {
   xuatKhoSearchQuery.value = e.target.value
   selectedProductIdForXuatKho.value = '' 
   tonKhoList.value = []
@@ -1733,7 +2181,7 @@ const onXuatKhoProductInput = (e) => {
   selectedXuatKhoProductIndex.value = -1
 }
 
-const onXuatKhoArrowDown = () => {
+const onXuatKhoArrowDown = async () => {
   if (!showXuatKhoProductDropdown.value) {
     showXuatKhoProductDropdown.value = true
     return
@@ -1744,14 +2192,14 @@ const onXuatKhoArrowDown = () => {
   }
 }
 
-const onXuatKhoArrowUp = () => {
+const onXuatKhoArrowUp = async () => {
   if (selectedXuatKhoProductIndex.value > 0) {
     selectedXuatKhoProductIndex.value--
     scrollXuatKhoItem()
   }
 }
 
-const onXuatKhoEnter = (e) => {
+const onXuatKhoEnter = async (e) => {
   e.preventDefault()
   if (showXuatKhoProductDropdown.value && selectedXuatKhoProductIndex.value >= 0 && selectedXuatKhoProductIndex.value < filteredXuatKhoProducts.value.length) {
     selectXuatKhoProduct(filteredXuatKhoProducts.value[selectedXuatKhoProductIndex.value])
@@ -1760,7 +2208,7 @@ const onXuatKhoEnter = (e) => {
   }
 }
 
-const scrollXuatKhoItem = () => {
+const scrollXuatKhoItem = async () => {
   setTimeout(() => {
     if (xuatKhoDropdownList.value) {
       const activeItem = xuatKhoDropdownList.value.querySelector('.bg-blue-100')
@@ -1803,7 +2251,7 @@ const fetchTonKhoLocations = async () => {
   }
 }
 
-const addDraftTicket = () => {
+const addDraftTicket = async () => {
   const itemsToAdd = tonKhoList.value.filter(tk => tk.xuatChan > 0 || tk.xuatLe > 0)
   if (itemsToAdd.length === 0) {
     alert('Vui lòng nhập số lượng xuất cho ít nhất 1 vị trí!')
@@ -1838,15 +2286,15 @@ const addDraftTicket = () => {
   })
 }
 
-const removeDraftItem = (doc, itemId) => {
+const removeDraftItem = async (doc, itemId) => {
   if (draftLoadTickets.value[doc]) {
     draftLoadTickets.value[doc] = draftLoadTickets.value[doc].filter(i => i.id !== itemId)
   }
 }
 const rejectXuatKho = async () => {
-  const reason = prompt('Vui lòng nhập lý do hủy yêu cầu xuất kho (bắt buộc):')
+  const reason = await prompt('Vui lòng nhập lý do hủy yêu cầu xuất kho (bắt buộc):')
   if (!reason || reason.trim() === '') return
-  if (!confirm(`Xác nhận hủy yêu cầu xuất kho với lý do: "${reason}" và cho xe ra cổng luôn?`)) return
+  if (!await confirm(`Xác nhận hủy yêu cầu xuất kho với lý do: "${reason}" và cho xe ra cổng luôn?`)) return
   try {
     await $fetch(`${apiBase}/Danhsachxetrongkho/reject-xuatkho/${selectedXuatKhoXe.value.id}`, {
       method: 'POST',
@@ -1890,7 +2338,7 @@ const submitFinalXuatKho = async () => {
     return
   }
   
-  if (!confirm(`Xác nhận ghi nhận xuất kho cho ${payload.length} mặt hàng?`)) return
+  if (!await confirm(`Xác nhận ghi nhận xuất kho cho ${payload.length} mặt hàng?`)) return
   
   try {
     loading.value = true
@@ -1937,7 +2385,7 @@ const selectedNhapKhoProductIndex = ref(-1)
 const nhapKhoDropdownList = ref(null)
 
 // --- XUẤT KHO ---
-const openNhapKhoModal = (xe) => {
+const openNhapKhoModal = async (xe) => {
   if (activeNhapKhoTab.value === 1) {
     openViewLoadTicketModal(xe)
     return
@@ -1946,7 +2394,7 @@ const openNhapKhoModal = (xe) => {
   showNhapKhoModal.value = true
 }
 
-const openNhapKhoSTOModal = (sto) => {
+const openNhapKhoSTOModal = async (sto) => {
   selectedNhapKhoType.value = 'STO'
   selectedNhapKhoDoc.value = sto
   showNhapKhoSTOModal.value = true
@@ -1960,7 +2408,7 @@ const openNhapKhoSTOModal = (sto) => {
   nhapKhoQuantityLe.value = 0
 }
 
-const openNhapKhoShipmentModal = (shipment) => {
+const openNhapKhoShipmentModal = async (shipment) => {
   selectedNhapKhoType.value = 'Shipment'
   selectedNhapKhoDoc.value = shipment
   showNhapKhoSTOModal.value = true
@@ -1992,18 +2440,18 @@ const filteredNhapKhoProducts = computed(() => {
   }).slice(0, 50)
 })
 
-const selectNhapKhoProduct = (sp) => {
+const selectNhapKhoProduct = async (sp) => {
   nhapKhoSearchQuery.value = sp.maSanPham
   selectedProductIdForNhapKho.value = sp.maSanPham
   showNhapKhoProductDropdown.value = false
   fetchTonKhoLocationsForNhapKho()
 }
 
-const handleNhapKhoProductBlur = () => {
+const handleNhapKhoProductBlur = async () => {
   showNhapKhoProductDropdown.value = false
 }
 
-const onNhapKhoProductInput = (e) => {
+const onNhapKhoProductInput = async (e) => {
   nhapKhoSearchQuery.value = e.target.value
   selectedProductIdForNhapKho.value = '' 
   tonKhoList.value = []
@@ -2011,7 +2459,7 @@ const onNhapKhoProductInput = (e) => {
   selectedNhapKhoProductIndex.value = -1
 }
 
-const onNhapKhoArrowDown = () => {
+const onNhapKhoArrowDown = async () => {
   if (!showNhapKhoProductDropdown.value) {
     showNhapKhoProductDropdown.value = true
     return
@@ -2022,14 +2470,14 @@ const onNhapKhoArrowDown = () => {
   }
 }
 
-const onNhapKhoArrowUp = () => {
+const onNhapKhoArrowUp = async () => {
   if (selectedNhapKhoProductIndex.value > 0) {
     selectedNhapKhoProductIndex.value--
     scrollNhapKhoItem()
   }
 }
 
-const onNhapKhoEnter = (e) => {
+const onNhapKhoEnter = async (e) => {
   e.preventDefault()
   if (showNhapKhoProductDropdown.value && selectedNhapKhoProductIndex.value >= 0 && selectedNhapKhoProductIndex.value < filteredNhapKhoProducts.value.length) {
     selectNhapKhoProduct(filteredNhapKhoProducts.value[selectedNhapKhoProductIndex.value])
@@ -2038,7 +2486,7 @@ const onNhapKhoEnter = (e) => {
   }
 }
 
-const scrollNhapKhoItem = () => {
+const scrollNhapKhoItem = async () => {
   setTimeout(() => {
     if (nhapKhoDropdownList.value) {
       const activeItem = nhapKhoDropdownList.value.querySelector('.bg-blue-100')
@@ -2071,7 +2519,7 @@ const fetchTonKhoLocationsForNhapKho = async () => {
   }
 }
 
-const addNewLocationForNhapKho = () => {
+const addNewLocationForNhapKho = async () => {
   if (!selectedProductIdForNhapKho.value) return
   tonKhoList.value.push({
     id: 'new_' + Date.now(),
@@ -2085,7 +2533,7 @@ const addNewLocationForNhapKho = () => {
   })
 }
 
-const addNhapKhoDraftTicket = () => {
+const addNhapKhoDraftTicket = async () => {
   const itemsToAdd = tonKhoList.value.filter(tk => tk.nhapChan > 0 || tk.nhapLe > 0)
   if (itemsToAdd.length === 0) {
     alert('Vui lòng nhập số lượng nhập cho ít nhất 1 vị trí!')
@@ -2126,15 +2574,15 @@ const addNhapKhoDraftTicket = () => {
   })
 }
 
-const removeNhapKhoDraftItem = (doc, itemId) => {
+const removeNhapKhoDraftItem = async (doc, itemId) => {
   if (draftNhapKhoTickets.value[doc]) {
     draftNhapKhoTickets.value[doc] = draftNhapKhoTickets.value[doc].filter(i => i.id !== itemId)
   }
 }
 const rejectNhapKho = async () => {
-  const reason = prompt('Vui lòng nhập lý do hủy yêu cầu nhập kho (bắt buộc):')
+  const reason = await prompt('Vui lòng nhập lý do hủy yêu cầu nhập kho (bắt buộc):')
   if (!reason || reason.trim() === '') return
-  if (!confirm(`Xác nhận hủy yêu cầu nhập kho với lý do: "${reason}" và cho xe ra cổng luôn?`)) return
+  if (!await confirm(`Xác nhận hủy yêu cầu nhập kho với lý do: "${reason}" và cho xe ra cổng luôn?`)) return
   try {
     await $fetch(`${apiBase}/Danhsachxetrongkho/reject-nhapkho/${selectedNhapKhoXe.value.id}`, {
       method: 'POST',
@@ -2179,7 +2627,7 @@ const submitFinalNhapKho = async () => {
     return
   }
   
-  if (!confirm(`Xác nhận ghi nhận nhập kho cho ${payload.length} mặt hàng?`)) return
+  if (!await confirm(`Xác nhận ghi nhận nhập kho cho ${payload.length} mặt hàng?`)) return
   
   try {
     loading.value = true
@@ -2209,17 +2657,17 @@ const submitFinalNhapKho = async () => {
 }
 
 
-const openAuditModal = (xe) => {
+const openAuditModal = async (xe) => {
   selectedAuditXe.value = xe
   showAuditModal.value = true
 }
 
-const closeAuditModal = () => {
+const closeAuditModal = async () => {
   showAuditModal.value = false
   selectedAuditXe.value = null
 }
 
-const handleAuditSuccess = () => {
+const handleAuditSuccess = async () => {
   closeAuditModal()
   fetchData(false)
 }
@@ -2317,7 +2765,7 @@ const fetchBaocaoNhapXuat = async () => {
   }
 }
 
-const openReport = (reportType) => {
+const openReport = async (reportType) => {
   activeReport.value = reportType
   if (reportType === 'tonkho') {
     fetchBaocaoTonKho()
@@ -2326,7 +2774,7 @@ const openReport = (reportType) => {
   }
 }
 
-const closeReport = () => {
+const closeReport = async () => {
   activeReport.value = null
 }
 
@@ -2351,7 +2799,7 @@ const fetchBaocaoTonKho = async () => {
   }
 }
 
-const exportBaocaoTonKhoExcel = () => {
+const exportBaocaoTonKhoExcel = async () => {
   if (baocaoTonKhoData.value.length === 0) return
   const dataToExport = baocaoTonKhoData.value.map(item => ({
     'Vị Trí': item.viTri,
@@ -2369,7 +2817,7 @@ const exportBaocaoTonKhoExcel = () => {
   XLSX.writeFile(wb, `BaoCaoTonKho_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
-const exportBaocaoNhapXuatExcel = () => {
+const exportBaocaoNhapXuatExcel = async () => {
   if (baocaoNhapXuatData.value.length === 0) return
   
   const headers = ['THỜI GIAN', 'LOẠI', 'MÃ HÀNG', 'TÊN SẢN PHẨM', 'VỊ TRÍ', 'SỐ LƯỢNG CHẴN', 'SỐ LƯỢNG LẺ', 'SỐ XE', 'CHỨNG TỪ', 'NGƯỜI THAO TÁC']
@@ -2430,7 +2878,7 @@ const updateStatus = async (id, newStatus, xe = null) => {
     }
   }
 
-  if (!confirm('Xác nhận cập nhật trạng thái?')) return
+  if (!await confirm('Xác nhận cập nhật trạng thái?')) return
   try {
     await $fetch(`${apiBase}/Danhsachxetrongkho/update-status/${id}`, {
       method: 'POST',
@@ -2443,7 +2891,7 @@ const updateStatus = async (id, newStatus, xe = null) => {
 }
 
 const updateChangBuoc = async (id) => {
-  if (!confirm('Xác nhận xe đã chằng buộc an toàn?')) return
+  if (!await confirm('Xác nhận xe đã chằng buộc an toàn?')) return
   try {
     await $fetch(`${apiBase}/Danhsachxetrongkho/update-changbuoc/${id}`, {
       method: 'POST'
@@ -2454,7 +2902,7 @@ const updateChangBuoc = async (id) => {
   }
 }
 
-const logout = () => {
+const logout = async () => {
   if (process.client) {
     localStorage.removeItem('employee_info')
     localStorage.removeItem('employee_khohang')

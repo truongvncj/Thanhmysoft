@@ -177,7 +177,7 @@ const form = reactive({
   isActive: true
 })
 
-const openModal = (item = null) => {
+const openModal = async (item = null) => {
   if (item) {
     isEdit.value = true
     form.id = item.id
@@ -200,7 +200,7 @@ const openModal = (item = null) => {
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -238,7 +238,7 @@ const saveParam = async () => {
 }
 
 const deleteParam = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa thông số này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa thông số này?')) return
   
   try {
     await $fetch(`${apiBase}/KiemtravesinhxeParams/${id}`, {

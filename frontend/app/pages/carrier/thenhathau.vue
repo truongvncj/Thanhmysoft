@@ -174,7 +174,7 @@ const form = reactive({
   thoihanthe: ''
 })
 
-const openModal = (item = null) => {
+const openModal = async (item = null) => {
   if (item) {
     isEdit.value = true
     form.maLx = item.maLx
@@ -197,7 +197,7 @@ const openModal = (item = null) => {
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -232,7 +232,7 @@ const saveThenhathau = async () => {
 }
 
 const deleteThenhathau = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa thẻ này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa thẻ này?')) return
   
   try {
     await $fetch(`${apiBase}/Thenhathaus/${id}`, {

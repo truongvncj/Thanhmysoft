@@ -208,13 +208,13 @@ const fetchSanphamData = async () => {
   }
 }
 
-const resetForm = () => {
+const resetForm = async () => {
   form.value = { ...defaultForm }
   isEditing.value = false
   editingId.value = null
 }
 
-const editItem = (item) => {
+const editItem = async (item) => {
   isEditing.value = true
   editingId.value = item.id
   form.value = { ...item }
@@ -261,7 +261,7 @@ const saveItem = async () => {
 }
 
 const deleteItem = async (id) => {
-  if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return
+  if (!await confirm('Bạn có chắc muốn xóa sản phẩm này?')) return
   try {
     await $fetch(`${apiBase}/Sanphamnuocs/${id}`, {
       method: 'DELETE'
@@ -273,7 +273,7 @@ const deleteItem = async (id) => {
   }
 }
 
-const exportExcel = () => {
+const exportExcel = async () => {
   if (!selectedKhohangId.value) {
     alert('Vui lòng chọn kho hàng trước!')
     return
@@ -303,7 +303,7 @@ const exportExcel = () => {
   XLSX.writeFile(wb, `DanhSachSanPham_${khoName}.xlsx`)
 }
 
-const triggerUpload = () => {
+const triggerUpload = async () => {
   if (!selectedKhohangId.value) {
     alert('Vui lòng chọn kho hàng trước!')
     return

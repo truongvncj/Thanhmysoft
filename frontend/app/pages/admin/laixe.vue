@@ -294,7 +294,7 @@ const filteredDrivers = computed(() => {
   )
 })
 
-const isExpired = (dateString) => {
+const isExpired = async (dateString) => {
   if (!dateString) return true
   const expiry = new Date(dateString)
   const today = new Date()
@@ -302,7 +302,7 @@ const isExpired = (dateString) => {
   return expiry < today
 }
 
-const formatDate = (dateString) => {
+const formatDate = async (dateString) => {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleDateString('vi-VN')
@@ -323,7 +323,7 @@ const fetchDrivers = async () => {
 
 const changeStatus = async (maLx, newStatus) => {
   const statusName = newStatus === 1 ? 'Duyệt' : 'Khoá'
-  if (!confirm(`Bạn có chắc muốn ${statusName} thẻ này?`)) return
+  if (!await confirm(`Bạn có chắc muốn ${statusName} thẻ này?`)) return
   
   try {
     await $fetch(`${apiBase}/Thenhathaus/${maLx}/status`, {
@@ -338,7 +338,7 @@ const changeStatus = async (maLx, newStatus) => {
   }
 }
 
-const openExtendModal = (driver) => {
+const openExtendModal = async (driver) => {
   selectedDriver.value = driver
   if (driver.thoihanthe) {
     const d = new Date(driver.thoihanthe)
@@ -377,7 +377,7 @@ const submitExtend = async () => {
   }
 }
 
-const openEditModal = (driver) => {
+const openEditModal = async (driver) => {
   editForm.value = { ...driver }
   showEditModal.value = true
 }

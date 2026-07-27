@@ -286,7 +286,7 @@ const dropdownList = ref(null)
 const phanTramHsdInput = ref(null)
 const fileInput = ref(null)
 
-const triggerUpload = () => {
+const triggerUpload = async () => {
   if (!selectedKhohangId.value || !globalThoiDiemGhiNhan.value) {
     alert('Vui lòng chọn Kho và Thời Điểm Ghi Nhận trước khi upload Excel!')
     return
@@ -296,7 +296,7 @@ const triggerUpload = () => {
   }
 }
 
-const exportExcel = () => {
+const exportExcel = async () => {
   const dataToExport = tonKhos.value.length > 0 ? tonKhos.value.map(item => ({
     'Vị Trí': item.viTri,
     'Mã Hàng': item.maHang,
@@ -431,7 +431,7 @@ const filteredSanPhams = computed(() => {
   }).slice(0, 50)
 })
 
-const selectProduct = (sp) => {
+const selectProduct = async (sp) => {
   form.value.maHang = sp.maSanPham
   showDropdown.value = false
   setTimeout(() => {
@@ -441,16 +441,16 @@ const selectProduct = (sp) => {
   }, 50)
 }
 
-const handleBlur = () => {
+const handleBlur = async () => {
   showDropdown.value = false
 }
 
-const onInput = () => {
+const onInput = async () => {
   showDropdown.value = true
   selectedIndex.value = -1
 }
 
-const onArrowDown = () => {
+const onArrowDown = async () => {
   if (!showDropdown.value) {
     showDropdown.value = true
     return
@@ -461,14 +461,14 @@ const onArrowDown = () => {
   }
 }
 
-const onArrowUp = () => {
+const onArrowUp = async () => {
   if (selectedIndex.value > 0) {
     selectedIndex.value--
     scrollToItem()
   }
 }
 
-const onEnter = (e) => {
+const onEnter = async (e) => {
   e.preventDefault() // Luôn chặn submit form khi bấm Enter ở ô Mã Hàng
   if (showDropdown.value && selectedIndex.value >= 0 && selectedIndex.value < filteredSanPhams.value.length) {
     selectProduct(filteredSanPhams.value[selectedIndex.value])
@@ -481,7 +481,7 @@ const onEnter = (e) => {
   }
 }
 
-const scrollToItem = () => {
+const scrollToItem = async () => {
   setTimeout(() => {
     if (dropdownList.value) {
       const activeItem = dropdownList.value.querySelector('.bg-blue-100')
@@ -591,28 +591,28 @@ const fetchTonKhoData = async () => {
 }
 
 // Convert backend Date string to YYYY-MM-DD for input[type=date]
-const toInputDate = (dateStr) => {
+const toInputDate = async (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toISOString().split('T')[0]
 }
 
 // Format date for display in table (MM/DD/YYYY or DD/MM/YYYY)
-const formatDate = (dateStr) => {
+const formatDate = async (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleDateString('en-US', { year: '2-digit', month: 'numeric', day: 'numeric' })
 }
 
 // Format datetime for display in table
-const formatDateTime = (dateStr) => {
+const formatDateTime = async (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleString('en-US', { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 // Convert backend Date string to YYYY-MM-DDTHH:mm for input[type=datetime-local]
-const toInputDateTime = (dateStr) => {
+const toInputDateTime = async (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   // Need to adjust for timezone offset to get local time string in correct format
@@ -621,7 +621,7 @@ const toInputDateTime = (dateStr) => {
   return localISOTime;
 }
 
-const editItem = (item) => {
+const editItem = async (item) => {
   isEditing.value = true
   editingId.value = item.id
   form.value = {
@@ -635,7 +635,7 @@ const editItem = (item) => {
   }
 }
 
-const resetForm = () => {
+const resetForm = async () => {
   isEditing.value = false
   editingId.value = null
   form.value = { ...defaultForm }
@@ -689,7 +689,7 @@ const saveItem = async () => {
 }
 
 const deleteItem = async (id) => {
-  if (!confirm('Bạn có chắc muốn xóa dòng tồn kho này?')) return
+  if (!await confirm('Bạn có chắc muốn xóa dòng tồn kho này?')) return
   try {
     await $fetch(`${apiBase}/TonKhoDauKies/${id}`, { method: 'DELETE' })
     await fetchTonKhoData()

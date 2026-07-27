@@ -100,7 +100,7 @@ const form = reactive({
   stockQuantity: 0
 })
 
-const openModal = (product = null) => {
+const openModal = async (product = null) => {
   if (product) {
     editingProduct.value = product
     form.name = product.name
@@ -115,7 +115,7 @@ const openModal = (product = null) => {
   isModalOpen.value = true
 }
 
-const closeModal = () => {
+const closeModal = async () => {
   isModalOpen.value = false
 }
 
@@ -146,7 +146,7 @@ const saveProduct = async () => {
 }
 
 const deleteProduct = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return
+  if (!await confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return
   
   try {
     await $fetch(`${apiBase}/Products/${id}`, {

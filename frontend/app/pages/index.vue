@@ -8,16 +8,9 @@
 
     <div class="w-full max-w-sm flex flex-col items-center">
       <!-- Logo -->
-      <img src="/logo.svg" alt="Thanh My In.,JSC" class="w-full -mt-10 mb-8 object-contain" />
+      <img src="/logo.svg" alt="Thanh My In.,JSC" class="w-full -mt-16 mb-10 object-contain" />
 
-      <!-- Dòng chữ tiêu đề ở phía trên -->
-      <h1 v-if="!selectedRole" class="text-[18px] font-bold text-slate-800 mb-10 uppercase tracking-wide text-center w-full">
-        Hệ thống quản lý
-      </h1>
-      <h1 v-else class="text-[18px] font-bold text-slate-800 mb-6 uppercase tracking-wide text-center w-full">
-        Hệ thống quản lý
-      </h1>
-      
+      <!-- Removed title text -->
       <!-- Màn hình chọn vai trò (hiển thị khi chưa chọn) -->
       <div v-if="!selectedRole" class="w-full flex flex-col gap-7">
         <button @click="selectedRole = 'carrier'" class="w-full bg-blue-600 hover:bg-blue-500 text-yellow-300 py-4 px-4 rounded-2xl shadow-[0_4px_6px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.06)] border-b-4 border-blue-700 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_15px_25px_rgba(37,99,235,0.4)] flex items-center justify-center font-bold">
