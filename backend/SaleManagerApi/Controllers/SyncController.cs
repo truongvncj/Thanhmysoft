@@ -31,7 +31,9 @@ public class SyncController : ControllerBase
         
         foreach (var dk in dauKy)
         {
-            var key = $"{dk.ViTri}_{dk.MaHang}";
+            string nsx = dk.NgaySanXuat?.ToString("yyyyMMdd") ?? "";
+            string hsd = dk.HanSuDung?.ToString("yyyyMMdd") ?? "";
+            var key = $"{dk.ViTri}_{dk.MaHang}_{nsx}_{hsd}";
             if (!hienTaiDict.ContainsKey(key))
             {
                 hienTaiDict[key] = new TonKhoHienTai
@@ -72,7 +74,10 @@ public class SyncController : ControllerBase
         
         foreach(var ps in phatSinh)
         {
-            var key = $"{ps.ViTri}_{ps.MaSanPham}";
+            string nsx = ps.NgaySanXuat?.ToString("yyyyMMdd") ?? "";
+            string hsd = ps.HanSuDung?.ToString("yyyyMMdd") ?? "";
+            var key = $"{ps.ViTri}_{ps.MaSanPham}_{nsx}_{hsd}";
+            
             if (hienTaiDict.ContainsKey(key))
             {
                 var hienTai = hienTaiDict[key];
@@ -94,6 +99,22 @@ public class SyncController : ControllerBase
                 {
                     hienTai.Tong = (hienTai.SoLuongPalletChan * hienTai.DinhLuong.Value) + hienTai.SoThungLe;
                 }
+            }
+            else if (ps.LoaiPhatSinh == "Nhập")
+            {
+                // If importing a new batch that didn't exist in DauKy
+                hienTaiDict[key] = new TonKhoHienTai
+                {
+                    KhohangId = khohangId, // Warning: assumes PhatSinh is for this khohang.
+                    ViTri = ps.ViTri,
+                    MaHang = ps.MaSanPham,
+                    TenSanPham = ps.TenSanPham,
+                    NgaySanXuat = ps.NgaySanXuat,
+                    HanSuDung = ps.HanSuDung,
+                    SoLuongPalletChan = ps.SoLuongChan ?? 0,
+                    SoThungLe = ps.SoLuongLe ?? 0,
+                    Tong = 0
+                };
             }
         }
         

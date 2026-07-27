@@ -22,7 +22,8 @@ public class TonKhoHienTaisController : ControllerBase
         // Get all locations where this product has stock
         return await _context.TonKhoHienTais
             .Where(t => t.MaHang == maSanPham && (t.SoLuongPalletChan > 0 || t.SoThungLe > 0))
-            .OrderBy(t => t.KhohangId)
+            .OrderBy(t => t.HanSuDung ?? DateTime.MaxValue) // Null HSD goes last
+            .ThenBy(t => t.KhohangId)
             .ThenBy(t => t.ViTri)
             .ToListAsync();
     }

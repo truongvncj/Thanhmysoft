@@ -108,10 +108,22 @@ public class PhatSinhSanPhamsController : ControllerBase
         request.Status = "ok";
         request.ThoiGian = DateTime.UtcNow.AddHours(7);
         
+        if (request.NgaySanXuat.HasValue)
+        {
+            request.NgaySanXuat = DateTime.SpecifyKind(request.NgaySanXuat.Value, DateTimeKind.Utc);
+        }
+        if (request.HanSuDung.HasValue)
+        {
+            request.HanSuDung = DateTime.SpecifyKind(request.HanSuDung.Value, DateTimeKind.Utc);
+        }
+
         // Find existing inventory in TonKhoHienTai
+        // Group by exact product, location, manufacturing date, and expiration date
         var tonKho = await _context.TonKhoHienTais.FirstOrDefaultAsync(t => 
             t.MaHang == request.MaSanPham && 
-            t.ViTri == request.ViTri);
+            t.ViTri == request.ViTri &&
+            t.HanSuDung == request.HanSuDung &&
+            t.NgaySanXuat == request.NgaySanXuat);
 
         int nhapChan = request.SoLuongChan ?? 0;
         int nhapLe = request.SoLuongLe ?? 0;
@@ -144,7 +156,9 @@ public class PhatSinhSanPhamsController : ControllerBase
                 SoThungLe = nhapLe,
                 DinhLuong = dinhLuong,
                 Tong = (nhapChan * dinhLuong) + nhapLe,
-                KhohangId = request.KhohangId ?? 1
+                KhohangId = request.KhohangId ?? 1,
+                HanSuDung = request.HanSuDung,
+                NgaySanXuat = request.NgaySanXuat
             };
             _context.TonKhoHienTais.Add(tonKho);
         }

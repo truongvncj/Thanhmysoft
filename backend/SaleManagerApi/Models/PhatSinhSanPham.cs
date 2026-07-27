@@ -17,6 +17,8 @@ public class PhatSinhSanPham
 
     public DateTime? HanSuDung { get; set; }
 
+    public DateTime? NgaySanXuat { get; set; }
+
     public int? SoLuongChan { get; set; }
 
     public int? SoLuongLe { get; set; }

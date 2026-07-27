@@ -508,6 +508,8 @@
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">MÃ HÀNG</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TÊN SẢN PHẨM</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NSX</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">HSD</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SL PALLET CHẴN</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SỐ THÙNG LẺ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">ĐỊNH LƯỢNG (CS/PL)</th>
@@ -516,15 +518,17 @@
                 </thead>
                 <tbody>
                   <tr v-if="baocaoTonKhoLoading" class="bg-white">
-                    <td colspan="7" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    <td colspan="9" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
                   </tr>
                   <tr v-else-if="baocaoTonKhoData.length === 0" class="bg-white">
-                    <td colspan="7" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
+                    <td colspan="9" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
                   </tr>
                   <tr v-for="item in baocaoTonKhoData" :key="item.id" class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors">
                     <td class="py-2 px-4 border-r border-slate-100">{{ item.viTri }}</td>
                     <td class="py-2 px-4 border-r border-slate-100 font-semibold">{{ item.maHang }}</td>
                     <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                    <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                    <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
                     <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan }}</td>
                     <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soThungLe }}</td>
                     <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.dinhLuong }}</td>
@@ -568,6 +572,8 @@
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">LOẠI</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">MÃ HÀNG</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TÊN SẢN PHẨM</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NSX</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">HSD</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SỐ LƯỢNG CHẴN</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SỐ LƯỢNG LẺ</th>
@@ -578,16 +584,18 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
                   <tr v-if="baocaoNhapXuatLoading" class="bg-white">
-                    <td colspan="10" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    <td colspan="12" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
                   </tr>
                   <tr v-else-if="baocaoNhapXuatData.length === 0" class="bg-white">
-                    <td colspan="10" class="py-8 text-center text-slate-500">Không có dữ liệu phát sinh trong ngày này.</td>
+                    <td colspan="12" class="py-8 text-center text-slate-500">Không có dữ liệu phát sinh trong ngày này.</td>
                   </tr>
                   <tr v-for="item in baocaoNhapXuatData" :key="item.id" class="hover:bg-blue-50/50 transition-colors">
                     <td class="py-3 px-4 border-r border-slate-100">{{ formatDate(item.thoiGian, true) }}</td>
                     <td class="py-3 px-4 border-r border-slate-100 font-bold" :class="item.loaiPhatSinh === 'Nhập' ? 'text-blue-600' : 'text-red-600'">{{ item.loaiPhatSinh }}</td>
                     <td class="py-3 px-4 border-r border-slate-100">{{ item.maSanPham }}</td>
                     <td class="py-3 px-4 border-r border-slate-100 whitespace-normal min-w-[200px]">{{ item.tenSanPham }}</td>
+                    <td class="py-3 px-4 border-r border-slate-100 text-slate-600">{{ item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                    <td class="py-3 px-4 border-r border-slate-100 text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
                     <td class="py-3 px-4 border-r border-slate-100 font-medium">{{ item.viTri }}</td>
                     <td class="py-3 px-4 border-r border-slate-100 text-right">{{ item.soLuongChan }}</td>
                     <td class="py-3 px-4 border-r border-slate-100 text-right">{{ item.soLuongLe }}</td>
@@ -712,6 +720,14 @@
                 <thead class="bg-slate-50">
                   <tr>
                     <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Vị trí</th>
+                    <th @click="handleSortTonKho('ngaySanXuat')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
+                      NSX
+                      <span v-if="sortTonKhoKey === 'ngaySanXuat'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
+                    </th>
+                    <th @click="handleSortTonKho('hanSuDung')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
+                      HSD
+                      <span v-if="sortTonKhoKey === 'hanSuDung'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
+                    </th>
                     <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Chẵn</th>
                     <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Lẻ</th>
                     <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">Xuất Chẵn</th>
@@ -727,6 +743,8 @@
                   </tr>
                   <tr v-for="tk in tonKhoList" :key="tk.id" class="hover:bg-slate-50 transition-colors">
                     <td class="px-4 py-3 text-sm font-medium text-slate-900">{{ tk.viTri }}</td>
+                    <td class="px-4 py-3 text-sm text-slate-600">{{ tk.ngaySanXuat ? new Date(tk.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                    <td class="px-4 py-3 text-sm text-slate-600">{{ tk.hanSuDung ? new Date(tk.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
                     <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soLuongPalletChan }}</td>
                     <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soThungLe }}</td>
                     <td class="px-4 py-3 text-sm text-center">
@@ -743,7 +761,7 @@
             <div v-if="tonKhoList.length > 0" class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
                <button @click="addDraftTicket" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2">
                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                 Chọn (Thêm vào phiếu Load)
+                 Thêm vào phiếu Load
                </button>
             </div>
           </div>
@@ -853,11 +871,22 @@
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
+        <div class="px-6 pt-4 border-b border-slate-200 bg-white">
+          <div class="flex space-x-6">
+            <button @click="nhapKhoActiveTab = 'nhapKho'" :class="nhapKhoActiveTab === 'nhapKho' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2">Nhập kho</button>
+            <button @click="nhapKhoActiveTab = 'danhSach'" :class="nhapKhoActiveTab === 'danhSach' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2 flex items-center gap-2">
+              Danh sách hàng nhập
+              <span v-if="draftNhapKhoTickets[selectedNhapKhoDoc]?.length" class="bg-blue-100 text-blue-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ draftNhapKhoTickets[selectedNhapKhoDoc].length }}</span>
+            </button>
+          </div>
+        </div>
         
-        <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-6 bg-slate-50/50">
-          <!-- Chọn sản phẩm -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
-            <div class="w-full md:w-1/3 relative">
+        <div class="p-6 overflow-y-auto flex-1 flex flex-col bg-slate-50/50">
+          <!-- Tab 1: Nhập kho -->
+          <div v-show="nhapKhoActiveTab === 'nhapKho'" class="flex flex-col gap-6">
+            <!-- Chọn sản phẩm -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
+              <div class="w-full md:w-1/3 relative">
               <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
               <input :value="nhapKhoSearchQuery" 
                      @input="onNhapKhoProductInput"
@@ -923,6 +952,16 @@
                 </div>
               </div>
               <div class="flex flex-col md:flex-row gap-4 items-end mt-2 relative z-10">
+                <div class="w-full md:w-1/2">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Ngày sản xuất <span class="text-red-500">*</span></label>
+                  <input type="date" v-model="nhapKhoNgaySanXuat" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 font-bold focus:border-blue-500 focus:ring-blue-500 outline-none shadow-sm" />
+                </div>
+                <div class="w-full md:w-1/2">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Hạn sử dụng <span class="text-red-500">*</span></label>
+                  <input type="date" v-model="nhapKhoHanSuDung" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 font-bold focus:border-blue-500 focus:ring-blue-500 outline-none shadow-sm" />
+                </div>
+              </div>
+              <div class="flex flex-col md:flex-row gap-4 items-end mt-2 relative z-10">
                 <div class="w-full md:w-1/3">
                   <label class="block text-sm font-semibold text-slate-700 mb-2">Nhập chẵn (Pallet)</label>
                   <input ref="nhapKhoQuantityChanInput" type="number" min="0" v-model.number="nhapKhoQuantityChan" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 font-bold focus:border-blue-500 focus:ring-blue-500 outline-none shadow-sm" />
@@ -940,9 +979,12 @@
               </div>
             </div>
           </div>
+          </div>
           
-          <!-- Bảng Phiếu cẩu hàng Nháp -->
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col z-0">
+          <!-- Tab 2: Danh sách hàng nhập -->
+          <div v-show="nhapKhoActiveTab === 'danhSach'" class="flex flex-col h-full gap-4">
+            <!-- Bảng Phiếu cẩu hàng Nháp -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col z-0">
              <div class="p-4 border-b border-slate-100 bg-slate-50">
                <h4 class="font-bold text-slate-700">Các mặt hàng đã thêm vào phiếu cẩu hàng</h4>
              </div>
@@ -953,6 +995,8 @@
                       <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Mã SP</th>
                       <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Tên Sản Phẩm</th>
                       <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Vị trí</th>
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">NSX</th>
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">HSD</th>
                       <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Chẵn</th>
                       <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Lẻ</th>
                       <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase w-16">Thao tác</th>
@@ -960,12 +1004,14 @@
                   </thead>
                   <tbody class="bg-white divide-y divide-slate-100">
                     <tr v-if="!draftNhapKhoTickets[selectedNhapKhoDoc] || draftNhapKhoTickets[selectedNhapKhoDoc].length === 0">
-                       <td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Chưa có mặt hàng nào được chọn</td>
+                       <td colspan="8" class="px-4 py-6 text-center text-slate-500 italic">Chưa có mặt hàng nào được chọn</td>
                     </tr>
                     <tr v-for="item in draftNhapKhoTickets[selectedNhapKhoDoc]" :key="item.id" class="hover:bg-slate-50">
                        <td class="px-4 py-2 text-sm font-bold text-blue-700">{{ item.maHang }}</td>
                        <td class="px-4 py-2 text-sm text-slate-700 max-w-[200px] truncate">{{ item.tenSanPham }}</td>
                        <td class="px-4 py-2 text-sm font-medium text-slate-800">{{ item.viTri }}</td>
+                       <td class="px-4 py-2 text-sm text-slate-600">{{ item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                       <td class="px-4 py-2 text-sm text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
                        <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.nhapChan }}</td>
                        <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.nhapLe }}</td>
                        <td class="px-4 py-2 text-sm text-center">
@@ -978,6 +1024,7 @@
                 </table>
              </div>
           </div>
+        </div>
         </div>
         
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
@@ -1322,6 +1369,32 @@ const selectedProductIdForXuatKho = ref('')
 const tonKhoList = ref([])
 const loadingTonKho = ref(false)
 
+const sortTonKhoKey = ref('')
+const sortTonKhoAsc = ref(true)
+
+const handleSortTonKho = (key) => {
+  if (sortTonKhoKey.value === key) {
+    sortTonKhoAsc.value = !sortTonKhoAsc.value
+  } else {
+    sortTonKhoKey.value = key
+    sortTonKhoAsc.value = true
+  }
+  
+  tonKhoList.value.sort((a, b) => {
+    let valA = a[key]
+    let valB = b[key]
+    
+    if (key === 'ngaySanXuat' || key === 'hanSuDung') {
+      valA = valA ? new Date(valA).getTime() : 0
+      valB = valB ? new Date(valB).getTime() : 0
+    }
+    
+    if (valA < valB) return sortTonKhoAsc.value ? -1 : 1
+    if (valA > valB) return sortTonKhoAsc.value ? 1 : -1
+    return 0
+  })
+}
+
 const showXuatKhoProductDropdown = ref(false)
 const selectedXuatKhoProductIndex = ref(-1)
 const xuatKhoDropdownList = ref(null)
@@ -1527,6 +1600,8 @@ const showNhapKhoLayoutModal = ref(false)
 const selectedLayoutViTri = ref('')
 const nhapKhoQuantityChan = ref(0)
 const nhapKhoQuantityLe = ref(0)
+const nhapKhoNgaySanXuat = ref('')
+const nhapKhoHanSuDung = ref('')
 
 const openNhapKhoLayoutModal = () => {
   if (layoutItems.value.length === 0) fetchLayout()
@@ -1569,6 +1644,11 @@ const addNhapKhoDraftTicketFromMain = () => {
     alert('Vui lòng nhập số lượng nhập (chẵn hoặc lẻ)')
     return
   }
+
+  if (!nhapKhoNgaySanXuat.value || !nhapKhoHanSuDung.value) {
+    alert('Vui lòng chọn Ngày sản xuất và Hạn sử dụng')
+    return
+  }
   
   const productInfo = productsList.value.find(p => p.maSanPham === selectedProductIdForNhapKho.value)
   const maHangStr = productInfo?.maSanPham || selectedProductIdForNhapKho.value
@@ -1578,7 +1658,12 @@ const addNhapKhoDraftTicketFromMain = () => {
   }
   
   const docTickets = draftNhapKhoTickets.value[selectedNhapKhoDoc.value]
-  const existingIndex = docTickets.findIndex(d => d.maHang === maHangStr && d.viTri === viTri)
+  const existingIndex = docTickets.findIndex(d => 
+    d.maHang === maHangStr && 
+    d.viTri === viTri &&
+    d.ngaySanXuat === nhapKhoNgaySanXuat.value &&
+    d.hanSuDung === nhapKhoHanSuDung.value
+  )
   
   if (existingIndex > -1) {
     docTickets[existingIndex].nhapChan += nhapKhoQuantityChan.value || 0
@@ -1590,7 +1675,9 @@ const addNhapKhoDraftTicketFromMain = () => {
       tenSanPham: productInfo?.tenSanPham || '',
       viTri: viTri,
       nhapChan: nhapKhoQuantityChan.value || 0,
-      nhapLe: nhapKhoQuantityLe.value || 0
+      nhapLe: nhapKhoQuantityLe.value || 0,
+      ngaySanXuat: nhapKhoNgaySanXuat.value,
+      hanSuDung: nhapKhoHanSuDung.value
     })
   }
   
@@ -1838,6 +1925,7 @@ const showNhapKhoModal = ref(false)
 const selectedNhapKhoXe = ref(null)
 
 const showNhapKhoSTOModal = ref(false)
+const nhapKhoActiveTab = ref('nhapKho')
 const selectedNhapKhoType = ref('STO')
 const selectedNhapKhoDoc = ref('')
 const draftNhapKhoTickets = ref({})
@@ -2073,6 +2161,7 @@ const submitFinalNhapKho = async () => {
         tenSanPham: tk.tenSanPham,
         viTri: tk.viTri,
         hanSuDung: tk.hanSuDung,
+        ngaySanXuat: tk.ngaySanXuat,
         soLuongChan: tk.nhapChan || 0,
         soLuongLe: tk.nhapLe || 0,
         user: nhanvienInfo.value?.mnv || '',
