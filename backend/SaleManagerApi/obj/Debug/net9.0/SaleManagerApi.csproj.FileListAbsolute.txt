@@ -130,3 +130,4 @@
 /Users/truongvncj/Desktop/ThanhMy/backend/SaleManagerApi/obj/Debug/net9.0/SaleManagerApi.pdb
 /Users/truongvncj/Desktop/ThanhMy/backend/SaleManagerApi/obj/Debug/net9.0/SaleManagerApi.genruntimeconfig.cache
 /Users/truongvncj/Desktop/ThanhMy/backend/SaleManagerApi/obj/Debug/net9.0/ref/SaleManagerApi.dll
+/Users/truongvncj/Desktop/ThanhMy/backend/SaleManagerApi/obj/Debug/net9.0/SaleManagerApi.sourcelink.json

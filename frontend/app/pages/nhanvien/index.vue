@@ -382,13 +382,41 @@
 
         <div v-else-if="activeMenu === 'demkho'" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 h-full flex flex-col">
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-slate-800">Sơ đồ kho: {{ khohangInfo?.name }}</h2>
-            <button @click="fetchLayout" class="text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-semibold transition-colors">
-              Làm mới sơ đồ
-            </button>
+            <h2 class="text-xl font-bold text-slate-800">Đếm kho: {{ khohangInfo?.name }}</h2>
+            <div class="flex bg-slate-100 p-1 rounded-lg">
+              <button @click="activeDemKhoTab = 'sodo'" :class="['px-4 py-1.5 rounded-md text-sm font-medium transition-colors', activeDemKhoTab === 'sodo' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-600 hover:text-slate-900']">Sơ đồ kho</button>
+              <button @click="activeDemKhoTab = 'sodem'" :class="['px-4 py-1.5 rounded-md text-sm font-medium transition-colors', activeDemKhoTab === 'sodem' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-600 hover:text-slate-900']">Số đếm</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <template v-if="activeDemKhoTab === 'sodo'">
+                <div class="relative">
+                  <input :value="demKhoViTriSearchQuery"
+                         @input="onDemKhoViTriInput"
+                         @focus="onDemKhoViTriFocus"
+                         @blur="handleDemKhoViTriBlur"
+                         @keydown.down.prevent="onDemKhoViTriArrowDown"
+                         @keydown.up.prevent="onDemKhoViTriArrowUp"
+                         @keydown.enter="onDemKhoViTriEnter"
+                         type="text" placeholder="Tìm vị trí..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm w-48 focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase font-medium">
+                  
+                  <!-- Dropdown Vị trí Đếm kho -->
+                  <div v-if="showDemKhoViTriDropdown && filteredDemKhoViTri.length > 0" ref="demKhoViTriDropdownList" class="absolute z-50 w-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar">
+                    <ul class="py-1 text-sm text-slate-700">
+                      <li v-for="(vt, index) in filteredDemKhoViTri" :key="vt.maLocal" @mousedown.prevent="selectDemKhoViTri(vt.maLocal)" :class="['px-4 py-2 cursor-pointer flex justify-between items-center transition-colors', selectedDemKhoViTriIndex === index ? 'bg-blue-100' : 'hover:bg-blue-50']">
+                        <span class="font-bold text-blue-700">{{ vt.maLocal }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <button @click="onDemKhoManualGo" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors">Go</button>
+                <button @click="fetchLayout" class="text-sm bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-semibold transition-colors">
+                  Làm mới sơ đồ
+                </button>
+              </template>
+            </div>
           </div>
           
-          <div 
+          <div v-if="activeDemKhoTab === 'sodo'"
             ref="layoutContainer"
             class="flex-1 bg-slate-200 rounded-2xl shadow-inner border border-slate-300 relative overflow-auto"
             :class="isDraggingLayout ? 'cursor-grabbing' : 'cursor-grab'"
@@ -410,11 +438,12 @@
               <div 
                 v-for="item in layoutItems" 
                 :key="item.id"
+                @dblclick="onDemKhoLayoutElementDblClick(item)"
                 :class="[
                   'absolute flex items-center justify-center select-none transition-shadow group',
                   (item.elementType === 'line' || item.maLocal.startsWith('LINE_')) ? 'bg-slate-800 shadow-sm border-0' : 
                   item.elementType === 'text' ? `bg-transparent text-slate-800 shadow-none border-0 ring-0 outline-none leading-none ${item.hang === 'bold' ? 'font-bold' : 'font-normal'}` : 
-                  'bg-white border-2 border-blue-500 shadow-md rounded hover:shadow-lg'
+                  'bg-white border-2 border-blue-500 shadow-md rounded hover:shadow-lg cursor-pointer'
                 ]"
                 :style="{ 
                   left: item.positionX + 'px', 
@@ -445,6 +474,75 @@
                   <p v-if="item.ghiChu" class="mt-1 border-t border-gray-700 pt-1">{{ item.ghiChu }}</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Tab Số đếm (Bảng tạm) -->
+          <div v-else class="flex-1 bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
+            <div v-if="currentCountSession.length === 0" class="p-8 text-center text-slate-500 flex-1 flex items-center justify-center">
+              Chưa có vị trí nào được đếm trong phiên này. Hãy sang tab Sơ đồ kho và đúp chuột vào một vị trí để đếm.
+            </div>
+            <div v-else class="overflow-auto flex-1 p-2">
+              <table class="w-full text-sm border-collapse border border-slate-200">
+                <thead class="bg-slate-100 border-b border-slate-300 text-xs text-slate-600 uppercase sticky top-0 z-10 shadow-sm">
+                  <tr>
+                    <th class="px-4 py-3 text-left font-semibold border-r border-slate-200">Sản phẩm</th>
+                    <th class="px-4 py-3 text-center font-semibold border-r border-slate-200">NSX / HSD</th>
+                    <th class="px-4 py-3 text-center font-semibold border-r border-slate-200 w-32">Số Đếm<br>(Chẵn / Lẻ)</th>
+                    <th class="px-4 py-3 text-center font-semibold border-r border-slate-200 w-32">Chênh lệch<br>(Chẵn / Lẻ)</th>
+                    <th class="px-4 py-3 text-left font-semibold">Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                  <template v-for="(phieu, idx) in currentCountSession" :key="phieu.id">
+                    <!-- Dòng Vị Trí -->
+                    <tr class="bg-blue-50/80 border-t-2 border-slate-300">
+                      <td colspan="5" class="px-4 py-2">
+                        <div class="flex justify-between items-center">
+                          <div class="flex items-center gap-2">
+                            <span class="text-blue-800 font-bold text-base">Vị trí: {{ phieu.viTri }}</span>
+                            <span class="text-slate-500 text-xs font-medium bg-white px-2 py-0.5 rounded-full border border-blue-100">{{ phieu.chiTiets.length }} mã hàng</span>
+                            <span v-if="phieu.ghiChu" class="text-slate-600 text-xs italic ml-2">- {{ phieu.ghiChu }}</span>
+                          </div>
+                          <button @click="viewPhieuDemKho(phieu)" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-white px-3 py-1 rounded shadow-sm border border-blue-200 hover:bg-blue-50 transition-colors">Sửa vị trí này</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <!-- Các dòng Chi Tiết -->
+                    <tr v-for="(ct, cIdx) in phieu.chiTiets" :key="cIdx" class="hover:bg-slate-50">
+                      <td class="px-4 py-2 border-r border-slate-100">
+                        <div class="font-bold text-slate-800">{{ ct.maSanPham }}</div>
+                        <div class="text-slate-600 text-xs">{{ ct.tenSanPham }}</div>
+                      </td>
+                      <td class="px-4 py-2 text-center text-slate-600 border-r border-slate-100 text-xs">
+                        <div v-if="ct.ngaySanXuat">{{ formatDate(ct.ngaySanXuat) }}</div>
+                        <div v-if="ct.hanSuDung">{{ formatDate(ct.hanSuDung) }}</div>
+                      </td>
+                      <td class="px-4 py-2 text-center border-r border-slate-100">
+                        <span class="text-blue-700 font-bold">{{ ct.soDemChan }}</span>
+                        <span class="text-slate-400 mx-1">/</span>
+                        <span class="text-blue-600 font-medium">{{ ct.soDemLe }}</span>
+                      </td>
+                      <td class="px-4 py-2 text-center border-r border-slate-100">
+                        <span :class="getChenhLechColor(ct.chenhLechChan)">{{ ct.chenhLechChan }}</span>
+                        <span class="text-slate-400 mx-1">/</span>
+                        <span :class="getChenhLechColor(ct.chenhLechLe)">{{ ct.chenhLechLe }}</span>
+                      </td>
+                      <td class="px-4 py-2 text-slate-600 text-xs italic">{{ ct.ghiChu }}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3" v-if="currentCountSession.length > 0">
+              <button @click="exportDemKhoExcel" class="px-6 py-2.5 bg-white border border-emerald-500 text-emerald-600 hover:bg-emerald-50 rounded-lg font-bold transition-colors shadow-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Xuất Excel
+              </button>
+              <button @click="submitCountSession" :disabled="isSubmittingDemKho" class="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold transition-colors disabled:opacity-50 shadow-sm flex items-center gap-2">
+                <span v-if="isSubmittingDemKho" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                Hoàn thành phiên đếm kho
+              </button>
             </div>
           </div>
         </div>
@@ -670,6 +768,15 @@
                 <h3 class="font-bold text-lg text-slate-800 mb-2">Báo cáo nhập xuất</h3>
                 <p class="text-sm text-slate-500">Xem danh sách phát sinh nhập xuất hàng hoá theo ngày.</p>
               </div>
+              
+              <!-- Báo cáo đếm kho Card -->
+              <div @click="openReport('demkho')" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-amber-300 transition-all cursor-pointer group flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                </div>
+                <h3 class="font-bold text-lg text-slate-800 mb-2">Báo cáo đếm kho</h3>
+                <p class="text-sm text-slate-500">Kiểm duyệt kết quả đếm kho thực tế và xem lịch sử đếm kho.</p>
+              </div>
             </div>
           </div>
 
@@ -800,8 +907,185 @@
               </table>
             </div>
           </div>
+
+          <!-- Báo Cáo Đếm Kho View -->
+          <div v-else-if="activeReport === 'demkho'" class="flex flex-col h-full overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div class="flex items-center gap-4">
+                <button @click="closeReport" class="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-200 rounded-full transition-colors" title="Quay lại danh mục báo cáo">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div>
+                  <h2 class="text-xl font-bold text-slate-800">Báo cáo đếm kho</h2>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Danh sách các phiên đếm kho
+                    <span class="font-bold text-amber-600 ml-2" v-if="khohangInfo">Mã Kho: {{ khohangInfo.name }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="px-6 pt-4 border-b border-slate-200 bg-white shrink-0">
+              <div class="flex space-x-6">
+                <button @click="activeBaocaoDemKhoTab = 'choduyet'" :class="activeBaocaoDemKhoTab === 'choduyet' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2 flex items-center gap-2 transition-colors">
+                  Chờ duyệt
+                  <span v-if="pendingDemKhoReports.length > 0" class="bg-amber-100 text-amber-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ pendingDemKhoReports.length }}</span>
+                </button>
+                <button @click="activeBaocaoDemKhoTab = 'lichsu'" :class="activeBaocaoDemKhoTab === 'lichsu' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2 transition-colors">
+                  Lịch sử đếm kho
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-auto custom-scrollbar p-0 bg-slate-50/50">
+              <!-- Tab Chờ duyệt -->
+              <div v-if="activeBaocaoDemKhoTab === 'choduyet'">
+                <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+                  <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
+                    <tr>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">ID</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">THỜI GIAN TẠO</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NGƯỜI ĐẾM</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">GHI CHÚ</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200 text-center">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 bg-white">
+                    <tr v-if="baocaoDemKhoLoading" class="bg-white">
+                      <td colspan="6" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    </tr>
+                    <tr v-else-if="pendingDemKhoReports.length === 0" class="bg-white">
+                      <td colspan="6" class="py-8 text-center text-slate-500">Không có phiếu đếm kho nào cần duyệt.</td>
+                    </tr>
+                    <tr v-for="item in pendingDemKhoReports" :key="item.id" @dblclick="openDemKhoReportDetail(item)" class="hover:bg-blue-50/50 transition-colors cursor-pointer group">
+                      <td class="py-3 px-4 border-r border-slate-100 font-bold text-slate-700">#{{ item.id }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100 font-bold text-blue-700">{{ item.viTri }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100">{{ formatDate(item.thoiGianTao, true) }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100">{{ item.nguoiDem }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100 truncate max-w-[200px]" :title="item.ghiChu">{{ item.ghiChu }}</td>
+                      <td class="py-2 px-4 text-center">
+                        <button @click.stop="openDemKhoReportDetail(item)" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-xs font-semibold mr-2 transition-colors">Chi tiết</button>
+                        <button @click.stop="duyetDemKho(item.id)" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-bold mr-2 transition-colors shadow-sm">Duyệt</button>
+                        <button @click.stop="khongDuyetDemKho(item.id)" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 text-xs font-semibold transition-colors">Không Duyệt</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Tab Lịch sử -->
+              <div v-else-if="activeBaocaoDemKhoTab === 'lichsu'">
+                <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+                  <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
+                    <tr>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">ID</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">THỜI GIAN TẠO</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NGƯỜI ĐẾM</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-center">TRẠNG THÁI</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NGƯỜI DUYỆT</th>
+                      <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200">THỜI GIAN DUYỆT</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 bg-white">
+                    <tr v-if="baocaoDemKhoLoading" class="bg-white">
+                      <td colspan="7" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    </tr>
+                    <tr v-else-if="historyDemKhoReports.length === 0" class="bg-white">
+                      <td colspan="7" class="py-8 text-center text-slate-500">Chưa có lịch sử đếm kho.</td>
+                    </tr>
+                    <tr v-for="item in historyDemKhoReports" :key="item.id" @dblclick="openDemKhoReportDetail(item)" class="hover:bg-slate-50 transition-colors cursor-pointer group" title="Nháy đúp để xem chi tiết">
+                      <td class="py-3 px-4 border-r border-slate-100 font-bold text-slate-700">#{{ item.id }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100 font-bold text-slate-800">{{ item.viTri }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100">{{ formatDate(item.thoiGianTao, true) }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100">{{ item.nguoiDem }}</td>
+                      <td class="py-3 px-4 border-r border-slate-100 text-center">
+                        <span :class="item.trangThai === 'Duyệt' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'" class="px-2.5 py-1 rounded-full text-xs font-bold">
+                          {{ item.trangThai }}
+                        </span>
+                      </td>
+                      <td class="py-3 px-4 border-r border-slate-100">{{ item.nguoiDuyet }}</td>
+                      <td class="py-3 px-4">{{ item.thoiGianDuyet ? formatDate(item.thoiGianDuyet, true) : '-' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Modal Chi Tiết Phiếu Đếm Kho -->
+    <div v-if="selectedDemKhoReport" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white rounded-xl w-full max-w-5xl shadow-xl flex flex-col max-h-[90vh]">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Chi tiết phiếu đếm kho #{{ selectedDemKhoReport.id }}</h3>
+            <div class="flex items-center gap-3 text-sm text-slate-500 mt-1">
+              <span>Vị trí: <strong class="text-slate-700">{{ selectedDemKhoReport.viTri }}</strong></span>
+              <span>•</span>
+              <span>Người đếm: <strong>{{ selectedDemKhoReport.nguoiDem }}</strong></span>
+              <span>•</span>
+              <span>Thời gian: {{ formatDate(selectedDemKhoReport.thoiGianTao, true) }}</span>
+            </div>
+          </div>
+          <button @click="closeDemKhoReportDetail" class="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-200 rounded-full transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead class="bg-slate-100 sticky top-0 shadow-sm">
+              <tr>
+                <th class="py-2 px-3 font-semibold text-slate-700 border-b border-r border-slate-200">Mã SP</th>
+                <th class="py-2 px-3 font-semibold text-slate-700 border-b border-r border-slate-200">Tên SP</th>
+                <th class="py-2 px-3 font-semibold text-slate-700 border-b border-r border-slate-200">NSX</th>
+                <th class="py-2 px-3 font-semibold text-slate-700 border-b border-r border-slate-200">HSD</th>
+                <th class="py-2 px-3 font-semibold text-blue-700 border-b border-r border-blue-200 bg-blue-50 text-center" colspan="2">HIỆN TẠI</th>
+                <th class="py-2 px-3 font-semibold text-amber-700 border-b border-r border-amber-200 bg-amber-50 text-center" colspan="2">SỐ ĐẾM</th>
+                <th class="py-2 px-3 font-semibold text-red-700 border-b border-slate-200 bg-red-50 text-center" colspan="2">CHÊNH LỆCH</th>
+              </tr>
+              <tr>
+                <th class="py-2 px-3 border-b border-r border-slate-200"></th>
+                <th class="py-2 px-3 border-b border-r border-slate-200"></th>
+                <th class="py-2 px-3 border-b border-r border-slate-200"></th>
+                <th class="py-2 px-3 border-b border-r border-slate-200"></th>
+                <th class="py-2 px-2 text-xs text-center border-b border-r border-blue-200 bg-blue-50/50">Pallet</th>
+                <th class="py-2 px-2 text-xs text-center border-b border-r border-blue-200 bg-blue-50/50">Lẻ</th>
+                <th class="py-2 px-2 text-xs text-center border-b border-r border-amber-200 bg-amber-50/50">Pallet</th>
+                <th class="py-2 px-2 text-xs text-center border-b border-r border-amber-200 bg-amber-50/50">Lẻ</th>
+                <th class="py-2 px-2 text-xs text-center border-b border-r border-red-200 bg-red-50/50">Pallet</th>
+                <th class="py-2 px-2 text-xs text-center border-b border-slate-200 bg-red-50/50">Lẻ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ct in selectedDemKhoReport.chiTiets" :key="ct.id" class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="py-2 px-3 border-r border-slate-100 font-medium">{{ ct.maSanPham }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-xs">{{ ct.tenSanPham }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-xs">{{ ct.ngaySanXuat ? new Date(ct.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-xs">{{ ct.hanSuDung ? new Date(ct.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-center bg-blue-50/10">{{ ct.tonHienTaiChan }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-center bg-blue-50/10">{{ ct.tonHienTaiLe }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-center bg-amber-50/20 font-bold">{{ ct.soDemChan }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-center bg-amber-50/20 font-bold">{{ ct.soDemLe }}</td>
+                <td class="py-2 px-3 border-r border-slate-100 text-center bg-red-50/30" :class="ct.chenhLechChan !== 0 ? 'text-red-600 font-bold' : 'text-slate-400'">{{ ct.chenhLechChan }}</td>
+                <td class="py-2 px-3 text-center bg-red-50/30" :class="ct.chenhLechLe !== 0 ? 'text-red-600 font-bold' : 'text-slate-400'">{{ ct.chenhLechLe }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b-xl">
+          <button @click="closeDemKhoReportDetail" class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors shadow-sm">Đóng</button>
+          <template v-if="selectedDemKhoReport.trangThai === 'Chờ duyệt'">
+            <button @click="khongDuyetDemKho(selectedDemKhoReport.id)" class="px-5 py-2.5 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 border border-red-200 transition-colors shadow-sm">Không Duyệt</button>
+            <button @click="duyetDemKho(selectedDemKhoReport.id)" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Duyệt Phiếu</button>
+          </template>
+        </div>
       </div>
     </div>
 
@@ -1408,6 +1692,131 @@
           <button @click="showViewLoadTicketModal = false" class="px-6 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors shadow-sm">
             Đóng
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal Đếm kho (Bảng đếm) -->
+    <div v-if="showDemKhoModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-[95%] max-w-7xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b border-slate-200 bg-slate-50">
+          <div>
+            <h3 class="text-2xl font-bold text-slate-800">Bảng đếm kho</h3>
+            <p class="text-blue-600 font-medium text-lg mt-1">Vị trí: {{ demKhoData?.viTri }}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <button @click="showAddProductModal = true" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold rounded-lg text-sm border border-indigo-200 transition-colors flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              Thêm sản phẩm
+            </button>
+            <button @click="showDemKhoModal = false" class="text-slate-400 hover:text-slate-600 transition-colors p-2 bg-slate-200 rounded-full hover:bg-slate-300">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex-1 overflow-auto p-6 bg-slate-50/50">
+          <table class="w-full text-sm border-collapse bg-white shadow-sm rounded-lg overflow-hidden border border-slate-200">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-200">
+                <th rowspan="2" class="px-3 py-2 text-left font-bold text-slate-700 border-r border-slate-200 bg-slate-100">Mã hàng</th>
+                <th colspan="2" class="px-3 py-2 text-center font-bold text-blue-700 border-r border-slate-200 bg-blue-50">SỐ HIỆN TẠI</th>
+                <th colspan="2" class="px-3 py-2 text-center font-bold text-amber-700 border-r border-slate-200 bg-amber-50">SỐ ĐẾM</th>
+                <th colspan="2" class="px-3 py-2 text-center font-bold text-emerald-700 border-r border-slate-200 bg-emerald-50">CHÊNH LỆCH</th>
+                <th rowspan="2" class="px-3 py-2 text-left font-bold text-slate-700 border-r border-slate-200 bg-slate-100">Tên sản phẩm</th>
+                <th rowspan="2" class="px-3 py-2 text-center font-bold text-slate-700 border-r border-slate-200 bg-slate-100">Ngày SX</th>
+                <th rowspan="2" class="px-3 py-2 text-center font-bold text-slate-700 border-r border-slate-200 bg-slate-100">Hạn SD</th>
+                <th rowspan="2" class="px-3 py-2 text-left font-bold text-slate-700 bg-slate-100 w-48">Ghi chú</th>
+              </tr>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <!-- SỐ HIỆN TẠI -->
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Chẵn</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Lẻ</th>
+                <!-- SỐ ĐẾM -->
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Chẵn</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Lẻ</th>
+                <!-- CHÊNH LỆCH -->
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Chẵn</th>
+                <th class="px-3 py-2 text-center font-semibold text-slate-600 border-r border-slate-200">Lẻ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!demKhoData?.chiTiets || demKhoData.chiTiets.length === 0">
+                <td colspan="11" class="px-4 py-8 text-center text-slate-500 font-medium">Chưa có sản phẩm nào ghi nhận tại vị trí này.</td>
+              </tr>
+              <tr v-for="(ct, index) in demKhoData?.chiTiets" :key="index" class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-3 py-2 font-bold text-slate-800 border-r border-slate-100">{{ ct.maSanPham }}</td>
+                <td class="px-3 py-2 text-center font-medium text-blue-700 border-r border-slate-100 bg-blue-50/30">{{ ct.tonChanHienTai }}</td>
+                <td class="px-3 py-2 text-center font-medium text-blue-700 border-r border-slate-100 bg-blue-50/30">{{ ct.tonLeHienTai }}</td>
+                
+                <!-- Input số đếm -->
+                <td class="px-2 py-1 text-center border-r border-slate-100 bg-amber-50/30">
+                  <input type="number" v-model.number="ct.soDemChan" :disabled="demKhoData?.id > 0" min="0" class="w-full text-center border border-slate-300 rounded px-2 py-1 text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white font-medium disabled:bg-slate-100 disabled:text-slate-500">
+                </td>
+                <td class="px-2 py-1 text-center border-r border-slate-100 bg-amber-50/30">
+                  <input type="number" v-model.number="ct.soDemLe" :disabled="demKhoData?.id > 0" min="0" class="w-full text-center border border-slate-300 rounded px-2 py-1 text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white font-medium disabled:bg-slate-100 disabled:text-slate-500">
+                </td>
+                
+                <!-- Chênh lệch = Số đếm - Hiện tại -->
+                <td class="px-3 py-2 text-center font-bold border-r border-slate-100" :class="getChenhLechColor(ct.soDemChan - ct.tonChanHienTai)">{{ ct.soDemChan - ct.tonChanHienTai }}</td>
+                <td class="px-3 py-2 text-center font-bold border-r border-slate-100" :class="getChenhLechColor(ct.soDemLe - ct.tonLeHienTai)">{{ ct.soDemLe - ct.tonLeHienTai }}</td>
+                
+                <td class="px-3 py-2 text-slate-700 border-r border-slate-100 max-w-[200px] truncate" :title="ct.tenSanPham">{{ ct.tenSanPham }}</td>
+                <td class="px-3 py-2 text-center text-slate-600 border-r border-slate-100">{{ formatDate(ct.ngaySanXuat) }}</td>
+                <td class="px-3 py-2 text-center text-slate-600 border-r border-slate-100">{{ formatDate(ct.hanSuDung) }}</td>
+                <td class="px-2 py-1 bg-white">
+                  <input type="text" v-model="ct.ghiChu" :disabled="demKhoData?.id > 0" class="w-full border border-slate-300 rounded px-2 py-1 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-500" placeholder="Nhập ghi chú...">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-4 px-1">
+            <label class="block text-sm font-medium text-slate-700 mb-1">Ghi chú chung cho phiếu đếm (Tuỳ chọn)</label>
+            <input type="text" v-model="demKhoData.ghiChu" :disabled="demKhoData?.id > 0" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" placeholder="Nhập ghi chú nếu cần...">
+          </div>
+        </div>
+        
+        <div class="p-6 border-t border-slate-200 flex justify-end gap-3 bg-white rounded-b-2xl">
+          <button @click="showDemKhoModal = false" class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors">Đóng</button>
+          <button @click="submitDemKho" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-colors shadow-sm flex items-center gap-2">
+            Lưu vào Bảng tạm
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Thêm sản phẩm ngoài danh mục -->
+    <div v-if="showAddProductModal" class="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl w-[95%] max-w-md shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+          <h3 class="text-lg font-bold text-slate-800">Thêm sản phẩm đếm</h3>
+          <button @click="showAddProductModal = false" class="text-slate-400 hover:text-slate-600">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Mã sản phẩm *</label>
+            <input list="productListDatalist" v-model="addProductForm.maSanPham" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Nhập mã SP...">
+            <datalist id="productListDatalist">
+              <option v-for="sp in productsList" :key="sp.maSanPham" :value="sp.maSanPham">{{ sp.tenSanPham }}</option>
+            </datalist>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Ngày sản xuất *</label>
+            <input type="date" v-model="addProductForm.ngaySanXuat" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Hạn sử dụng *</label>
+            <input type="date" v-model="addProductForm.hanSuDung" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Ghi chú (Tuỳ chọn)</label>
+            <input type="text" v-model="addProductForm.ghiChu" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Nhập ghi chú...">
+          </div>
+        </div>
+        <div class="p-5 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+          <button @click="showAddProductModal = false" class="px-4 py-2 border border-slate-300 rounded-lg font-medium hover:bg-slate-100">Hủy</button>
+          <button @click="handleAddProductToDemKho" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-sm">Thêm vào</button>
         </div>
       </div>
     </div>
@@ -2032,6 +2441,293 @@ const scrollToViTriItem = async () => {
   if (selectedNhapKhoViTriIndex.value >= 0 && selectedNhapKhoViTriIndex.value < items.length) {
     items[selectedNhapKhoViTriIndex.value].scrollIntoView({ block: 'nearest' })
   }
+}
+
+// --- ĐẾM KHO STATE & LOGIC ---
+const activeDemKhoTab = ref('sodo')
+const showDemKhoModal = ref(false)
+const isSubmittingDemKho = ref(false)
+
+const currentCountSession = ref([]) // Bảng tạm lưu các vị trí đã đếm trong phiên
+const demKhoData = ref({ viTri: '', chiTiets: [], ghiChu: '' })
+
+// Manual vị trí Go
+const demKhoViTriSearchQuery = ref('')
+const showDemKhoViTriDropdown = ref(false)
+const selectedDemKhoViTriIndex = ref(-1)
+const demKhoViTriDropdownList = ref(null)
+
+const availableDemKhoViTriList = computed(() => {
+  return layoutItems.value
+    .filter(i => i.elementType !== 'line' && i.elementType !== 'text' && !i.maLocal.startsWith('LINE_'))
+})
+
+const filteredDemKhoViTri = computed(() => {
+  const q = demKhoViTriSearchQuery.value.trim().toLowerCase()
+  if (!q) return availableDemKhoViTriList.value.slice(0, 50)
+  return availableDemKhoViTriList.value.filter(v => v.maLocal.toLowerCase().includes(q)).slice(0, 50)
+})
+
+const onDemKhoViTriInput = (e) => {
+  demKhoViTriSearchQuery.value = e.target.value.toUpperCase()
+  showDemKhoViTriDropdown.value = true
+  selectedDemKhoViTriIndex.value = -1
+}
+
+const onDemKhoViTriFocus = () => {
+  showDemKhoViTriDropdown.value = true
+}
+
+const handleDemKhoViTriBlur = () => {
+  setTimeout(() => {
+    showDemKhoViTriDropdown.value = false
+  }, 200)
+}
+
+const selectDemKhoViTri = (maLocal) => {
+  demKhoViTriSearchQuery.value = maLocal
+  showDemKhoViTriDropdown.value = false
+  selectedDemKhoViTriIndex.value = -1
+}
+
+const onDemKhoViTriArrowDown = () => {
+  if (selectedDemKhoViTriIndex.value < filteredDemKhoViTri.value.length - 1) {
+    selectedDemKhoViTriIndex.value++
+    scrollDemKhoViTriItem()
+  }
+}
+
+const onDemKhoViTriArrowUp = () => {
+  if (selectedDemKhoViTriIndex.value > 0) {
+    selectedDemKhoViTriIndex.value--
+    scrollDemKhoViTriItem()
+  }
+}
+
+const onDemKhoViTriEnter = () => {
+  if (selectedDemKhoViTriIndex.value > -1 && filteredDemKhoViTri.value[selectedDemKhoViTriIndex.value]) {
+    selectDemKhoViTri(filteredDemKhoViTri.value[selectedDemKhoViTriIndex.value].maLocal)
+  }
+}
+
+const scrollDemKhoViTriItem = () => {
+  setTimeout(() => {
+    if (demKhoViTriDropdownList.value) {
+      const activeItem = demKhoViTriDropdownList.value.querySelector('.bg-blue-100')
+      if (activeItem) {
+        activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      }
+    }
+  }, 50)
+}
+
+const onDemKhoManualGo = () => {
+  const viTri = demKhoViTriSearchQuery.value.trim().toUpperCase()
+  if (!viTri) {
+    alert('Vui lòng nhập hoặc chọn vị trí')
+    return
+  }
+  const exist = availableDemKhoViTriList.value.find(v => v.maLocal === viTri)
+  if (!exist) {
+    alert('Vị trí này không tồn tại trong sơ đồ kho!')
+    return
+  }
+  onDemKhoLayoutElementDblClick({ maLocal: viTri, elementType: 'rect' })
+  demKhoViTriSearchQuery.value = ''
+}
+
+// Modal thêm sản phẩm ngoài danh mục
+const showAddProductModal = ref(false)
+const addProductForm = ref({
+  maSanPham: '',
+  ngaySanXuat: '',
+  hanSuDung: '',
+  ghiChu: ''
+})
+
+const getChenhLechColor = (val) => {
+  if (val === 0) return 'text-slate-600'
+  return val > 0 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'
+}
+
+const getProductName = (ma) => {
+  const p = productsList.value.find(x => x.maSanPham === ma)
+  return p ? p.tenSanPham : ''
+}
+
+const onDemKhoLayoutElementDblClick = async (item) => {
+  if (item.elementType !== 'line' && !item.maLocal.startsWith('LINE_') && item.elementType !== 'text') {
+    loadingLayout.value = true
+    try {
+      if (productsList.value.length === 0) {
+        await fetchProducts()
+      }
+      const viTri = item.maLocal.toUpperCase()
+      const res = await $fetch(`${apiBase}/DieuChuyenNoiBo/Kho/${khohangInfo.value.id}/ViTri/${viTri}`)
+      
+      // Lấy danh sách tồn kho thực tế
+      let chiTiets = res.map(tk => ({
+        maSanPham: tk.maHang,
+        tenSanPham: tk.tenSanPham,
+        ngaySanXuat: tk.ngaySanXuat,
+        hanSuDung: tk.hanSuDung,
+        tonChanHienTai: tk.soLuongPalletChan,
+        tonLeHienTai: tk.soThungLe,
+        soDemChan: tk.soLuongPalletChan,
+        soDemLe: tk.soThungLe,
+        ghiChu: ''
+      }))
+
+      // Gộp với dữ liệu đã lưu trong bảng tạm (nếu có)
+      const existingSession = currentCountSession.value.find(s => s.viTri === viTri)
+      let sessionGhiChu = ''
+      if (existingSession) {
+        sessionGhiChu = existingSession.ghiChu
+        // Cập nhật lại số đếm từ session, thêm các sản phẩm ngoài danh mục
+        existingSession.chiTiets.forEach(sessionCt => {
+          const matchIndex = chiTiets.findIndex(c => c.maSanPham === sessionCt.maSanPham && c.ngaySanXuat === sessionCt.ngaySanXuat && c.hanSuDung === sessionCt.hanSuDung)
+          if (matchIndex !== -1) {
+            chiTiets[matchIndex].soDemChan = sessionCt.soDemChan
+            chiTiets[matchIndex].soDemLe = sessionCt.soDemLe
+            chiTiets[matchIndex].ghiChu = sessionCt.ghiChu
+          } else {
+            // Sản phẩm ngoài danh mục đã thêm trước đó
+            chiTiets.push({
+              ...sessionCt,
+              tonChanHienTai: 0,
+              tonLeHienTai: 0
+            })
+          }
+        })
+      }
+
+      demKhoData.value = {
+        khohangId: khohangInfo.value.id,
+        viTri: viTri,
+        nguoiDem: nhanvienInfo.value?.hoTen || 'Thủ kho',
+        ghiChu: sessionGhiChu,
+        chiTiets: chiTiets
+      }
+      showDemKhoModal.value = true
+    } catch (err) {
+      console.error(err)
+      alert('Lỗi khi tải tồn kho của vị trí này')
+    } finally {
+      loadingLayout.value = false
+    }
+  }
+}
+
+const handleAddProductToDemKho = () => {
+  if (!addProductForm.value.maSanPham) {
+    alert('Vui lòng chọn Mã sản phẩm')
+    return
+  }
+  if (!addProductForm.value.ngaySanXuat || !addProductForm.value.hanSuDung) {
+    alert('Vui lòng nhập Ngày sản xuất và Hạn sử dụng (Bắt buộc)')
+    return
+  }
+  
+  const tenSP = getProductName(addProductForm.value.maSanPham) || 'Sản phẩm mới'
+  
+  demKhoData.value.chiTiets.push({
+    maSanPham: addProductForm.value.maSanPham,
+    tenSanPham: tenSP,
+    ngaySanXuat: addProductForm.value.ngaySanXuat,
+    hanSuDung: addProductForm.value.hanSuDung,
+    tonChanHienTai: 0,
+    tonLeHienTai: 0,
+    soDemChan: 0,
+    soDemLe: 0,
+    ghiChu: addProductForm.value.ghiChu
+  })
+  
+  showAddProductModal.value = false
+  addProductForm.value = { maSanPham: '', ngaySanXuat: '', hanSuDung: '', ghiChu: '' }
+}
+
+const submitDemKho = () => {
+  if (!demKhoData.value || !demKhoData.value.chiTiets || demKhoData.value.chiTiets.length === 0) return
+  
+  // Lưu vào bảng tạm
+  const viTri = demKhoData.value.viTri
+  const index = currentCountSession.value.findIndex(s => s.viTri === viTri)
+  
+  const dataToSave = JSON.parse(JSON.stringify(demKhoData.value))
+  // Tính toán lại chênh lệch cho hiển thị ở bảng tạm nếu cần
+  dataToSave.chiTiets.forEach(ct => {
+    ct.chenhLechChan = ct.soDemChan - ct.tonChanHienTai
+    ct.chenhLechLe = ct.soDemLe - ct.tonLeHienTai
+  })
+
+  if (index !== -1) {
+    currentCountSession.value[index] = dataToSave
+  } else {
+    dataToSave.id = Date.now() // temporary ID
+    currentCountSession.value.push(dataToSave)
+  }
+  
+  showDemKhoModal.value = false
+}
+
+const viewPhieuDemKho = (phieu) => {
+  demKhoData.value = JSON.parse(JSON.stringify(phieu))
+  showDemKhoModal.value = true
+}
+
+const submitCountSession = async () => {
+  if (currentCountSession.value.length === 0) return
+  if (!confirm('Bạn có chắc chắn muốn hoàn thành tất cả dữ liệu phiên đếm này và lưu vào hệ thống?')) return
+  
+  isSubmittingDemKho.value = true
+  try {
+    // Gọi API lưu từng vị trí trong bảng tạm
+    for (const phieu of currentCountSession.value) {
+      await $fetch(`${apiBase}/DemKho/Create`, {
+        method: 'POST',
+        body: phieu
+      })
+    }
+    
+    alert('Đã hoàn thành phiên đếm kho và lưu dữ liệu thành công!')
+    currentCountSession.value = [] // Clear bảng tạm
+    activeDemKhoTab.value = 'sodo' // Quay về sơ đồ
+  } catch (err) {
+    console.error(err)
+    alert(err.data?.title || (err.data && typeof err.data === 'object' ? JSON.stringify(err.data) : err.data) || 'Có lỗi khi lưu phiên đếm')
+  } finally {
+    isSubmittingDemKho.value = false
+  }
+}
+
+const exportDemKhoExcel = () => {
+  if (currentCountSession.value.length === 0) return
+  
+  const dataToExport = []
+  currentCountSession.value.forEach(phieu => {
+    phieu.chiTiets.forEach(ct => {
+      dataToExport.push({
+        'Vị trí': phieu.viTri,
+        'Mã Hàng': ct.maSanPham,
+        'Tên Sản Phẩm': ct.tenSanPham,
+        'Ngày Sản Xuất': ct.ngaySanXuat ? formatDate(ct.ngaySanXuat) : '',
+        'Hạn Sử Dụng': ct.hanSuDung ? formatDate(ct.hanSuDung) : '',
+        'Tồn Chẵn Hiện Tại': ct.tonChanHienTai,
+        'Tồn Lẻ Hiện Tại': ct.tonLeHienTai,
+        'Số Đếm Chẵn': ct.soDemChan,
+        'Số Đếm Lẻ': ct.soDemLe,
+        'Chênh Lệch Chẵn': ct.chenhLechChan,
+        'Chênh Lệch Lẻ': ct.chenhLechLe,
+        'Ghi Chú': ct.ghiChu || '',
+        'Ghi Chú Phiếu': phieu.ghiChu || ''
+      })
+    })
+  })
+  
+  const ws = XLSX.utils.json_to_sheet(dataToExport)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, "KiemDem")
+  XLSX.writeFile(wb, `KiemDem_${khohangInfo.value?.name || 'Kho'}_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
 // Layout Nhập kho state
@@ -2779,6 +3475,75 @@ const closeReport = async () => {
 }
 
 const baocaoTonKhoData = ref([])
+
+// ==== STATE BÁO CÁO ĐẾM KHO ====
+const baocaoDemKhoLoading = ref(false)
+const baocaoDemKhoData = ref([])
+const activeBaocaoDemKhoTab = ref('choduyet')
+const selectedDemKhoReport = ref(null)
+
+const pendingDemKhoReports = computed(() => {
+  return baocaoDemKhoData.value.filter(p => p.trangThai === 'Chờ duyệt')
+})
+
+const historyDemKhoReports = computed(() => {
+  return baocaoDemKhoData.value.filter(p => p.trangThai !== 'Chờ duyệt')
+})
+
+const fetchBaocaoDemKho = async () => {
+  if (!khohangInfo.value?.id) return
+  baocaoDemKhoLoading.value = true
+  try {
+    const res = await $fetch(`${apiBase}/DemKho/Kho/${khohangInfo.value.id}`)
+    baocaoDemKhoData.value = res
+  } catch (err) {
+    console.error(err)
+    alert('Lỗi khi tải báo cáo đếm kho')
+  } finally {
+    baocaoDemKhoLoading.value = false
+  }
+}
+
+const duyetDemKho = async (phieuId) => {
+  if (!confirm('Bạn có chắc chắn muốn Duyệt phiếu đếm kho này? Tồn kho sẽ được điều chỉnh theo số chênh lệch.')) return
+  
+  try {
+    await $fetch(`${apiBase}/DemKho/Duyet/${phieuId}?nguoiDuyet=${encodeURIComponent(nhanvienInfo.value?.hoTen || 'Thủ kho')}`, {
+      method: 'POST'
+    })
+    alert('Duyệt thành công!')
+    selectedDemKhoReport.value = null
+    fetchBaocaoDemKho()
+  } catch (err) {
+    console.error(err)
+    alert('Lỗi khi duyệt phiếu đếm kho: ' + (err.data || err.message))
+  }
+}
+
+const khongDuyetDemKho = async (phieuId) => {
+  if (!confirm('Bạn có chắc chắn muốn KHÔNG DUYỆT phiếu này? Phiếu sẽ chuyển sang trạng thái Hủy.')) return
+  
+  try {
+    await $fetch(`${apiBase}/DemKho/KhongDuyet/${phieuId}?nguoiDuyet=${encodeURIComponent(nhanvienInfo.value?.hoTen || 'Thủ kho')}`, {
+      method: 'POST'
+    })
+    alert('Đã hủy phiếu đếm kho!')
+    selectedDemKhoReport.value = null
+    fetchBaocaoDemKho()
+  } catch (err) {
+    console.error(err)
+    alert('Lỗi khi hủy phiếu: ' + (err.data || err.message))
+  }
+}
+
+const openDemKhoReportDetail = (phieu) => {
+  selectedDemKhoReport.value = phieu
+}
+
+const closeDemKhoReportDetail = () => {
+  selectedDemKhoReport.value = null
+}
+
 const baocaoTonKhoLoading = ref(false)
 
 const fetchBaocaoTonKho = async () => {

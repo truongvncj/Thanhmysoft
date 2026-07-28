@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SaleManagerApi.Data;
@@ -11,9 +12,11 @@ using SaleManagerApi.Data;
 namespace SaleManagerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728002519_AddDemKho")]
+    partial class AddDemKho
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -801,19 +804,8 @@ namespace SaleManagerApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("NguoiDuyet")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ThoiGianDuyet")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<DateTime>("ThoiGianTao")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("ViTri")
                         .IsRequired()

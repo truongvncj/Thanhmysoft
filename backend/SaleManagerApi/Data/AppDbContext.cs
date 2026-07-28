@@ -31,6 +31,8 @@ public class AppDbContext : DbContext
     public DbSet<TonKhoHienTai> TonKhoHienTais { get; set; }
     public DbSet<PhatSinhSanPham> PhatSinhSanPhams { get; set; }
     public DbSet<Sanphamnuoc> Sanphamnuocs { get; set; }
+    public DbSet<PhieuDemKho> PhieuDemKhos { get; set; }
+    public DbSet<ChiTietDemKho> ChiTietDemKhos { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
