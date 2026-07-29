@@ -147,4 +147,21 @@ public class DieuChuyenNoiBoController : ControllerBase
 
         return Ok(lenh);
     }
+
+    [HttpGet("Report/{khohangId}")]
+    public async Task<ActionResult<IEnumerable<LenhDieuChuyenNoiBo>>> GetReport(int khohangId, [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+    {
+        // Adjust toDate to end of day if it has no time component
+        if (toDate.TimeOfDay == TimeSpan.Zero)
+        {
+            toDate = toDate.AddDays(1).AddTicks(-1);
+        }
+
+        return await _context.LenhDieuChuyenNoiBos
+            .Include(l => l.ChiTiets)
+            .Where(l => l.KhohangId == khohangId && l.TrangThai == "Completed" 
+                        && l.ThoiGianHoanThanh >= fromDate && l.ThoiGianHoanThanh <= toDate)
+            .OrderByDescending(l => l.ThoiGianHoanThanh)
+            .ToListAsync();
+    }
 }

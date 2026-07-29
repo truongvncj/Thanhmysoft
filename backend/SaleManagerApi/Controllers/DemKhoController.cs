@@ -21,7 +21,7 @@ public class DemKhoController : ControllerBase
     {
         return await _context.PhieuDemKhos
             .Include(p => p.ChiTiets)
-            .Where(p => p.KhohangId == khohangId)
+            .Where(p => p.KhohangId == khohangId && p.TrangThai != "Bảng tạm")
             .OrderByDescending(p => p.ThoiGianTao)
             .ToListAsync();
     }
@@ -155,5 +155,115 @@ public class DemKhoController : ControllerBase
 
         await _context.SaveChangesAsync();
         return Ok(new { message = "Đã hủy phiếu đếm kho" });
+    }
+
+    // --- CÁC API CHO BẢNG TẠM ĐẾM KHO (SERVER-SIDE) ---
+
+    [HttpGet("Tam/{khohangId}")]
+    public async Task<ActionResult<IEnumerable<PhieuDemKho>>> GetPhieuDemKhoTam(int khohangId)
+    {
+        return await _context.PhieuDemKhos
+            .Include(p => p.ChiTiets)
+            .Where(p => p.KhohangId == khohangId && p.TrangThai == "Bảng tạm")
+            .OrderBy(p => p.ViTri)
+            .ToListAsync();
+    }
+
+    [HttpPost("Tam/Save")]
+    public async Task<ActionResult<PhieuDemKho>> SavePhieuDemKhoTam([FromBody] PhieuDemKho phieu)
+    {
+        if (phieu == null || phieu.ChiTiets == null)
+            return BadRequest("Dữ liệu không hợp lệ.");
+
+        // Tính toán lại chênh lệch cho chắc chắn (Số đếm - Số hiện tại)
+        foreach (var ct in phieu.ChiTiets)
+        {
+            ct.ChenhLechChan = ct.SoDemChan - ct.TonChanHienTai;
+            ct.ChenhLechLe = ct.SoDemLe - ct.TonLeHienTai;
+            
+            if (ct.NgaySanXuat.HasValue) ct.NgaySanXuat = DateTime.SpecifyKind(ct.NgaySanXuat.Value, DateTimeKind.Utc);
+            if (ct.HanSuDung.HasValue) ct.HanSuDung = DateTime.SpecifyKind(ct.HanSuDung.Value, DateTimeKind.Utc);
+        }
+
+        // Kiểm tra xem vị trí này đã có trong bảng tạm của kho này chưa
+        var existingPhieu = await _context.PhieuDemKhos
+            .Include(p => p.ChiTiets)
+            .FirstOrDefaultAsync(p => p.KhohangId == phieu.KhohangId && p.ViTri == phieu.ViTri && p.TrangThai == "Bảng tạm");
+
+        if (existingPhieu != null)
+            {
+            // Cập nhật
+            existingPhieu.NguoiDem = phieu.NguoiDem;
+            existingPhieu.ThoiGianTao = DateTime.UtcNow.AddHours(7);
+            
+            // Xóa các chi tiết cũ và thêm mới (để tránh lằng nhằng cập nhật từng dòng)
+            _context.ChiTietDemKhos.RemoveRange(existingPhieu.ChiTiets);
+            
+            foreach(var ct in phieu.ChiTiets) {
+                ct.Id = 0; // Đảm bảo tạo mới
+                existingPhieu.ChiTiets.Add(ct);
+            }
+            
+            _context.Entry(existingPhieu).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok(existingPhieu);
+        }
+        else
+        {
+            // Tạo mới
+            phieu.Id = 0;
+            phieu.TrangThai = "Bảng tạm";
+            phieu.ThoiGianTao = DateTime.UtcNow.AddHours(7);
+            foreach(var ct in phieu.ChiTiets) ct.Id = 0;
+
+            _context.PhieuDemKhos.Add(phieu);
+            await _context.SaveChangesAsync();
+            return Ok(phieu);
+        }
+    }
+
+    [HttpDelete("Tam/Clear/{khohangId}")]
+    public async Task<IActionResult> ClearPhieuDemKhoTam(int khohangId)
+    {
+        var phieuTams = await _context.PhieuDemKhos
+            .Include(p => p.ChiTiets)
+            .Where(p => p.KhohangId == khohangId && p.TrangThai == "Bảng tạm")
+            .ToListAsync();
+
+        if (phieuTams.Any())
+        {
+            _context.PhieuDemKhos.RemoveRange(phieuTams);
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new { message = "Đã xóa toàn bộ bảng tạm đếm kho." });
+    }
+
+    [HttpPost("Tam/Complete/{khohangId}")]
+    public async Task<IActionResult> CompletePhieuDemKhoTam(int khohangId, [FromQuery] string? nguoiHoanThanh)
+    {
+        var phieuTams = await _context.PhieuDemKhos
+            .Include(p => p.ChiTiets)
+            .Where(p => p.KhohangId == khohangId && p.TrangThai == "Bảng tạm")
+            .ToListAsync();
+
+        if (!phieuTams.Any())
+        {
+            return BadRequest("Bảng tạm trống, không có gì để hoàn thành.");
+        }
+
+        foreach (var phieu in phieuTams)
+        {
+            phieu.TrangThai = "Chờ duyệt";
+            phieu.ThoiGianTao = DateTime.UtcNow.AddHours(7); // Cập nhật lại thời gian chốt phiếu
+            if (!string.IsNullOrEmpty(nguoiHoanThanh))
+            {
+                phieu.NguoiDem = nguoiHoanThanh;
+            }
+            _context.Entry(phieu).State = EntityState.Modified;
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new { message = "Đã hoàn thành phiên đếm kho và chuyển thành Chờ duyệt." });
     }
 }
