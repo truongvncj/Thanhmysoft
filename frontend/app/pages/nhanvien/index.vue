@@ -1,10 +1,15 @@
 <template>
   <div class="min-h-screen bg-slate-50 flex flex-col">
-    <header class="bg-white shadow-sm px-4 py-2 sm:px-6 sm:py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center sticky top-0 z-10 border-b border-slate-100">
+    <header class="bg-white shadow-sm px-4 py-2 sm:px-6 sm:py-3 flex justify-between items-center sticky top-0 z-10 border-b border-slate-100">
       <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
         <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">{{ nhanvienInfo?.vitri }} {{ nhanvienInfo?.chucdanh }}</h1>
         <p class="text-xs sm:text-sm text-slate-500">Xin chào, <span class="font-semibold text-slate-700">{{ nhanvienInfo?.tnv }}</span> | Kho: <span class="font-semibold text-blue-600">{{ khohangInfo?.name }}</span></p>
       </div>
+      <button @click="logout" class="flex-shrink-0 flex items-center gap-1.5 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        <span class="hidden sm:inline">Đăng xuất</span>
+        <span class="sm:hidden">Thoát</span>
+      </button>
     </header>
 
     <!-- Flex container for Sidebar & Main Content -->
@@ -65,16 +70,12 @@
         </nav>
         
         <div class="p-4 border-t border-slate-200 flex flex-col gap-4 mt-auto">
-          <div v-if="isBaoVe" class="flex flex-col items-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+          <div v-if="isBaoVe" class="flex flex-col items-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm w-full">
             <span class="text-xs text-slate-500 font-medium mb-1">Tỷ lệ Lấy mẫu</span>
             <div class="text-xl font-bold" :class="checkedPercentage < 5 ? 'text-red-600' : 'text-green-600'">
               {{ checkedPercentage }}% <span class="text-xs text-slate-400 font-normal">({{ checkedVehicles }}/{{ totalVehicles }})</span>
             </div>
           </div>
-          <button @click="logout" class="flex justify-center items-center gap-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-5 py-2.5 rounded-xl transition-all duration-200 w-full">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Đăng xuất
-          </button>
         </div>
       </aside>
 
@@ -89,16 +90,12 @@
           <button v-if="isThuKho" @click="activeMenu = 'dieuchuyen'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'dieuchuyen' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Điều chuyển nội bộ</button>
           <button v-if="isThuKho" @click="activeMenu = 'baocao'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'baocao' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Báo cáo</button>
           
-          <div v-if="isBaoVe" class="flex-shrink-0 px-3 py-1 ml-2 border-l border-slate-200 flex flex-col items-center justify-center">
+          <div v-if="isBaoVe" class="flex-shrink-0 px-3 py-1 mx-2 border-l border-slate-200 flex flex-col items-center justify-center">
             <span class="text-[10px] text-slate-500 font-medium">Lấy mẫu</span>
             <div class="text-sm font-bold" :class="checkedPercentage < 5 ? 'text-red-600' : 'text-green-600'">
               {{ checkedPercentage }}% <span class="text-[10px] text-slate-400 font-normal">({{ checkedVehicles }}/{{ totalVehicles }})</span>
             </div>
           </div>
-          <button @click="logout" class="flex-shrink-0 flex items-center gap-1 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 mx-2 rounded-lg transition-all duration-200">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Thoát
-          </button>
         </div>
 
         <main class="flex-1 w-full p-4 sm:p-6 lg:p-8 overflow-y-auto">
@@ -145,9 +142,14 @@
                 <span class="text-slate-500">TG trong sân:</span>
                 <span class="font-bold text-red-600">{{ computeThoiGianTrongSan(xe) }}</span>
               </div>
-              <div class="flex items-center justify-between text-sm">
+              <div class="flex items-start justify-between text-sm">
                 <span class="text-slate-500">Chứng từ:</span>
-                <span class="font-medium text-slate-800 text-right ml-2">{{ xe.chungTus && xe.chungTus.length ? xe.chungTus.join(', ') : '-' }}</span>
+                <div class="font-medium text-slate-800 text-right ml-2 flex flex-col gap-1">
+                  <template v-if="xe.chungTus && xe.chungTus.length">
+                    <span v-for="(ct, idx) in xe.chungTus" :key="idx">{{ ct }}</span>
+                  </template>
+                  <span v-else>-</span>
+                </div>
               </div>
               <div class="flex items-center justify-between text-sm">
                 <span class="text-slate-500">Pre-Checklist:</span>
@@ -158,6 +160,10 @@
                 <span class="text-slate-500">Vệ sinh xe:</span>
                 <span v-if="xe.kiemTraVeSinh_Time" class="text-green-600 font-bold">Đạt</span>
                 <span v-else class="text-amber-500 font-bold">Chưa</span>
+              </div>
+              <div v-if="xe.lyDoHuy" class="mt-3 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100 flex items-start gap-2">
+                <span class="font-bold whitespace-nowrap">Đã hủy:</span>
+                <span>{{ xe.lyDoHuy }}</span>
               </div>
               <div v-if="activeTab === 0 && isBaoVe" class="pt-2">
                 <button @click="openAuditModal(xe)" class="w-full text-xs bg-indigo-50 text-indigo-700 font-bold py-2 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors">
@@ -170,9 +176,14 @@
             <!-- Actions -->
             <div class="mt-auto border-t pt-4">
               <template v-if="activeTab === 0 && isBaoVe">
-                <button @click="updateStatus(xe.id, 1)" :disabled="!xe.pre_Tripchecklist_Time || !xe.kiemTraVeSinh_Time" class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl transition-colors">
-                  Đồng ý
-                </button>
+                <div class="flex gap-2">
+                  <button @click="openRejectModal(xe)" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2.5 rounded-xl border border-red-200 transition-colors">
+                    Từ chối
+                  </button>
+                  <button @click="updateStatus(xe.id, 1)" :disabled="!xe.pre_Tripchecklist_Time || !xe.kiemTraVeSinh_Time" class="flex-[2] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl transition-colors">
+                    Đồng ý
+                  </button>
+                </div>
               </template>
               <template v-else-if="activeTab === 1 && isThuKho">
                 <button @click="updateStatus(xe.id, 2, xe)" :class="['w-full text-white font-bold py-2.5 rounded-xl transition-colors', (xe.lyDoVaoKho || '').toLowerCase().includes('nhập') ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-500 hover:bg-orange-600']">
@@ -223,7 +234,10 @@
                   <span class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg">{{ xe.lyDoVaoKho }}</span>
                 </td>
                 <td class="p-4 text-sm text-slate-800">
-                  {{ xe.chungTus && xe.chungTus.length ? xe.chungTus.join(', ') : '-' }}
+                  <div v-if="xe.chungTus && xe.chungTus.length" class="flex flex-col gap-1">
+                    <span v-for="(ct, idx) in xe.chungTus" :key="idx">{{ ct }}</span>
+                  </div>
+                  <span v-else>-</span>
                 </td>
                 <td class="p-4 text-sm font-medium text-slate-800">{{ xe.tenNhaThauVanTai }}</td>
                 <td class="p-4 text-sm font-bold text-red-600" v-if="activeTab > 0">{{ computeThoiGianTrongSan(xe) }}</td>
@@ -238,6 +252,9 @@
                     <span v-if="xe.kiemTraVeSinh_Time" class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Đạt</span>
                     <span v-else class="text-amber-500 font-bold text-xs bg-amber-50 px-2 py-0.5 rounded border border-amber-100">Chưa</span>
                   </div>
+                  <div v-if="xe.lyDoHuy" class="mb-2 text-[11px] bg-red-50 text-red-600 px-2 py-1 rounded border border-red-100 font-medium whitespace-normal max-w-[150px]">
+                    <span class="font-bold">Đã hủy:</span> {{ xe.lyDoHuy }}
+                  </div>
                   <div v-if="activeTab === 0 && isBaoVe">
                     <button @click="openAuditModal(xe)" class="text-[11px] bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded border border-indigo-200 hover:bg-indigo-100 transition-colors w-full text-center">
                       <span v-if="xe.baoVeKiemTra_Time">✅ Bảo vệ đã kiểm tra</span>
@@ -247,9 +264,14 @@
                 </td>
                 <td class="p-4 text-right">
                   <template v-if="activeTab === 0 && isBaoVe">
-                    <button @click="updateStatus(xe.id, 1)" :disabled="!xe.pre_Tripchecklist_Time || !xe.kiemTraVeSinh_Time" class="inline-block bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2 rounded-lg transition-colors shadow-sm">
-                      Đồng ý
-                    </button>
+                    <div class="flex justify-end gap-2">
+                      <button @click="openRejectModal(xe)" class="inline-block bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        Từ chối
+                      </button>
+                      <button @click="updateStatus(xe.id, 1)" :disabled="!xe.pre_Tripchecklist_Time || !xe.kiemTraVeSinh_Time" class="inline-block bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2 rounded-lg transition-colors shadow-sm">
+                        Đồng ý
+                      </button>
+                    </div>
                   </template>
                   <template v-else-if="activeTab === 1 && isThuKho">
                     <button @click="updateStatus(xe.id, 2, xe)" :class="['inline-block text-white text-sm font-bold px-5 py-2 rounded-lg transition-colors shadow-sm', (xe.lyDoVaoKho || '').toLowerCase().includes('nhập') ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-500 hover:bg-orange-600']">
@@ -325,13 +347,19 @@
                   
                   <div class="space-y-3 pt-3 border-t border-slate-100">
                     <div class="flex flex-col">
-                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">STO</span>
-                      <span class="text-sm font-semibold text-slate-800 break-words" :class="getStos(xe) === '-' ? 'text-slate-400 italic font-normal' : ''">{{ getStos(xe) }}</span>
-                    </div>
-
-                    <div class="flex flex-col">
-                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Shipment</span>
-                      <span class="text-sm font-semibold text-slate-800 break-words" :class="getShipments(xe) === '-' ? 'text-slate-400 italic font-normal' : ''">{{ getShipments(xe) }}</span>
+                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">Chứng từ</span>
+                      <div class="text-sm font-semibold text-slate-800 break-words flex flex-col gap-3">
+                        <template v-if="xe.chungTus && xe.chungTus.length">
+                          <div v-for="(docs, type) in groupChungTus(xe.chungTus)" :key="type" class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">{{ type }}</span>
+                            <div v-for="(groupDocs, label) in groupDocsByLabel(xe, docs)" :key="label" class="flex items-center gap-2 p-1.5 bg-emerald-50/50 border border-emerald-100/70 rounded-md">
+                              <span v-if="label !== 'Khác'" class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 leading-none flex-shrink-0">{{ label }}</span>
+                              <span class="text-emerald-900 font-semibold text-xs">{{ groupDocs.join('; ') }}</span>
+                            </div>
+                          </div>
+                        </template>
+                        <span v-else class="text-slate-400 italic font-normal">-</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -378,13 +406,19 @@
                   
                   <div class="space-y-3 pt-3 border-t border-slate-100">
                     <div class="flex flex-col">
-                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">STO</span>
-                      <span class="text-sm font-semibold text-slate-800 break-words" :class="getStos(xe) === '-' ? 'text-slate-400 italic font-normal' : ''">{{ getStos(xe) }}</span>
-                    </div>
-
-                    <div class="flex flex-col">
-                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Shipment</span>
-                      <span class="text-sm font-semibold text-slate-800 break-words" :class="getShipments(xe) === '-' ? 'text-slate-400 italic font-normal' : ''">{{ getShipments(xe) }}</span>
+                      <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">Chứng từ</span>
+                      <div class="text-sm font-semibold text-slate-800 break-words flex flex-col gap-3">
+                        <template v-if="xe.chungTus && xe.chungTus.length">
+                          <div v-for="(docs, type) in groupChungTus(xe.chungTus)" :key="type" class="space-y-1.5">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">{{ type }}</span>
+                            <div v-for="(groupDocs, label) in groupDocsByLabel(xe, docs)" :key="label" class="flex items-center gap-2 p-1.5 bg-blue-50/50 border border-blue-100/70 rounded-md">
+                              <span v-if="label !== 'Khác'" class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200 leading-none flex-shrink-0">{{ label }}</span>
+                              <span class="text-blue-900 font-semibold text-xs">{{ groupDocs.join('; ') }}</span>
+                            </div>
+                          </div>
+                        </template>
+                        <span v-else class="text-slate-400 italic font-normal">-</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -789,7 +823,7 @@
               <!-- Báo cáo nhập xuất Card -->
               <div @click="openReport('nhapxuat')" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer group flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l-4-4"></path></svg>
                 </div>
                 <h3 class="font-bold text-lg text-slate-800 mb-2">Báo cáo nhập xuất</h3>
                 <p class="text-sm text-slate-500">Xem danh sách phát sinh nhập xuất hàng hoá theo ngày.</p>
@@ -807,7 +841,7 @@
               <!-- Báo cáo điều chuyển Card -->
               <div @click="openReport('dieuchuyen')" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l-4-4"></path></svg>
                 </div>
                 <h3 class="font-bold text-lg text-slate-800 mb-2">Báo cáo điều chuyển</h3>
                 <p class="text-sm text-slate-500">Xem lịch sử các lệnh điều chuyển nội bộ giữa các vị trí.</p>
@@ -847,13 +881,25 @@
                   Vỏ
                   <span class="bg-amber-100 text-amber-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoVoCount }}</span>
                 </button>
+                <button @click="baocaoTonKhoActiveTab = 'Hàng đổi 1-1'" :class="baocaoTonKhoActiveTab === 'Hàng đổi 1-1' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="py-3 px-2 flex items-center gap-2">
+                  Hàng đổi 1-1
+                  <span class="bg-emerald-100 text-emerald-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoDoi11Count }}</span>
+                </button>
+                <button @click="baocaoTonKhoActiveTab = 'Hàng trả về'" :class="baocaoTonKhoActiveTab === 'Hàng trả về' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="py-3 px-2 flex items-center gap-2">
+                  Hàng trả về
+                  <span class="bg-red-100 text-red-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoTraVeCount }}</span>
+                </button>
+                <button @click="baocaoTonKhoActiveTab = 'Hàng xuất nhầm'" :class="baocaoTonKhoActiveTab === 'Hàng xuất nhầm' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="py-3 px-2 flex items-center gap-2">
+                  Hàng xuất nhầm
+                  <span class="bg-purple-100 text-purple-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoXuatNhamCount }}</span>
+                </button>
               </div>
             </div>
             
             <div class="flex-1 overflow-auto custom-scrollbar p-0">
               <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
                 <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
-                  <tr v-if="baocaoTonKhoActiveTab === 'Thành phẩm'">
+                  <tr v-if="baocaoTonKhoActiveTab !== 'Vỏ'">
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">MÃ HÀNG</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TÊN SẢN PHẨM</th>
@@ -877,19 +923,19 @@
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">LẺ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">ĐỊNH LƯỢNG</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">TỔNG</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200">GHI CHÚ</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-slate-200">GHI CHÚ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-if="baocaoTonKhoLoading" class="bg-white">
-                    <td :colspan="baocaoTonKhoActiveTab === 'Thành phẩm' ? 14 : 8" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    <td :colspan="baocaoTonKhoActiveTab !== 'Vỏ' ? 14 : 8" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
                   </tr>
                   <tr v-else-if="filteredBaocaoTonKhoData.length === 0" class="bg-white">
-                    <td :colspan="baocaoTonKhoActiveTab === 'Thành phẩm' ? 14 : 8" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
+                    <td :colspan="baocaoTonKhoActiveTab !== 'Vỏ' ? 14 : 8" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
                   </tr>
                   <template v-else>
                     <tr v-for="item in filteredBaocaoTonKhoData" :key="item.id" class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors">
-                      <template v-if="baocaoTonKhoActiveTab === 'Thành phẩm'">
+                      <template v-if="baocaoTonKhoActiveTab !== 'Vỏ'">
                         <td class="py-2 px-4 border-r border-slate-100">{{ item.viTri }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 font-semibold">{{ item.maHang }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || ''">{{ item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || '' }}</td>
@@ -1267,27 +1313,38 @@
         
         <div class="p-6 overflow-y-auto">
           <div class="mb-6">
-            <h4 class="font-semibold text-slate-700 mb-3 border-b pb-2">Số Shipment <span class="text-xs text-slate-400 font-normal">(Nhấn để chọn xuất kho)</span></h4>
-            <div v-if="selectedXuatKhoXe?.shipments?.length" class="space-y-4">
-              <div v-for="shipment in selectedXuatKhoXe.shipments" :key="shipment" class="flex flex-col gap-2">
-                <div @click="openXuatKhoShipmentModal(shipment)" class="p-3 bg-blue-50 text-blue-800 rounded-lg font-medium border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors flex justify-between items-center group shadow-sm">
-                  <span>{{ shipment }}</span>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs bg-white px-2 py-1 rounded text-blue-600 border border-blue-200 shadow-sm" v-if="draftLoadTickets[shipment]?.length">{{ draftLoadTickets[shipment].length }} mục đã chọn</span>
-                    <svg class="w-5 h-5 text-blue-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+              <h4 class="font-semibold text-slate-700">Chứng từ <span class="text-xs text-slate-400 font-normal">(Nhấn để chọn xuất kho)</span></h4>
+              <button @click="rejectXuatKho" class="px-3 py-1.5 bg-red-600 text-white border border-transparent rounded-lg hover:bg-red-700 font-bold shadow-sm flex items-center text-sm">
+                Hủy yêu cầu
+              </button>
+            </div>
+            <div v-if="selectedXuatKhoXe?.chungTus?.length" class="space-y-6">
+              <div v-for="(docs, type) in groupChungTus(selectedXuatKhoXe.chungTus)" :key="type" class="space-y-2">
+                <h5 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">{{ type }}</h5>
+                <div v-for="ct in docs" :key="ct" class="flex flex-col gap-2">
+                  <div @click="openXuatKhoShipmentModal(ct, type)" class="p-3 bg-blue-50 text-blue-800 rounded-lg font-medium border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors flex justify-between items-center group shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <span v-if="getDocTypeLabel(selectedXuatKhoXe, ct)" class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 border border-blue-200 leading-none flex items-center">{{ getDocTypeLabel(selectedXuatKhoXe, ct) }}</span>
+                      <span>{{ ct }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs bg-white px-2 py-1 rounded text-blue-600 border border-blue-200 shadow-sm" v-if="draftLoadTickets[ct]?.length">{{ draftLoadTickets[ct].length }} mục đã chọn</span>
+                      <svg class="w-5 h-5 text-blue-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </div>
                   </div>
-                </div>
-                <!-- Draft items list -->
-                <div v-if="draftLoadTickets[shipment]?.length" class="pl-4 border-l-2 border-blue-200 space-y-1">
-                  <div v-for="item in draftLoadTickets[shipment]" :key="item.id" class="bg-slate-50 text-xs px-3 py-2 rounded border border-slate-200 text-slate-700">
-                    <span class="font-bold text-blue-700">{{ item.maHang }}</span> - {{ item.tenSanPham }}
-                    <span class="text-slate-500 ml-2">(Vị trí: <span class="font-bold text-slate-700">{{ item.viTri }}</span>)</span>
-                    <span class="ml-2 font-medium text-emerald-600">SL: {{ item.xuatChan }} chẵn / {{ item.xuatLe }} lẻ</span>
+                  <!-- Draft items list -->
+                  <div v-if="draftLoadTickets[ct]?.length" class="pl-4 border-l-2 border-blue-200 space-y-1">
+                    <div v-for="item in draftLoadTickets[ct]" :key="item.id" class="bg-slate-50 text-xs px-3 py-2 rounded border border-slate-200 text-slate-700">
+                      <span class="font-bold text-blue-700">{{ item.maHang }}</span> - {{ item.tenSanPham }}
+                      <span class="text-slate-500 ml-2">(Vị trí: <span class="font-bold text-slate-700">{{ item.viTri }}</span>)</span>
+                      <span class="ml-2 font-medium text-emerald-600">SL: {{ item.xuatChan }} chẵn / {{ item.xuatLe }} lẻ</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else class="text-slate-500 italic text-sm">Không có Shipment</div>
+            <div v-else class="text-slate-500 italic text-sm">Không có chứng từ</div>
           </div>
           
 
@@ -1295,12 +1352,9 @@
         
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50 gap-3">
           <button @click="closeXuatKhoModal" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Đóng</button>
-          <button @click="rejectXuatKho" class="px-4 py-2 bg-red-600 text-white border border-transparent rounded-lg hover:bg-red-700 font-bold shadow-sm flex items-center gap-2">
-            Hủy yêu cầu
-          </button>
           <button @click="submitFinalXuatKho" class="px-4 py-2 bg-blue-600 text-white border border-transparent rounded-lg hover:bg-blue-700 font-bold shadow-sm flex items-center gap-2">
              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-             Hoàn tất Xuất hàng
+             {{ currentLoaiNhapXuat === 'Nhập vỏ' ? 'Hoàn tất Nhập vỏ' : 'Hoàn tất Xuất hàng' }}
           </button>
         </div>
       </div>
@@ -1310,7 +1364,7 @@
     <div v-if="showXuatKhoSTOModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white rounded-xl w-full max-w-4xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h3 class="text-lg font-bold text-slate-800">Xuất kho {{ selectedXuatKhoType }}: {{ selectedXuatKhoDoc }}</h3>
+          <h3 class="text-lg font-bold text-slate-800">{{ currentLoaiNhapXuat === 'Nhập vỏ' ? 'Nhập vỏ' : 'Xuất kho' }} {{ selectedXuatKhoType }}: {{ selectedXuatKhoDoc }}</h3>
           <button @click="closeXuatKhoSTOModal" class="text-slate-400 hover:text-slate-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
@@ -1318,9 +1372,9 @@
         
         <div class="px-6 pt-4 border-b border-slate-200 bg-white">
           <div class="flex space-x-6">
-            <button @click="xuatKhoActiveTab = 'xuatKho'" :class="xuatKhoActiveTab === 'xuatKho' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2">Xuất kho</button>
+            <button @click="xuatKhoActiveTab = 'xuatKho'" :class="xuatKhoActiveTab === 'xuatKho' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2">{{ currentLoaiNhapXuat === 'Nhập vỏ' ? 'Nhập vỏ' : 'Xuất kho' }}</button>
             <button @click="xuatKhoActiveTab = 'danhSach'" :class="xuatKhoActiveTab === 'danhSach' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2 flex items-center gap-2">
-              Chi tiết phiếu xuất
+              {{ currentLoaiNhapXuat === 'Nhập vỏ' ? 'Chi tiết nhập vỏ' : 'Chi tiết phiếu xuất' }}
               <span v-if="draftLoadTickets[selectedXuatKhoDoc]?.length" class="bg-blue-100 text-blue-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ draftLoadTickets[selectedXuatKhoDoc].length }}</span>
             </button>
           </div>
@@ -1332,7 +1386,7 @@
             <!-- Chọn sản phẩm -->
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
               <div class="w-full md:w-1/3 relative">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">{{ currentLoaiNhapXuat === 'Nhập vỏ' ? 'Mã Vỏ' : 'Mã Sản Phẩm' }}</label>
                 <input :value="xuatKhoSearchQuery" 
                        @input="onXuatKhoProductInput"
                        @focus="showXuatKhoProductDropdown = true" 
@@ -1355,7 +1409,7 @@
               
               <div class="w-full md:w-2/3 md:pt-7">
                  <div class="flex items-center w-full min-h-[42px] border border-slate-200 rounded-lg px-4 bg-slate-50 text-slate-800 font-bold overflow-hidden">
-                   <span class="truncate">{{ productsList.find(p => p.maSanPham === selectedProductIdForXuatKho)?.tenSanPham || 'Chưa chọn sản phẩm...' }}</span>
+                   <span class="truncate">{{ productsList.find(p => p.maSanPham === selectedProductIdForXuatKho)?.tenSanPham || (currentLoaiNhapXuat === 'Nhập vỏ' ? 'Chưa chọn vỏ...' : 'Chưa chọn sản phẩm...') }}</span>
                  </div>
               </div>
             </div>
@@ -1484,35 +1538,43 @@
 
           
           <div>
-            <h4 class="font-semibold text-slate-700 mb-3 border-b pb-2">Số STO <span class="text-xs text-slate-400 font-normal">(Nhấn để chọn nhập kho)</span></h4>
-            <div v-if="selectedNhapKhoXe?.stOs?.length || selectedNhapKhoXe?.stos?.length" class="space-y-4">
-              <div v-for="sto in (selectedNhapKhoXe.stOs || selectedNhapKhoXe.stos)" :key="sto" class="flex flex-col gap-2">
-                <div @click="openNhapKhoSTOModal(sto)" class="p-3 bg-emerald-50 text-emerald-800 rounded-lg font-medium border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition-colors flex justify-between items-center group shadow-sm">
-                  <span>{{ sto }}</span>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs bg-white px-2 py-1 rounded text-emerald-600 border border-emerald-200 shadow-sm" v-if="draftNhapKhoTickets[sto]?.length">{{ draftNhapKhoTickets[sto].length }} mục đã chọn</span>
-                    <svg class="w-5 h-5 text-emerald-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+              <h4 class="font-semibold text-slate-700">Chứng từ <span class="text-xs text-slate-400 font-normal">(Nhấn để chọn nhập kho)</span></h4>
+              <button @click="rejectNhapKho" class="px-3 py-1.5 bg-red-600 text-white border border-transparent rounded-lg hover:bg-red-700 font-bold shadow-sm flex items-center text-sm">
+                Hủy yêu cầu
+              </button>
+            </div>
+            <div v-if="selectedNhapKhoXe?.chungTus?.length" class="space-y-6">
+              <div v-for="(docs, type) in groupChungTus(selectedNhapKhoXe.chungTus)" :key="type" class="space-y-2">
+                <h5 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">{{ type }}</h5>
+                <div v-for="ct in docs" :key="ct" class="flex flex-col gap-2">
+                  <div @click="openNhapKhoSTOModal(ct, type, false)" class="p-3 bg-emerald-50 text-emerald-800 rounded-lg font-medium border border-emerald-100 cursor-pointer hover:bg-emerald-100 transition-colors flex justify-between items-center group shadow-sm">
+                    <div class="flex items-center gap-2">
+                      <span v-if="getDocTypeLabel(selectedNhapKhoXe, ct)" class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600 border border-emerald-200 leading-none flex items-center">{{ getDocTypeLabel(selectedNhapKhoXe, ct) }}</span>
+                      <span>{{ ct }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs bg-white px-2 py-1 rounded text-emerald-600 border border-emerald-200 shadow-sm" v-if="draftNhapKhoTickets[ct]?.length">{{ draftNhapKhoTickets[ct].length }} mục đã chọn</span>
+                      <svg class="w-5 h-5 text-emerald-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </div>
                   </div>
-                </div>
-                <!-- Draft items list -->
-                <div v-if="draftNhapKhoTickets[sto]?.length" class="pl-4 border-l-2 border-emerald-200 space-y-1">
-                  <div v-for="item in draftNhapKhoTickets[sto]" :key="item.id" class="bg-slate-50 text-xs px-3 py-2 rounded border border-slate-200 text-slate-700">
-                    <span class="font-bold text-emerald-700">{{ item.maHang }}</span> - {{ item.tenSanPham }}
-                    <span class="text-slate-500 ml-2">(Vị trí: <span class="font-bold text-slate-700">{{ item.viTri }}</span>)</span>
-                    <span class="ml-2 font-medium text-emerald-600">SL: {{ item.nhapChan }} chẵn / {{ item.nhapLe }} lẻ</span>
+                  <!-- Draft items list -->
+                  <div v-if="draftNhapKhoTickets[ct]?.length" class="pl-4 border-l-2 border-emerald-200 space-y-1">
+                    <div v-for="item in draftNhapKhoTickets[ct]" :key="item.id" class="bg-slate-50 text-xs px-3 py-2 rounded border border-slate-200 text-slate-700">
+                      <span class="font-bold text-emerald-700">{{ item.maHang }}</span> - {{ item.tenSanPham }}
+                      <span class="text-slate-500 ml-2">(Vị trí: <span class="font-bold text-slate-700">{{ item.viTri }}</span>)</span>
+                      <span class="ml-2 font-medium text-emerald-600">SL: {{ item.nhapChan }} chẵn / {{ item.nhapLe }} lẻ</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else class="text-slate-500 italic text-sm">Không có STO</div>
+            <div v-else class="text-slate-500 italic text-sm">Không có chứng từ</div>
           </div>
         </div>
         
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50 gap-3">
           <button @click="showNhapKhoModal = false" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Đóng</button>
-          <button @click="rejectNhapKho" class="px-4 py-2 bg-red-600 text-white border border-transparent rounded-lg hover:bg-red-700 font-bold shadow-sm flex items-center gap-2">
-            Hủy yêu cầu
-          </button>
           <button @click="submitFinalNhapKho" class="px-4 py-2 bg-emerald-600 text-white border border-transparent rounded-lg hover:bg-emerald-700 font-bold shadow-sm flex items-center gap-2">
              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
              Hoàn tất Nhập hàng
@@ -1544,9 +1606,29 @@
           <!-- Tab 1: Nhập kho -->
           <div v-show="nhapKhoActiveTab === 'nhapKho'" class="flex flex-col gap-6">
             <!-- Chọn sản phẩm -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
-              <div class="w-full md:w-1/3 relative">
-              <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4 relative z-10">
+              
+              <!-- Fields for Nhập hàng trả về -->
+              <div v-if="currentLoaiNhapKho === 'Nhập hàng trả về'" class="w-full flex flex-col gap-4 relative z-20">
+                <div class="w-full">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Loại trả về</label>
+                  <select v-model="selectedTraVeLyDo" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-800 focus:border-blue-500 outline-none font-medium shadow-sm">
+                    <option value="" disabled selected>Chọn lý do</option>
+                    <option value="Hàng đổi 1-1">Hàng đổi 1-1</option>
+                    <option value="Thu hàng Lỗi">Thu hàng Lỗi</option>
+                    <option value="Hàng xuất nhầm">Hàng xuất nhầm</option>
+                  </select>
+                </div>
+                <div class="w-full" v-if="selectedTraVeLyDo === 'Hàng đổi 1-1' || selectedTraVeLyDo === 'Thu hàng Lỗi'">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Code khách hàng</label>
+                  <input v-model="selectedTraVeKhachHang" type="text" placeholder="Nhập mã khách hàng..." class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-800 focus:border-blue-500 outline-none font-medium shadow-sm" />
+                </div>
+              </div>
+
+              <!-- Product Selection -->
+              <div class="w-full flex flex-col md:flex-row gap-4 items-start">
+                <div class="w-full md:w-1/3 relative">
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
               <input :value="nhapKhoSearchQuery" 
                      @input="onNhapKhoProductInput"
                      @focus="showNhapKhoProductDropdown = true" 
@@ -1571,8 +1653,9 @@
                <div class="flex items-center w-full min-h-[42px] border border-slate-200 rounded-lg px-4 bg-slate-50 text-slate-800 font-bold overflow-hidden">
                  <span class="truncate">{{ productsList.find(p => p.maSanPham === selectedProductIdForNhapKho)?.tenSanPham || 'Chưa chọn sản phẩm...' }}</span>
                </div>
+                </div>
+              </div>
             </div>
-          </div>
 
           <!-- Chọn vị trí Nhập Kho -->
           <div v-if="selectedProductIdForNhapKho" class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col z-0">
@@ -1686,8 +1769,12 @@
         </div>
         </div>
         
-        <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
+        <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-white gap-3">
           <button @click="showNhapKhoSTOModal = false" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-200 font-medium">Đóng</button>
+          <button v-if="isNhapVoFlow" @click="submitNhapVoSingleDoc" class="px-4 py-2 bg-emerald-600 border border-transparent rounded-lg text-white font-bold hover:bg-emerald-700 shadow-sm flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Hoàn tất {{ currentLoaiNhapKho }}
+          </button>
         </div>
       </div>
     </div>
@@ -1713,7 +1800,7 @@
             @mouseup="onLayoutMouseUp"
             @mouseleave="onLayoutMouseLeave"
           >
-            <div class="relative w-[3000px] h-[3000px] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNjYmQ1ZTEiLz48L3N2Zz4=')]">
+            <div class="relative w-[3000px] h-[3000px] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IiIgcj0iMSIgZmlsbD0iI2NiZDVlMSIvPjwvc3ZnPg==')]">
               <div 
                 v-for="item in layoutItems" 
                 :key="item.id"
@@ -1775,6 +1862,31 @@
       @close="closeAuditModal"
       @success="handleAuditSuccess"
     />
+
+    <!-- Modal: Từ chối chuyến xe -->
+    <div v-if="showRejectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-red-50">
+          <h3 class="font-bold text-red-800 text-lg">Từ chối chuyến xe</h3>
+          <button @click="showRejectModal = false" class="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div class="p-5">
+          <p class="text-sm text-slate-600 mb-3">Vui lòng nhập lý do từ chối chuyến xe này. Phiếu đăng ký sẽ bị hủy và lái xe sẽ phải đăng ký lại nếu muốn tiếp tục.</p>
+          <textarea v-model="rejectReason" rows="3" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Ví dụ: Xe không đảm bảo an toàn, sai thông tin..."></textarea>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <button @click="showRejectModal = false" :disabled="isRejecting" class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors shadow-sm disabled:opacity-50">
+            Hủy bỏ
+          </button>
+          <button @click="submitRejectDangKy" :disabled="isRejecting" class="px-5 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50">
+            {{ isRejecting ? 'Đang xử lý...' : 'Xác nhận Từ chối' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- Modal 3: View Load Ticket (Phiếu cẩu hàng) -->
     <div v-if="showViewLoadTicketModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
@@ -2069,6 +2181,48 @@ const getStos = (xe) => {
 const getShipments = (xe) => {
   if (xe.shipments && xe.shipments.length) return xe.shipments.join(' | ')
   return '-'
+}
+
+const extractDocNumber = (ct) => {
+  if (!ct) return ''
+  return ct.includes(': ') ? ct.split(': ')[1] : ct
+}
+
+const groupChungTus = (chungTus) => {
+  if (!chungTus || !chungTus.length) return {}
+  const groups = {}
+  chungTus.forEach(ct => {
+    let type = 'Chứng từ khác'
+    let doc = ct
+    if (ct.includes(': ')) {
+      const parts = ct.split(': ')
+      type = parts[0]
+      doc = parts[1]
+    }
+    if (!groups[type]) groups[type] = []
+    groups[type].push(doc)
+  })
+  return groups
+}
+
+const getDocTypeLabel = (xe, docNumber) => {
+  if (!xe || !docNumber) return ''
+  if (xe.shipments && xe.shipments.includes(docNumber)) return 'Shipment'
+  if (xe.sTOs && xe.sTOs.includes(docNumber)) return 'STO'
+  if (xe.stOs && xe.stOs.includes(docNumber)) return 'STO'
+  if (xe.stos && xe.stos.includes(docNumber)) return 'STO'
+  if (xe.stos && xe.stos.includes(docNumber)) return 'STO'
+  return ''
+}
+
+const groupDocsByLabel = (xe, docs) => {
+  const result = {}
+  docs.forEach(doc => {
+    const label = getDocTypeLabel(xe, doc) || 'Khác'
+    if (!result[label]) result[label] = []
+    result[label].push(doc)
+  })
+  return result
 }
 
 const nhapKhoVehicles = computed(() => {
@@ -2366,7 +2520,7 @@ const printLenhDcnb = async (lenh) => {
 }
 
 
-const hasPermission = async (code) => {
+const hasPermission = (code) => {
   if (!nhanvienInfo.value?.permissions) return false
   const perms = nhanvienInfo.value.permissions.split(',').map(p => p.trim())
   return perms.includes(code)
@@ -2385,12 +2539,52 @@ const checkedPercentage = computed(() => {
 const showAuditModal = ref(false)
 const selectedAuditXe = ref(null)
 
+const showRejectModal = ref(false)
+const rejectXeId = ref(null)
+const rejectReason = ref('')
+const isRejecting = ref(false)
+
+const openRejectModal = (xe) => {
+  rejectXeId.value = xe.id
+  rejectReason.value = ''
+  showRejectModal.value = true
+}
+
+const submitRejectDangKy = async () => {
+  if (!rejectReason.value.trim()) {
+    alert('Vui lòng nhập lý do từ chối!')
+    return
+  }
+  
+  isRejecting.value = true
+  try {
+    await $fetch(`${apiBase}/Danhsachxetrongkho/reject-dangky/${rejectXeId.value}`, {
+      method: 'POST',
+      body: { reason: rejectReason.value }
+    })
+    
+    showRejectModal.value = false
+    await fetchData()
+  } catch (err) {
+    console.error('Error rejecting:', err)
+    const errorMsg = err.response?._data?.message || err.message || 'Có lỗi xảy ra khi từ chối chuyến xe.'
+    alert(errorMsg)
+  } finally {
+    isRejecting.value = false
+  }
+}
+
 // Xuat Kho Modals State
 const showXuatKhoModal = ref(false)
 const selectedXuatKhoXe = ref(null)
 
 const showXuatKhoSTOModal = ref(false)
 const selectedXuatKhoType = ref('STO')
+const currentLoaiNhapXuat = ref('Thành phẩm')
+const currentLoaiNhapKho = ref('Thành phẩm')
+const selectedTraVeLyDo = ref('')
+const selectedTraVeKhachHang = ref('')
+const isNhapVoFlow = ref(false)
 const selectedXuatKhoDoc = ref('')
 const xuatKhoActiveTab = ref('xuatKho')
 const draftLoadTickets = ref({})
@@ -3061,8 +3255,9 @@ const addNhapKhoDraftTicketFromMain = async () => {
 }
 
 
-const initXuatKhoDocModal = async (doc, type) => {
-  selectedXuatKhoType.value = type
+const initXuatKhoDocModal = async (doc, groupType) => {
+  currentLoaiNhapXuat.value = groupType || 'Thành phẩm'
+  selectedXuatKhoType.value = getDocTypeLabel(selectedXuatKhoXe.value, doc) || 'Shipment'
   selectedXuatKhoDoc.value = doc
   xuatKhoActiveTab.value = 'xuatKho'
   showXuatKhoSTOModal.value = true
@@ -3092,18 +3287,31 @@ const initXuatKhoDocModal = async (doc, type) => {
   }
 }
 
-const openXuatKhoShipmentModal = async (shipment) => {
-  await initXuatKhoDocModal(shipment, 'Shipment')
+const openXuatKhoShipmentModal = async (shipment, groupType) => {
+  if (groupType && groupType.toLowerCase().includes('nhập')) {
+    selectedNhapKhoXe.value = selectedXuatKhoXe.value
+    await openNhapKhoSTOModal(shipment, groupType, true)
+    return
+  }
+  isNhapVoFlow.value = false
+  await initXuatKhoDocModal(shipment, groupType)
 }
 
 const filteredXuatKhoProducts = computed(() => {
-  if (!xuatKhoSearchQuery.value) return productsList.value.slice(0, 50)
+  let list = productsList.value
+  if (currentLoaiNhapXuat.value && currentLoaiNhapXuat.value.toLowerCase().includes('vỏ')) {
+    list = list.filter(p => p.loaiSanPham === 'Vỏ')
+  } else {
+    list = list.filter(p => p.loaiSanPham === 'Thành phẩm')
+  }
+
+  if (!xuatKhoSearchQuery.value) return list.slice(0, 50)
   const query = String(xuatKhoSearchQuery.value).trim().toLowerCase()
   
   const queryTokens = query.split(/\s+/)
   const isNumeric = /^\d+$/.test(query.replace(/\s+/g, ''))
   
-  return productsList.value.filter(s => {
+  return list.filter(s => {
     if (isNumeric) {
       const ma = String(s.maSanPham || '').toLowerCase()
       return queryTokens.every(token => ma.includes(token))
@@ -3340,7 +3548,8 @@ const submitFinalXuatKho = async () => {
         soSTO: isSTO ? doc : null,
         soShipment: isShipment ? doc : null,
         sothe: selectedXuatKhoXe.value?.sothe,
-        khohangId: khohangInfo.value?.id
+        khohangId: khohangInfo.value?.id,
+        loaiNhapXuat: currentLoaiNhapXuat.value
       })
     })
   })
@@ -3413,9 +3622,21 @@ const openNhapKhoModal = async (xe) => {
   showNhapKhoModal.value = true
 }
 
-const openNhapKhoSTOModal = async (sto) => {
+const openNhapKhoSTOModal = async (sto, groupType, isFromXuatKho = false) => {
+  isNhapVoFlow.value = isFromXuatKho
+  currentLoaiNhapKho.value = groupType || 'Thành phẩm'
   selectedNhapKhoType.value = 'STO'
   selectedNhapKhoDoc.value = sto
+
+  if (groupType === 'Nhập hàng trả về') {
+    const details = selectedNhapKhoXe.value?.traVeDetails?.find(x => x.soShipment === sto)
+    selectedTraVeLyDo.value = details?.lyDoTraVe || ''
+    selectedTraVeKhachHang.value = details?.maKhachHang || ''
+  } else {
+    selectedTraVeLyDo.value = ''
+    selectedTraVeKhachHang.value = ''
+  }
+
   showNhapKhoSTOModal.value = true
   fetchProducts()
   if (layoutItems.value.length === 0) fetchLayout()
@@ -3442,13 +3663,20 @@ const openNhapKhoShipmentModal = async (shipment) => {
 }
 
 const filteredNhapKhoProducts = computed(() => {
-  if (!nhapKhoSearchQuery.value) return productsList.value.slice(0, 50)
+  let list = productsList.value
+  if (currentLoaiNhapKho.value && currentLoaiNhapKho.value.toLowerCase().includes('vỏ')) {
+    list = list.filter(p => p.loaiSanPham === 'Vỏ')
+  } else {
+    list = list.filter(p => p.loaiSanPham === 'Thành phẩm')
+  }
+
+  if (!nhapKhoSearchQuery.value) return list.slice(0, 50)
   const query = String(nhapKhoSearchQuery.value).trim().toLowerCase()
   
   const queryTokens = query.split(/\s+/)
   const isNumeric = /^\d+$/.test(query.replace(/\s+/g, ''))
   
-  return productsList.value.filter(s => {
+  return list.filter(s => {
     if (isNumeric) {
       const ma = String(s.maSanPham || '').toLowerCase()
       return queryTokens.every(token => ma.includes(token))
@@ -3462,6 +3690,87 @@ const filteredNhapKhoProducts = computed(() => {
 const selectedProductForNhapKho = computed(() => {
   return productsList.value.find(p => p.maSanPham === selectedProductIdForNhapKho.value)
 })
+
+const submitNhapVoSingleDoc = async () => {
+  const doc = selectedNhapKhoDoc.value
+  const payload = []
+  
+  const isSTO = selectedNhapKhoXe.value?.stOs?.includes(doc) || selectedNhapKhoXe.value?.stos?.includes(doc)
+  const isShipment = selectedNhapKhoXe.value?.shipments?.includes(doc)
+  
+  const tickets = draftNhapKhoTickets.value[doc] || []
+  if (tickets.length === 0) {
+    alert(`Vui lòng thêm ít nhất 1 mã vỏ vào danh sách!`)
+    return
+  }
+  
+  tickets.forEach(tk => {
+    payload.push({
+      maSanPham: tk.maHang,
+      tenSanPham: tk.tenSanPham,
+      viTri: tk.viTri,
+      hanSuDung: tk.hanSuDung,
+      ngaySanXuat: tk.ngaySanXuat,
+      soLuongChan: tk.nhapChan || 0,
+      soLuongLe: tk.nhapLe || 0,
+      user: nhanvienInfo.value?.mnv || '',
+      tenNhanVien: nhanvienInfo.value?.tnv || '',
+      soSTO: isSTO ? doc : null,
+      soShipment: isShipment ? doc : null,
+      sothe: selectedNhapKhoXe.value?.sothe,
+      khohangId: khohangInfo.value?.id,
+      loaiNhapXuat: currentLoaiNhapKho.value,
+      lyDoTraVe: currentLoaiNhapKho.value === 'Nhập hàng trả về' ? selectedTraVeLyDo.value : null
+    })
+  })
+  
+  if (!await confirm(`Xác nhận ghi nhận ${currentLoaiNhapKho.value} cho chứng từ ${doc}?`)) return
+  
+  if (currentLoaiNhapKho.value === 'Nhập hàng trả về') {
+    if (!selectedTraVeLyDo.value) {
+      alert('Vui lòng chọn Loại trả về!')
+      return
+    }
+    if ((selectedTraVeLyDo.value === 'Hàng đổi 1-1' || selectedTraVeLyDo.value === 'Thu hàng Lỗi') && !selectedTraVeKhachHang.value) {
+      alert('Vui lòng nhập Code khách hàng!')
+      return
+    }
+    try {
+      await $fetch(`${apiBase}/Danhsachxetrongkho/update-trave-details`, {
+        method: 'POST',
+        body: {
+          sothe: selectedNhapKhoXe.value?.sothe,
+          soShipment: doc,
+          lyDoTraVe: selectedTraVeLyDo.value,
+          maKhachHang: selectedTraVeKhachHang.value
+        }
+      })
+    } catch (e) {
+      alert('Lỗi cập nhật thông tin trả về: ' + e.message)
+      return
+    }
+  }
+
+  try {
+    loading.value = true
+    for (const item of payload) {
+      await $fetch(`${apiBase}/PhatSinhSanPhams/NhapKho`, {
+        method: 'POST',
+        body: item
+      })
+    }
+    
+    alert(`Đã hoàn tất ${currentLoaiNhapKho.value}!`)
+    delete draftNhapKhoTickets.value[doc]
+    showNhapKhoSTOModal.value = false
+    fetchData(false)
+  } catch (err) {
+    console.error(err)
+    alert(err.response?._data?.message || `Có lỗi khi ${currentLoaiNhapKho.value}`)
+  } finally {
+    loading.value = false
+  }
+}
 
 const selectNhapKhoProduct = async (sp) => {
   nhapKhoSearchQuery.value = sp.maSanPham
@@ -3641,7 +3950,8 @@ const submitFinalNhapKho = async () => {
         soSTO: isSTO ? doc : null,
         soShipment: isShipment ? doc : null,
         sothe: selectedNhapKhoXe.value?.sothe,
-        khohangId: khohangInfo.value?.id
+        khohangId: khohangInfo.value?.id,
+        loaiNhapXuat: currentLoaiNhapKho.value
       })
     })
   })
@@ -3879,6 +4189,7 @@ const baocaoTonKhoActiveTab = ref('Thành phẩm')
 const totalThanhPhamChan = computed(() => {
   return baocaoTonKhoData.value
     .filter(item => {
+      if (item.loaiHang) return item.loaiHang === 'Thành phẩm'
       const sp = productsList.value.find(p => p.maSanPham === item.maHang)
       return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
     })
@@ -3888,6 +4199,7 @@ const totalThanhPhamChan = computed(() => {
 const filteredBaocaoTonKhoData = computed(() => {
   if (baocaoTonKhoActiveTab.value === 'Vỏ') {
     const baseVo = baocaoTonKhoData.value.filter(item => {
+      if (item.loaiHang) return item.loaiHang === 'Vỏ'
       const sp = productsList.value.find(p => p.maSanPham === item.maHang)
       return sp?.loaiSanPham === 'Vỏ'
     })
@@ -3911,16 +4223,20 @@ const filteredBaocaoTonKhoData = computed(() => {
     }
     
     return [virtualRow, ...baseVo]
-  } else {
+  } else if (baocaoTonKhoActiveTab.value === 'Thành phẩm') {
     return baocaoTonKhoData.value.filter(item => {
+      if (item.loaiHang) return item.loaiHang === 'Thành phẩm'
       const sp = productsList.value.find(p => p.maSanPham === item.maHang)
       return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
     })
+  } else {
+    return baocaoTonKhoData.value.filter(item => item.loaiHang === baocaoTonKhoActiveTab.value)
   }
 })
 
 const baocaoTonKhoThanhPhamCount = computed(() => {
   return baocaoTonKhoData.value.filter(item => {
+    if (item.loaiHang) return item.loaiHang === 'Thành phẩm'
     const sp = productsList.value.find(p => p.maSanPham === item.maHang)
     return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
   }).length
@@ -3928,11 +4244,16 @@ const baocaoTonKhoThanhPhamCount = computed(() => {
 
 const baocaoTonKhoVoCount = computed(() => {
   const baseVoCount = baocaoTonKhoData.value.filter(item => {
+    if (item.loaiHang) return item.loaiHang === 'Vỏ'
     const sp = productsList.value.find(p => p.maSanPham === item.maHang)
     return sp?.loaiSanPham === 'Vỏ'
   }).length
   return baseVoCount + 1
 })
+
+const baocaoTonKhoDoi11Count = computed(() => baocaoTonKhoData.value.filter(item => item.loaiHang === 'Hàng đổi 1-1').length)
+const baocaoTonKhoTraVeCount = computed(() => baocaoTonKhoData.value.filter(item => item.loaiHang === 'Hàng trả về').length)
+const baocaoTonKhoXuatNhamCount = computed(() => baocaoTonKhoData.value.filter(item => item.loaiHang === 'Hàng xuất nhầm').length)
 
 // ==== STATE BÁO CÁO ĐẾM KHO ====
 const baocaoDemKhoLoading = ref(false)
@@ -4097,7 +4418,7 @@ const exportBaocaoTonKhoExcel = async () => {
   if (filteredBaocaoTonKhoData.value.length === 0) return
   
   let dataToExport = []
-  if (baocaoTonKhoActiveTab.value === 'Thành phẩm') {
+  if (baocaoTonKhoActiveTab.value !== 'Vỏ') {
     dataToExport = filteredBaocaoTonKhoData.value.map(item => {
       const { day, stt } = parseViTri(item.viTri)
       return {

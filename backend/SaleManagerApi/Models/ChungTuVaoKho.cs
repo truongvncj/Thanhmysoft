@@ -32,4 +32,10 @@ public class ChungTuVaoKho
     
     [Column("soshipment")]
     public string? SoShipment { get; set; }
+    
+    [Column("lydotrave")]
+    public string? LyDoTraVe { get; set; }
+    
+    [Column("makhachhang")]
+    public string? MaKhachHang { get; set; }
 }

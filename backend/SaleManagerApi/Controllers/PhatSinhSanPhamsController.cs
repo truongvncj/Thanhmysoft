@@ -117,13 +117,26 @@ public class PhatSinhSanPhamsController : ControllerBase
             request.HanSuDung = DateTime.SpecifyKind(request.HanSuDung.Value, DateTimeKind.Utc);
         }
 
+        string targetLoaiHang = "Thành phẩm";
+        if (request.LoaiNhapXuat == "Vỏ")
+        {
+            targetLoaiHang = "Vỏ";
+        }
+        else if (request.LoaiNhapXuat == "Nhập hàng trả về")
+        {
+            if (request.LyDoTraVe == "Hàng đổi 1-1") targetLoaiHang = "Hàng đổi 1-1";
+            else if (request.LyDoTraVe == "Hàng xuất nhầm") targetLoaiHang = "Hàng xuất nhầm";
+            else targetLoaiHang = "Hàng trả về";
+        }
+
         // Find existing inventory in TonKhoHienTai
-        // Group by exact product, location, manufacturing date, and expiration date
+        // Group by exact product, location, manufacturing date, expiration date, and loaiHang
         var tonKho = await _context.TonKhoHienTais.FirstOrDefaultAsync(t => 
             t.MaHang == request.MaSanPham && 
             t.ViTri == request.ViTri &&
             t.HanSuDung == request.HanSuDung &&
-            t.NgaySanXuat == request.NgaySanXuat);
+            t.NgaySanXuat == request.NgaySanXuat &&
+            (t.LoaiHang == targetLoaiHang || (targetLoaiHang == "Thành phẩm" && t.LoaiHang == null)));
 
         int nhapChan = request.SoLuongChan ?? 0;
         int nhapLe = request.SoLuongLe ?? 0;
@@ -137,6 +150,8 @@ public class PhatSinhSanPhamsController : ControllerBase
             {
                 tonKho.Tong = (tonKho.SoLuongPalletChan * tonKho.DinhLuong.Value) + tonKho.SoThungLe;
             }
+            // Ensure LoaiHang is explicitly set in case it was null before
+            tonKho.LoaiHang = targetLoaiHang;
             _context.Entry(tonKho).State = EntityState.Modified;
         }
         else
@@ -158,11 +173,13 @@ public class PhatSinhSanPhamsController : ControllerBase
                 Tong = (nhapChan * dinhLuong) + nhapLe,
                 KhohangId = request.KhohangId ?? 1,
                 HanSuDung = request.HanSuDung,
-                NgaySanXuat = request.NgaySanXuat
+                NgaySanXuat = request.NgaySanXuat,
+                LoaiHang = targetLoaiHang
             };
             _context.TonKhoHienTais.Add(tonKho);
         }
 
+        request.LoaiNhapXuat = targetLoaiHang; // Save the specific return type
         _context.PhatSinhSanPhams.Add(request);
         await _context.SaveChangesAsync();
 

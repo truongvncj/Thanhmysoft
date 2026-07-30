@@ -33,7 +33,8 @@ public class SyncController : ControllerBase
         {
             string nsx = dk.NgaySanXuat?.ToString("yyyyMMdd") ?? "";
             string hsd = dk.HanSuDung?.ToString("yyyyMMdd") ?? "";
-            var key = $"{dk.ViTri}_{dk.MaHang}_{nsx}_{hsd}";
+            string loaiHang = "Thành phẩm"; // TonKhoDauKy defaults to Thành phẩm or we could try to infer
+            var key = $"{dk.ViTri}_{dk.MaHang}_{nsx}_{hsd}_{loaiHang}";
             if (!hienTaiDict.ContainsKey(key))
             {
                 hienTaiDict[key] = new TonKhoHienTai
@@ -53,7 +54,8 @@ public class SyncController : ControllerBase
                     NgaySanXuat = dk.NgaySanXuat,
                     DayHang = dk.DayHang,
                     SttDayHang = dk.SttDayHang,
-                    ThoiDiemGhiNhan = dk.ThoiDiemGhiNhan
+                    ThoiDiemGhiNhan = dk.ThoiDiemGhiNhan,
+                    LoaiHang = loaiHang
                 };
             }
             else
@@ -76,7 +78,14 @@ public class SyncController : ControllerBase
         {
             string nsx = ps.NgaySanXuat?.ToString("yyyyMMdd") ?? "";
             string hsd = ps.HanSuDung?.ToString("yyyyMMdd") ?? "";
-            var key = $"{ps.ViTri}_{ps.MaSanPham}_{nsx}_{hsd}";
+            
+            string targetLoaiHang = "Thành phẩm";
+            if (ps.LoaiNhapXuat == "Vỏ") targetLoaiHang = "Vỏ";
+            else if (ps.LoaiNhapXuat == "Hàng đổi 1-1") targetLoaiHang = "Hàng đổi 1-1";
+            else if (ps.LoaiNhapXuat == "Hàng xuất nhầm") targetLoaiHang = "Hàng xuất nhầm";
+            else if (ps.LoaiNhapXuat == "Nhập hàng trả về" || ps.LoaiNhapXuat == "Hàng trả về") targetLoaiHang = "Hàng trả về";
+
+            var key = $"{ps.ViTri}_{ps.MaSanPham}_{nsx}_{hsd}_{targetLoaiHang}";
             
             if (hienTaiDict.ContainsKey(key))
             {
@@ -113,7 +122,8 @@ public class SyncController : ControllerBase
                     HanSuDung = ps.HanSuDung,
                     SoLuongPalletChan = ps.SoLuongChan ?? 0,
                     SoThungLe = ps.SoLuongLe ?? 0,
-                    Tong = 0
+                    Tong = 0,
+                    LoaiHang = targetLoaiHang
                 };
             }
         }

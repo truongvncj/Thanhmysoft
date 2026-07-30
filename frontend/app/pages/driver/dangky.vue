@@ -21,10 +21,10 @@
           <label class="block text-sm font-semibold text-slate-700 mb-1">Biển số xe</label>
           <input v-model="driverBienSo" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="Ví dụ: 29A-123.45">
         </div>
-        
+        <!-- Lý do -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">Lý do</label>
-          <div class="flex gap-6 mb-2">
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Lý do chính</label>
+          <div class="flex gap-6 mb-4">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" v-model="driverLyDo" value="Nhập hàng" class="text-blue-600 w-5 h-5">
               <span class="text-base font-medium text-slate-700">Nhập hàng</span>
@@ -32,6 +32,17 @@
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" v-model="driverLyDo" value="Xuất hàng" class="text-blue-600 w-5 h-5">
               <span class="text-base font-medium text-slate-700">Xuất hàng</span>
+            </label>
+          </div>
+          
+          <div class="flex flex-col gap-3">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" v-model="driverNhapVo" class="text-blue-600 w-5 h-5 rounded border-gray-300">
+              <span class="text-base font-medium text-slate-700">Nhập vỏ</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" v-model="driverNhapHangTraVe" class="text-blue-600 w-5 h-5 rounded border-gray-300">
+              <span class="text-base font-medium text-slate-700">Nhập hàng trả về</span>
             </label>
           </div>
         </div>
@@ -55,7 +66,7 @@
           </button>
         </div>
 
-        <div v-if="driverLyDo === 'Xuất hàng'" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div v-if="driverLyDo === 'Xuất hàng'" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
           <label class="block text-xs font-semibold text-slate-600 uppercase">Chứng từ Xuất hàng</label>
           <div v-for="(item, index) in xuatHangItems" :key="index" class="flex gap-3 relative group pb-2">
             <div class="flex-1">
@@ -65,13 +76,58 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-            <button @click="addXuatHangItem" class="w-full py-2.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors">
+          <button @click="addXuatHangItem" class="w-full py-2.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors">
             + Thêm Số Shipment
+          </button>
+        </div>
+
+        <!-- Nhập vỏ Fields -->
+        <div v-if="driverNhapVo" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
+          <label class="block text-xs font-semibold text-slate-600 uppercase">Chứng từ Nhập vỏ</label>
+          <div v-for="(item, index) in nhapVoItems" :key="'vo'+index" class="flex gap-3 relative group pb-2">
+            <div class="flex-1">
+              <input v-model="item.soShipment" type="text" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Số Shipment">
+            </div>
+            <button @click="removeNhapVoItem(index)" v-if="nhapVoItems.length > 1" class="text-red-500 hover:bg-red-100 p-2.5 rounded-lg transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <button @click="addNhapVoItem" class="w-full py-2.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors">
+            + Thêm Số Shipment Nhập vỏ
+          </button>
+        </div>
+
+        <!-- Nhập hàng trả về Fields -->
+        <div v-if="driverNhapHangTraVe" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
+          <label class="block text-xs font-semibold text-slate-600 uppercase">Chứng từ Nhập hàng trả về</label>
+          <div v-for="(item, index) in nhapHangTraVeItems" :key="'trave'+index" class="flex flex-col gap-3 relative group pb-2">
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <input v-model="item.soShipment" type="text" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Số Shipment">
+              </div>
+              <div class="flex-1">
+                <select v-model="item.lyDoTraVe" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="" disabled selected>Chọn lý do</option>
+                  <option value="Hàng đổi 1-1">Hàng đổi 1-1</option>
+                  <option value="Thu hàng Lỗi">Thu hàng Lỗi</option>
+                  <option value="Hàng xuất nhầm">Hàng xuất nhầm</option>
+                </select>
+              </div>
+              <button @click="removeNhapHangTraVeItem(index)" v-if="nhapHangTraVeItems.length > 1" class="text-red-500 hover:bg-red-100 p-2.5 rounded-lg transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div class="flex-1" v-if="item.lyDoTraVe === 'Hàng đổi 1-1' || item.lyDoTraVe === 'Thu hàng Lỗi'">
+              <input v-model="item.maKhachHang" type="text" class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Mã khách hàng (Bắt buộc)">
+            </div>
+          </div>
+          <button @click="addNhapHangTraVeItem" class="w-full py-2.5 border border-dashed border-blue-400 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors">
+            + Thêm Chứng từ trả về
           </button>
         </div>
         
         <div class="pt-4">
-          <button @click="submitDangKy" class="w-full py-3.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-md text-base font-bold flex justify-center items-center gap-2" :disabled="!driverKhohangId || !driverLyDo || !driverBienSo || submitting">
+          <button @click="submitDangKy" class="w-full py-3.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-md text-base font-bold flex justify-center items-center gap-2" :disabled="submitting">
             <span v-if="submitting" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
             {{ submitting ? 'Đang xử lý...' : 'Hoàn tất Đăng ký' }}
           </button>
@@ -134,6 +190,16 @@ const xuatHangItems = ref([{ soShipment: '' }])
 const addXuatHangItem = () => xuatHangItems.value.push({ soShipment: '' })
 const removeXuatHangItem = (index) => xuatHangItems.value.splice(index, 1)
 
+const driverNhapVo = ref(false)
+const nhapVoItems = ref([{ soShipment: '' }])
+const addNhapVoItem = () => nhapVoItems.value.push({ soShipment: '' })
+const removeNhapVoItem = (index) => nhapVoItems.value.splice(index, 1)
+
+const driverNhapHangTraVe = ref(false)
+const nhapHangTraVeItems = ref([{ soShipment: '', lyDoTraVe: '', maKhachHang: '' }])
+const addNhapHangTraVeItem = () => nhapHangTraVeItems.value.push({ soShipment: '', lyDoTraVe: '', maKhachHang: '' })
+const removeNhapHangTraVeItem = (index) => nhapHangTraVeItems.value.splice(index, 1)
+
 const showModal = ref(false)
 const modalMessage = ref('')
 const modalType = ref('success')
@@ -174,7 +240,18 @@ const closeModal = () => {
 }
 
 const submitDangKy = async () => {
-  if (!driverKhohangId.value || !driverLyDo.value || !driverBienSo.value) return
+  if (!driverKhohangId.value) {
+    openModal('Vui lòng chọn Kho hàng cần đăng ký.', 'error')
+    return
+  }
+  if (!driverBienSo.value) {
+    openModal('Vui lòng điền Biển số xe.', 'error')
+    return
+  }
+  if (!driverLyDo.value) {
+    openModal('Vui lòng chọn Lý do chính (Nhập hàng hoặc Xuất hàng).', 'error')
+    return
+  }
 
   let chungtusData = []
   if (driverLyDo.value === 'Nhập hàng') {
@@ -187,8 +264,41 @@ const submitDangKy = async () => {
       .map(item => ({ ...item, lyDo: 'Xuất hàng' }))
   }
 
+  if (chungtusData.length === 0 && !driverNhapVo.value && !driverNhapHangTraVe.value) {
+    openModal('Vui lòng nhập ít nhất một số chứng từ chính trước khi đăng ký.', 'error')
+    return
+  }
+
+  if (driverNhapVo.value) {
+    const voData = nhapVoItems.value
+      .filter(item => item.soShipment)
+      .map(item => ({ ...item, lyDo: 'Nhập vỏ' }))
+    chungtusData = [...chungtusData, ...voData]
+  }
+
+  if (driverNhapHangTraVe.value) {
+    for (const item of nhapHangTraVeItems.value) {
+      if (item.soShipment) {
+        if (!item.lyDoTraVe) {
+          openModal('Vui lòng chọn lý do cho Nhập hàng trả về.', 'error')
+          return
+        }
+        if ((item.lyDoTraVe === 'Hàng đổi 1-1' || item.lyDoTraVe === 'Thu hàng Lỗi') && !item.maKhachHang) {
+          openModal('Mã khách hàng là bắt buộc đối với lý do "Hàng đổi 1-1" và "Thu hàng Lỗi".', 'error')
+          return
+        }
+        chungtusData.push({
+          lyDo: 'Nhập hàng trả về',
+          soShipment: item.soShipment,
+          lyDoTraVe: item.lyDoTraVe,
+          maKhachHang: item.maKhachHang
+        })
+      }
+    }
+  }
+
   if (chungtusData.length === 0) {
-    openModal('Vui lòng nhập ít nhất một số chứng từ (STO / Shipment) trước khi đăng ký.', 'error')
+    openModal('Vui lòng điền đủ các chứng từ đã chọn.', 'error')
     return
   }
 

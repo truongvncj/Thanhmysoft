@@ -51,4 +51,7 @@ public class TonKhoHienTai
     public string? SttDayHang { get; set; }
 
     public DateTime? ThoiDiemGhiNhan { get; set; }
+
+    [MaxLength(50)]
+    public string? LoaiHang { get; set; } // "Thành phẩm", "Vỏ", "Hàng đổi 1-1", "Hàng trả về", "Hàng xuất nhầm"
 }

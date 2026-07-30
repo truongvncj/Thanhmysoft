@@ -62,11 +62,15 @@ public class DanhsachxetrongkhoController : ControllerBase
                 .ToList();
 
             var chungTuList = chungTus.Select(c => 
-                c.LyDo == "Nhập hàng" ? (
+            {
+                var docStr = c.LyDo == "Nhập hàng" ? (
                     !string.IsNullOrWhiteSpace(c.SoTransferOut) && !string.IsNullOrWhiteSpace(c.SoSTO) ? $"{c.SoTransferOut} - {c.SoSTO}" :
                     !string.IsNullOrWhiteSpace(c.SoTransferOut) ? c.SoTransferOut : c.SoSTO
-                ) : c.SoShipment
-            ).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+                ) : c.SoShipment;
+                
+                if (string.IsNullOrWhiteSpace(docStr)) return null;
+                return $"{c.LyDo}: {docStr}";
+            }).Where(s => s != null).ToList();
 
             var stos = chungTus.Where(c => c.LyDo == "Nhập hàng")
                 .Select(c => 
@@ -75,6 +79,13 @@ public class DanhsachxetrongkhoController : ControllerBase
                 .Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
             var shipments = chungTus.Select(c => c.SoShipment).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+            var traVeDetails = chungTus.Where(c => c.LyDo == "Nhập hàng trả về").Select(c => new
+            {
+                SoShipment = c.SoShipment,
+                LyDoTraVe = c.LyDoTraVe,
+                MaKhachHang = c.MaKhachHang
+            }).ToList();
 
             var baoVeDaKiemTraPreTripHomNay = sothesCheckedToday.Contains(dt.Sothe);
 
@@ -98,10 +109,12 @@ public class DanhsachxetrongkhoController : ControllerBase
                 dt.BaoVeKiemTra_PreTrip_Time,
                 dt.BaoVeKiemTraTrongKho_Time,
                 dt.NhapKho_Time,
+                dt.LyDoHuy,
                 BaoVeDaKiemTraPreTripHomNay = baoVeDaKiemTraPreTripHomNay,
                 ChungTus = chungTuList,
                 STOs = stos,
                 Shipments = shipments,
+                TraVeDetails = traVeDetails,
                 ThoiGianTrongSan = GetThoiGianTrongSan(dt)
             });
         }
@@ -159,6 +172,40 @@ public class DanhsachxetrongkhoController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Cập nhật trạng thái thành công." });
+    }
+
+    public class RejectDangKyRequest
+    {
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    [HttpPost("reject-dangky/{id}")]
+    public async Task<IActionResult> RejectDangKy(Guid id, [FromBody] RejectDangKyRequest request)
+    {
+        var record = await _context.Danhsachxetrongkhos.FindAsync(id);
+        if (record == null) return NotFound(new { message = "Không tìm thấy chuyến xe." });
+
+        if (record.TrangThai != 0) return BadRequest(new { message = "Chuyến xe không ở trạng thái Đã đăng ký." });
+
+        record.TrangThai = 3; // Hoàn thành (nhưng bị hủy)
+        record.LyDoHuy = request.Reason;
+        record.XacNhanRaCong_Time = DateTime.UtcNow.AddHours(7);
+
+        _context.Entry(record).State = EntityState.Modified;
+        
+        var today = DateTime.UtcNow.AddHours(7).Date;
+        var tomorrow = today.AddDays(1);
+        var dangTai = await _context.DangTais.FirstOrDefaultAsync(d => d.Sothe == record.Sothe && d.NgayDangTai >= today && d.NgayDangTai < tomorrow && d.TrangThai == 0);
+        if (dangTai != null)
+        {
+            dangTai.TrangThai = 3;
+            dangTai.LyDoHuy = request.Reason;
+            _context.Entry(dangTai).State = EntityState.Modified;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Đã từ chối phiếu đăng ký thành công." });
     }
 
     [HttpPost("update-xuatkho/{id}")]
@@ -350,5 +397,32 @@ public class DanhsachxetrongkhoController : ControllerBase
 
         await _context.SaveChangesAsync();
         return Ok(new { message = "Lưu kết quả kiểm tra thành công" });
+    }
+
+    [HttpPost("update-trave-details")]
+    public async Task<IActionResult> UpdateTraVeDetails([FromBody] UpdateTraVeDetailsRequest req)
+    {
+        var chungTus = await _context.ChungTuVaoKhos
+            .Where(c => c.Sothe == req.Sothe && c.SoShipment == req.SoShipment && c.LyDo == "Nhập hàng trả về")
+            .ToListAsync();
+
+        if (chungTus.Count == 0) return NotFound(new { message = "Không tìm thấy chứng từ" });
+
+        foreach (var c in chungTus)
+        {
+            c.LyDoTraVe = req.LyDoTraVe;
+            c.MaKhachHang = req.MaKhachHang;
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new { message = "Đã cập nhật" });
+    }
+
+    public class UpdateTraVeDetailsRequest
+    {
+        public string Sothe { get; set; }
+        public string SoShipment { get; set; }
+        public string LyDoTraVe { get; set; }
+        public string MaKhachHang { get; set; }
     }
 }

@@ -32,6 +32,9 @@ public class PhatSinhSanPham
     [MaxLength(50)]
     public string? Status { get; set; } // pending / ok
 
+    [MaxLength(50)]
+    public string? LoaiNhapXuat { get; set; } // Thành phẩm / Vỏ / Nhập hàng trả về
+
     [MaxLength(255)]
     public string? User { get; set; }
 
@@ -50,4 +53,7 @@ public class PhatSinhSanPham
     public string? SoShipment { get; set; }
 
     public int? KhohangId { get; set; }
+
+    [NotMapped]
+    public string? LyDoTraVe { get; set; }
 }

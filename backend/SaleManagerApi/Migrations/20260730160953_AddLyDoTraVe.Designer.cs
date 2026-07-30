@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SaleManagerApi.Data;
@@ -11,9 +12,11 @@ using SaleManagerApi.Data;
 namespace SaleManagerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260730160953_AddLyDoTraVe")]
+    partial class AddLyDoTraVe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -733,10 +736,6 @@ namespace SaleManagerApi.Migrations
                     b.Property<int?>("KhohangId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("LoaiNhapXuat")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<string>("LoaiPhatSinh")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -1121,10 +1120,6 @@ namespace SaleManagerApi.Migrations
 
                     b.Property<int>("KhohangId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("LoaiHang")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("MaHang")
                         .HasMaxLength(255)

@@ -427,11 +427,15 @@ public class DangTaisController : ControllerBase
             }
 
             var docList = ct.Select(c => 
-                c.LyDo == "Nhập hàng" ? (
+            {
+                var docStr = c.LyDo == "Nhập hàng" ? (
                     !string.IsNullOrWhiteSpace(c.SoTransferOut) && !string.IsNullOrWhiteSpace(c.SoSTO) ? $"{c.SoTransferOut} - {c.SoSTO}" :
                     !string.IsNullOrWhiteSpace(c.SoTransferOut) ? c.SoTransferOut : c.SoSTO
-                ) : c.SoShipment
-            ).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+                ) : c.SoShipment;
+                
+                if (string.IsNullOrWhiteSpace(docStr)) return null;
+                return $"{c.LyDo}: {docStr}";
+            }).Where(s => s != null).ToList();
 
             return new {
                 h.Id,
@@ -441,6 +445,7 @@ public class DangTaisController : ControllerBase
                 h.LyDo,
                 h.BienSo,
                 h.TrangThai,
+                h.LyDoHuy,
                 h.DaDangTai,
                 h.DaVeSinh,
                 h.DaDangKyChungTu,
@@ -463,6 +468,8 @@ public class DangTaisController : ControllerBase
         public string? SoTransferOut { get; set; }
         public string? SoSTO { get; set; }
         public string? SoShipment { get; set; }
+        public string? LyDoTraVe { get; set; }
+        public string? MaKhachHang { get; set; }
     }
 
     [HttpPost("submit-chungtu")]
@@ -497,7 +504,9 @@ public class DangTaisController : ControllerBase
                 LyDo = item.LyDo,
                 SoTransferOut = item.SoTransferOut,
                 SoSTO = item.SoSTO,
-                SoShipment = item.SoShipment
+                SoShipment = item.SoShipment,
+                LyDoTraVe = item.LyDoTraVe,
+                MaKhachHang = item.MaKhachHang
             };
             _context.ChungTuVaoKhos.Add(chungTu);
         }
