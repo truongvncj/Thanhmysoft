@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SaleManagerApi.Models;
 
-[Table("sanphamnuoc")]
-public class Sanphamnuoc
+[Table("sanpham")]
+public class Sanpham
 {
     [Key]
     public int Id { get; set; }
@@ -24,4 +24,14 @@ public class Sanphamnuoc
     public string TenSanPham { get; set; } = string.Empty;
 
     public int? DinhLuong { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string LoaiSanPham { get; set; } = "Thành phẩm";
+
+    [MaxLength(255)]
+    public string? MaVo { get; set; }
+
+    [MaxLength(500)]
+    public string? TenVo { get; set; }
 }

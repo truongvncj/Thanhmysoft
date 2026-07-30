@@ -141,8 +141,8 @@ public class PhatSinhSanPhamsController : ControllerBase
         }
         else
         {
-            // Lookup DinhLuong from Sanphamnuoc
-            var productInfo = await _context.Sanphamnuocs
+            // Lookup DinhLuong from Sanpham
+            var productInfo = await _context.Sanphams
                 .FirstOrDefaultAsync(p => p.MaSanPham == request.MaSanPham);
             
             int dinhLuong = productInfo?.DinhLuong ?? 0;

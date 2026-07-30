@@ -30,9 +30,10 @@ public class AppDbContext : DbContext
     public DbSet<TonKhoDauKy> TonKhoDauKies { get; set; }
     public DbSet<TonKhoHienTai> TonKhoHienTais { get; set; }
     public DbSet<PhatSinhSanPham> PhatSinhSanPhams { get; set; }
-    public DbSet<Sanphamnuoc> Sanphamnuocs { get; set; }
+    public DbSet<Sanpham> Sanphams { get; set; }
     public DbSet<PhieuDemKho> PhieuDemKhos { get; set; }
     public DbSet<ChiTietDemKho> ChiTietDemKhos { get; set; }
+    public DbSet<XuatKhoTam> XuatKhoTams { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

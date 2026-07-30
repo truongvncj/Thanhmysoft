@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SaleManagerApi.Data;
@@ -11,9 +12,11 @@ using SaleManagerApi.Data;
 namespace SaleManagerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260729131343_AddVoSanPham")]
+    partial class AddVoSanPham
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1154,57 +1157,6 @@ namespace SaleManagerApi.Migrations
                     b.HasIndex("KhohangId");
 
                     b.ToTable("tonkhohientai");
-                });
-
-            modelBuilder.Entity("SaleManagerApi.Models.XuatKhoTam", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("HanSuDung")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("KhohangId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MaNhanVien")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("MaSanPham")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<DateTime?>("NgaySanXuat")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("SoChungTu")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<int>("SoLuongChan")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SoLuongLe")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TenSanPham")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("ViTri")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("xuatkhotam");
                 });
 
             modelBuilder.Entity("SaleManagerApi.Models.ChiTietDemKho", b =>

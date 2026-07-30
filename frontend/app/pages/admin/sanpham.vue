@@ -31,19 +31,23 @@
             </select>
           </div>
 
-          <!-- Excel Action Buttons -->
-          <div class="flex items-center gap-2 w-full sm:w-auto" v-if="selectedKhohangId">
-            <button @click="exportExcel" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-medium transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-              Kết xuất Excel
-            </button>
-            <button @click="triggerUpload" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-full text-sm font-medium transition-colors relative overflow-hidden">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              Upload Excel
-            </button>
-            <input type="file" ref="fileInput" @change="handleFileUpload" accept=".xlsx, .xls" class="hidden" />
-          </div>
+
         </div>
+      </div>
+
+            <div v-if="selectedKhohangId" class="flex items-center gap-4 border-b border-slate-200 mt-2 px-2">
+        <button 
+          @click="activeTab = 'Thành phẩm'; resetForm()" 
+          :class="['px-4 py-2 font-medium transition-colors border-b-2', activeTab === 'Thành phẩm' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700']"
+        >
+          Thành phẩm
+        </button>
+        <button 
+          @click="activeTab = 'Vỏ'; resetForm()" 
+          :class="['px-4 py-2 font-medium transition-colors border-b-2', activeTab === 'Vỏ' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700']"
+        >
+          Vỏ
+        </button>
       </div>
 
       <div v-if="selectedKhohangId" class="flex flex-col gap-6">
@@ -53,9 +57,22 @@
           <div v-if="saving" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-          <div class="bg-slate-50 border-b border-slate-100 px-5 py-3 flex justify-between items-center">
-            <h3 class="font-bold text-slate-700">{{ isEditing ? 'Cập nhật Sản Phẩm' : 'Thêm Sản Phẩm Mới' }}</h3>
-            <button v-if="isEditing" @click="resetForm" class="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded hover:bg-slate-300">Hủy sửa</button>
+          <div class="bg-slate-50 border-b border-slate-100 px-5 py-3 flex justify-between items-center flex-wrap gap-2">
+            <div class="flex items-center gap-3">
+              <h3 class="font-bold text-slate-700">{{ isEditing ? 'Cập nhật Sản Phẩm' : 'Thêm Sản Phẩm Mới' }}</h3>
+              <button v-if="isEditing" @click="resetForm" class="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded hover:bg-slate-300">Hủy sửa</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button @click="exportExcel" class="flex items-center justify-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Kết xuất Excel
+              </button>
+              <button @click="triggerUpload" class="flex items-center justify-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-full text-sm font-medium transition-colors relative overflow-hidden">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Upload Excel
+              </button>
+              <input type="file" ref="fileInput" @change="handleFileUpload" accept=".xlsx, .xls" class="hidden" />
+            </div>
           </div>
           
           <div class="p-5 overflow-y-auto custom-scrollbar flex-1">
@@ -78,6 +95,22 @@
                   <input v-model.number="form.dinhLuong" type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nhập số lượng..." />
                 </div>
               </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" v-if="activeTab === 'Thành phẩm'">
+                <div class="relative">
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Mã Vỏ</label>
+                  <input v-model="form.maVo" @input="onMaVoInput" @focus="showVoDropdown = true" @blur="handleVoBlur" type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nhập hoặc chọn mã vỏ..." />
+                  <!-- Dropdown -->
+                  <ul v-if="showVoDropdown && filteredVoList.length > 0" class="absolute z-50 mt-1 w-full bg-white border border-slate-200 shadow-lg max-h-60 rounded-md overflow-auto custom-scrollbar">
+                    <li v-for="vo in filteredVoList" :key="vo.id" @mousedown.prevent="selectVo(vo)" class="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm">
+                      <span class="font-semibold text-blue-600">{{ vo.maSanPham }}</span> - <span class="text-slate-600">{{ vo.tenSanPham }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Tên Vỏ</label>
+                  <input v-model="form.tenVo" readonly type="text" class="w-full border border-slate-200 bg-slate-100 rounded-lg px-3 py-2 text-sm outline-none text-slate-500" placeholder="Tên vỏ tự động điền..." />
+                </div>
+              </div>
 
               <div class="pt-4 mt-2 border-t border-slate-100 flex justify-end">
                 <button type="submit" class="w-full md:w-auto bg-blue-600 text-white font-bold py-2 px-8 rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-2">
@@ -93,7 +126,7 @@
         <div class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden flex flex-col">
           <div class="bg-slate-50 border-b border-slate-100 px-5 py-3 flex justify-between items-center">
             <h3 class="font-bold text-slate-700">Danh sách Sản Phẩm</h3>
-            <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-md">Tổng số: {{ sanPhams.length }}</span>
+            <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-md">Tổng số: {{ filteredDisplaySanPhams.length }}</span>
           </div>
           
           <div class="flex-1 overflow-auto custom-scrollbar relative">
@@ -108,6 +141,8 @@
                   <th class="py-3 px-4 border-r border-slate-100 font-bold">Mã Sản Phẩm</th>
                   <th class="py-3 px-4 border-r border-slate-100 font-bold">Tên Sản Phẩm</th>
                   <th class="py-3 px-4 border-r border-slate-100 font-bold">Định Lượng (CS/PL)</th>
+                  <th class="py-3 px-4 border-r border-slate-100 font-bold" v-if="activeTab === 'Thành phẩm'">Mã Vỏ</th>
+                  <th class="py-3 px-4 border-r border-slate-100 font-bold" v-if="activeTab === 'Thành phẩm'">Tên Vỏ</th>
                   <th class="py-3 px-4 border-l border-slate-100 bg-slate-50 sticky right-0 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.05)] w-20 text-center font-bold">Thao tác</th>
                 </tr>
               </thead>
@@ -118,7 +153,7 @@
                   </td>
                 </tr>
                 <tr 
-                  v-for="(item, index) in sanPhams" 
+                  v-for="(item, index) in filteredDisplaySanPhams" 
                   :key="item.id" 
                   class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors cursor-pointer"
                   :class="{'bg-blue-50/30': editingId === item.id}"
@@ -127,6 +162,8 @@
                   <td class="py-2 px-4 border-r border-slate-100 font-medium text-slate-700">{{ item.maSanPham }}</td>
                   <td class="py-2 px-4 border-r border-slate-100 truncate max-w-[300px]" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
                   <td class="py-2 px-4 border-r border-slate-100">{{ item.dinhLuong }}</td>
+                  <td class="py-2 px-4 border-r border-slate-100" v-if="activeTab === 'Thành phẩm'">{{ item.maVo }}</td>
+                  <td class="py-2 px-4 border-r border-slate-100 truncate max-w-[200px]" :title="item.tenVo" v-if="activeTab === 'Thành phẩm'">{{ item.tenVo }}</td>
                   <td class="py-2 px-4 border-l border-slate-100 bg-white sticky right-0 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.05)] text-center">
                     <button @click.stop="deleteItem(item.id)" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors" title="Xóa">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -151,14 +188,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import * as XLSX from 'xlsx'
 
 definePageMeta({
   layout: false
 })
 
-const apiBase = 'http://localhost:5121/api'
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBaseUrl
 
 const khohangs = ref([])
 const selectedKhohangId = ref('')
@@ -167,13 +205,54 @@ const sanPhams = ref([])
 const loadingData = ref(false)
 const saving = ref(false)
 
+
+const activeTab = ref('Thành phẩm')
+const showVoDropdown = ref(false)
+
+const filteredDisplaySanPhams = computed(() => {
+  return sanPhams.value.filter(s => s.loaiSanPham === activeTab.value)
+})
+
+const filteredVoList = computed(() => {
+  const voList = sanPhams.value.filter(s => s.loaiSanPham === 'Vỏ')
+  if (!form.value.maVo) return voList.slice(0, 50)
+  const query = String(form.value.maVo).toLowerCase().trim()
+  return voList.filter(v => v.maSanPham.toLowerCase().includes(query) || v.tenSanPham.toLowerCase().includes(query)).slice(0, 50)
+})
+
+const onMaVoInput = () => {
+  showVoDropdown.value = true
+  const query = String(form.value.maVo).trim().toLowerCase()
+  const matchedVo = sanPhams.value.find(s => s.loaiSanPham === 'Vỏ' && s.maSanPham.toLowerCase() === query)
+  if (matchedVo) {
+    form.value.tenVo = matchedVo.tenSanPham
+  } else {
+    form.value.tenVo = ''
+  }
+}
+
+const selectVo = (vo) => {
+  form.value.maVo = vo.maSanPham
+  form.value.tenVo = vo.tenSanPham
+  showVoDropdown.value = false
+}
+
+const handleVoBlur = () => {
+  setTimeout(() => {
+    showVoDropdown.value = false
+  }, 200)
+}
+
 const isEditing = ref(false)
 const editingId = ref(null)
 
 const defaultForm = {
   maSanPham: '',
   tenSanPham: '',
-  dinhLuong: null
+  dinhLuong: null,
+  loaiSanPham: 'Thành phẩm',
+  maVo: '',
+  tenVo: ''
 }
 
 const form = ref({ ...defaultForm })
@@ -197,7 +276,7 @@ const fetchSanphamData = async () => {
   if (!selectedKhohangId.value) return
   loadingData.value = true
   try {
-    const res = await $fetch(`${apiBase}/Sanphamnuocs/ByKhohang/${selectedKhohangId.value}`)
+    const res = await $fetch(`${apiBase}/Sanphams/ByKhohang/${selectedKhohangId.value}`)
     sanPhams.value = res || []
     resetForm()
   } catch (err) {
@@ -209,7 +288,7 @@ const fetchSanphamData = async () => {
 }
 
 const resetForm = async () => {
-  form.value = { ...defaultForm }
+  form.value = { ...defaultForm, loaiSanPham: activeTab.value }
   isEditing.value = false
   editingId.value = null
 }
@@ -228,21 +307,27 @@ const saveItem = async () => {
 
   saving.value = true
   
-  const payload = { 
-    ...form.value, 
-    khohangId: selectedKhohangId.value
+  const payload = {
+    id: isEditing.value ? editingId.value : undefined,
+    maSanPham: form.value.maSanPham,
+    tenSanPham: form.value.tenSanPham,
+    dinhLuong: form.value.dinhLuong,
+    khohangId: selectedKhohangId.value,
+    loaiSanPham: form.value.loaiSanPham,
+    maVo: form.value.maVo,
+    tenVo: form.value.tenVo
   }
   
   if (payload.dinhLuong === '') payload.dinhLuong = null
 
   try {
     if (isEditing.value) {
-      await $fetch(`${apiBase}/Sanphamnuocs/${editingId.value}`, {
+      await $fetch(`${apiBase}/Sanphams/${editingId.value}`, {
         method: 'PUT',
         body: payload
       })
     } else {
-      await $fetch(`${apiBase}/Sanphamnuocs`, {
+      await $fetch(`${apiBase}/Sanphams`, {
         method: 'POST',
         body: payload
       })
@@ -263,7 +348,7 @@ const saveItem = async () => {
 const deleteItem = async (id) => {
   if (!await confirm('Bạn có chắc muốn xóa sản phẩm này?')) return
   try {
-    await $fetch(`${apiBase}/Sanphamnuocs/${id}`, {
+    await $fetch(`${apiBase}/Sanphams/${id}`, {
       method: 'DELETE'
     })
     await fetchSanphamData()
@@ -279,19 +364,30 @@ const exportExcel = async () => {
     return
   }
   
-  const dataToExport = sanPhams.value.map((item, index) => ({
-    'STT': index + 1,
-    'Mã Sản Phẩm': item.maSanPham,
-    'Tên Sản Phẩm': item.tenSanPham,
-    'Định Lượng (CS/PL)': item.dinhLuong
-  }))
+    const dataToExport = filteredDisplaySanPhams.value.map((item, index) => {
+    const row = {
+      'STT': index + 1,
+      'Mã Sản Phẩm': item.maSanPham,
+      'Tên Sản Phẩm': item.tenSanPham,
+      'Định Lượng (CS/PL)': item.dinhLuong,
+      'Loại Sản Phẩm': item.loaiSanPham
+    };
+    if (activeTab.value === 'Thành phẩm') {
+      row['Mã Vỏ'] = item.maVo || '';
+      row['Tên Vỏ'] = item.tenVo || '';
+    }
+    return row;
+  })
   
   if (dataToExport.length === 0) {
-    dataToExport.push({
+        dataToExport.push({
       'STT': '',
       'Mã Sản Phẩm': '',
       'Tên Sản Phẩm': '',
-      'Định Lượng (CS/PL)': ''
+      'Định Lượng (CS/PL)': '',
+      'Loại Sản Phẩm': activeTab.value,
+      'Mã Vỏ': '',
+      'Tên Vỏ': ''
     })
   }
 
@@ -355,15 +451,22 @@ const handleFileUpload = async (event) => {
           if (isNaN(dinhLuong)) dinhLuong = null
         }
 
+        let loaiSanPham = activeTab.value;
+        let maVo = row['Mã Vỏ'] || '';
+        let tenVo = row['Tên Vỏ'] || '';
+
         const payload = {
           maSanPham: maSanPham,
           tenSanPham: tenSanPham,
           dinhLuong: dinhLuong,
-          khohangId: selectedKhohangId.value
+          khohangId: selectedKhohangId.value,
+          loaiSanPham: loaiSanPham,
+          maVo: maVo,
+          tenVo: tenVo
         }
 
         try {
-          await $fetch(`${apiBase}/Sanphamnuocs`, {
+          await $fetch(`${apiBase}/Sanphams`, {
             method: 'POST',
             body: payload
           })

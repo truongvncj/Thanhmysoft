@@ -575,7 +575,7 @@ const fetchTonKhoData = async () => {
     const [tonKhoRes, layoutRes, sanPhamRes] = await Promise.all([
       $fetch(`${apiBase}/TonKhoDauKies/ByKhohang/${selectedKhohangId.value}`),
       $fetch(`${apiBase}/Layoutkhos?khohangId=${selectedKhohangId.value}`),
-      $fetch(`${apiBase}/Sanphamnuocs/ByKhohang/${selectedKhohangId.value}`)
+      $fetch(`${apiBase}/Sanphams/ByKhohang/${selectedKhohangId.value}`)
     ])
     
     tonKhos.value = tonKhoRes || []
@@ -591,28 +591,28 @@ const fetchTonKhoData = async () => {
 }
 
 // Convert backend Date string to YYYY-MM-DD for input[type=date]
-const toInputDate = async (dateStr) => {
+const toInputDate = (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toISOString().split('T')[0]
 }
 
 // Format date for display in table (MM/DD/YYYY or DD/MM/YYYY)
-const formatDate = async (dateStr) => {
+const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleDateString('en-US', { year: '2-digit', month: 'numeric', day: 'numeric' })
 }
 
 // Format datetime for display in table
-const formatDateTime = async (dateStr) => {
+const formatDateTime = (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleString('en-US', { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 // Convert backend Date string to YYYY-MM-DDTHH:mm for input[type=datetime-local]
-const toInputDateTime = async (dateStr) => {
+const toInputDateTime = (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   // Need to adjust for timezone offset to get local time string in correct format

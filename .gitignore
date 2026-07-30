@@ -6,3 +6,6 @@ bin/
 obj/
 node_modules/
 .DS_Store
+*.log
+update_vue.js
+

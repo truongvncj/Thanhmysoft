@@ -817,45 +817,93 @@
                   </p>
                 </div>
               </div>
-              <button @click="exportBaocaoTonKhoExcel" :disabled="baocaoTonKhoData.length === 0" class="px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-emerald-200 rounded-lg shadow-sm flex items-center gap-2 font-medium">
+              <button @click="exportBaocaoTonKhoExcel" :disabled="filteredBaocaoTonKhoData.length === 0" class="px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-emerald-200 rounded-lg shadow-sm flex items-center gap-2 font-medium">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Kết xuất Excel
               </button>
+            </div>
+
+            <!-- Tab bar Báo cáo tồn kho -->
+            <div class="bg-white px-4 border-b border-slate-200 mt-4 rounded-xl shadow-sm">
+              <div class="flex space-x-6">
+                <button @click="baocaoTonKhoActiveTab = 'Thành phẩm'" :class="baocaoTonKhoActiveTab === 'Thành phẩm' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="py-3 px-2 flex items-center gap-2">
+                  Thành phẩm
+                  <span class="bg-blue-100 text-blue-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoThanhPhamCount }}</span>
+                </button>
+                <button @click="baocaoTonKhoActiveTab = 'Vỏ'" :class="baocaoTonKhoActiveTab === 'Vỏ' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="py-3 px-2 flex items-center gap-2">
+                  Vỏ
+                  <span class="bg-amber-100 text-amber-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ baocaoTonKhoVoCount }}</span>
+                </button>
+              </div>
             </div>
             
             <div class="flex-1 overflow-auto custom-scrollbar p-0">
               <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
                 <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
-                  <tr>
+                  <tr v-if="baocaoTonKhoActiveTab === 'Thành phẩm'">
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">MÃ HÀNG</th>
                     <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TÊN SẢN PHẨM</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NSX</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">HSD</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SL PALLET CHẴN</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">SỐ THÙNG LẺ</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">ĐỊNH LƯỢNG (CS/PL)</th>
-                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200">TỔNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">HẠN SỬ DỤNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-center">% HSD CÒN LẠI</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">SL PALLET CHẴN</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">SỐ THÙNG LẺ</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">ĐỊNH LƯỢNG (CS/PL)</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">TỔNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">GHI CHÚ</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TRẠNG THÁI D.O.D</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">NGÀY SẢN XUẤT</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">DÃY HÀNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200">STT DÃY HÀNG</th>
+                  </tr>
+                  <tr v-else>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">VỊ TRÍ</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">MÃ HÀNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200">TÊN HÀNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">CHẴN</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">LẺ</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">ĐỊNH LƯỢNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-r border-slate-200 text-right">TỔNG</th>
+                    <th class="py-3 px-4 font-semibold text-slate-700 border-b border-slate-200">GHI CHÚ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-if="baocaoTonKhoLoading" class="bg-white">
-                    <td colspan="9" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                    <td :colspan="baocaoTonKhoActiveTab === 'Thành phẩm' ? 14 : 8" class="py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
                   </tr>
-                  <tr v-else-if="baocaoTonKhoData.length === 0" class="bg-white">
-                    <td colspan="9" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
+                  <tr v-else-if="filteredBaocaoTonKhoData.length === 0" class="bg-white">
+                    <td :colspan="baocaoTonKhoActiveTab === 'Thành phẩm' ? 14 : 8" class="py-8 text-center text-slate-500">Không có dữ liệu tồn kho</td>
                   </tr>
-                  <tr v-for="item in baocaoTonKhoData" :key="item.id" class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors">
-                    <td class="py-2 px-4 border-r border-slate-100">{{ item.viTri }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 font-semibold">{{ item.maHang }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soThungLe }}</td>
-                    <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.dinhLuong }}</td>
-                    <td class="py-2 px-4 text-right font-bold">{{ item.tong }}</td>
-                  </tr>
+                  <template v-else>
+                    <tr v-for="item in filteredBaocaoTonKhoData" :key="item.id" class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors">
+                      <template v-if="baocaoTonKhoActiveTab === 'Thành phẩm'">
+                        <td class="py-2 px-4 border-r border-slate-100">{{ item.viTri }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 font-semibold">{{ item.maHang }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-center font-medium text-slate-600">{{ getRemainingShelfLifePercentage(item.ngaySanXuat, item.hanSuDung) }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soThungLe !== null && item.soThungLe !== 0 ? item.soThungLe.toLocaleString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.dinhLuong !== null && item.dinhLuong !== 0 ? item.dinhLuong : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right font-bold text-slate-900">{{ item.tong !== null && item.tong !== 0 ? item.tong.toLocaleString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100"></td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-slate-700">{{ item.trangThaiDOD || 'NORMAL-BÌNH THƯỜNG' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ parseViTri(item.viTri).day }}</td>
+                        <td class="py-2 px-4 text-slate-600">{{ parseViTri(item.viTri).stt }}</td>
+                      </template>
+                      <template v-else>
+                        <td class="py-2 px-4 border-r border-slate-100 font-medium text-slate-800">{{ item.viTri }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 font-semibold text-slate-800">{{ item.maHang }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs text-slate-800" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soThungLe !== null && item.soThungLe !== 0 ? item.soThungLe.toLocaleString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.dinhLuong !== null && item.dinhLuong !== 0 ? item.dinhLuong : '' }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 text-right font-bold text-slate-900">{{ item.tong !== null && item.tong !== 0 ? item.tong.toLocaleString('vi-VN') : '' }}</td>
+                        <td class="py-2 px-4"></td>
+                      </template>
+                    </tr>
+                  </template>
                 </tbody>
               </table>
             </div>
@@ -1199,7 +1247,7 @@
       <div class="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <h3 class="text-lg font-bold text-slate-800">Chi tiết xe xuất: {{ selectedXuatKhoXe?.bienSo }}</h3>
-          <button @click="showXuatKhoModal = false" class="text-slate-400 hover:text-slate-600">
+          <button @click="closeXuatKhoModal" class="text-slate-400 hover:text-slate-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -1233,7 +1281,7 @@
         </div>
         
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50 gap-3">
-          <button @click="showXuatKhoModal = false" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Đóng</button>
+          <button @click="closeXuatKhoModal" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium">Đóng</button>
           <button @click="rejectXuatKho" class="px-4 py-2 bg-red-600 text-white border border-transparent rounded-lg hover:bg-red-700 font-bold shadow-sm flex items-center gap-2">
             Hủy yêu cầu
           </button>
@@ -1250,145 +1298,161 @@
       <div class="bg-white rounded-xl w-full max-w-4xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <h3 class="text-lg font-bold text-slate-800">Xuất kho {{ selectedXuatKhoType }}: {{ selectedXuatKhoDoc }}</h3>
-          <button @click="showXuatKhoSTOModal = false" class="text-slate-400 hover:text-slate-600">
+          <button @click="closeXuatKhoSTOModal" class="text-slate-400 hover:text-slate-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
         
-        <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-6 bg-slate-50/50">
-          <!-- Chọn sản phẩm -->
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
-            <div class="w-full md:w-1/3 relative">
-              <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
-              <input :value="xuatKhoSearchQuery" 
-                     @input="onXuatKhoProductInput"
-                     @focus="showXuatKhoProductDropdown = true" 
-                     @blur="handleXuatKhoProductBlur" 
-                     @keydown.down.prevent="onXuatKhoArrowDown"
-                     @keydown.up.prevent="onXuatKhoArrowUp"
-                     @keydown.enter="onXuatKhoEnter"
-                     type="text" placeholder="Nhập mã..." class="w-full border border-slate-300 rounded-lg px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-slate-50 outline-none font-bold" autocomplete="off" />
+        <div class="px-6 pt-4 border-b border-slate-200 bg-white">
+          <div class="flex space-x-6">
+            <button @click="xuatKhoActiveTab = 'xuatKho'" :class="xuatKhoActiveTab === 'xuatKho' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2">Xuất kho</button>
+            <button @click="xuatKhoActiveTab = 'danhSach'" :class="xuatKhoActiveTab === 'danhSach' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-700'" class="pb-3 px-2 flex items-center gap-2">
+              Chi tiết phiếu xuất
+              <span v-if="draftLoadTickets[selectedXuatKhoDoc]?.length" class="bg-blue-100 text-blue-700 text-xs py-0.5 px-2 rounded-full font-bold">{{ draftLoadTickets[selectedXuatKhoDoc].length }}</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="p-6 overflow-y-auto flex-1 flex flex-col bg-slate-50/50">
+          <!-- Tab 1: Xuất kho -->
+          <div v-show="xuatKhoActiveTab === 'xuatKho'" class="flex flex-col gap-6 flex-1">
+            <!-- Chọn sản phẩm -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start relative z-10">
+              <div class="w-full md:w-1/3 relative">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Mã Sản Phẩm</label>
+                <input :value="xuatKhoSearchQuery" 
+                       @input="onXuatKhoProductInput"
+                       @focus="showXuatKhoProductDropdown = true" 
+                       @blur="handleXuatKhoProductBlur" 
+                       @keydown.down.prevent="onXuatKhoArrowDown"
+                       @keydown.up.prevent="onXuatKhoArrowUp"
+                       @keydown.enter="onXuatKhoEnter"
+                       type="text" placeholder="Nhập mã..." class="w-full border border-slate-300 rounded-lg px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-slate-50 outline-none font-bold" autocomplete="off" />
+                
+                <!-- Dropdown -->
+                <div v-if="showXuatKhoProductDropdown && filteredXuatKhoProducts.length > 0" ref="xuatKhoDropdownList" class="absolute z-50 w-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar min-w-[300px]">
+                  <ul class="py-1 text-sm text-slate-700">
+                    <li v-for="(sp, index) in filteredXuatKhoProducts" :key="sp.id" @mousedown.prevent="selectXuatKhoProduct(sp)" :class="['px-4 py-2.5 cursor-pointer flex justify-between items-center transition-colors', selectedXuatKhoProductIndex === index ? 'bg-blue-100' : 'hover:bg-blue-50']">
+                      <span class="font-bold text-blue-700 shrink-0">{{ sp.maSanPham }}</span>
+                      <span class="text-xs text-slate-500 truncate ml-2 text-right">{{ sp.tenSanPham }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
               
-              <!-- Dropdown -->
-              <div v-if="showXuatKhoProductDropdown && filteredXuatKhoProducts.length > 0" ref="xuatKhoDropdownList" class="absolute z-50 w-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto custom-scrollbar min-w-[300px]">
-                <ul class="py-1 text-sm text-slate-700">
-                  <li v-for="(sp, index) in filteredXuatKhoProducts" :key="sp.id" @mousedown.prevent="selectXuatKhoProduct(sp)" :class="['px-4 py-2.5 cursor-pointer flex justify-between items-center transition-colors', selectedXuatKhoProductIndex === index ? 'bg-blue-100' : 'hover:bg-blue-50']">
-                    <span class="font-bold text-blue-700 shrink-0">{{ sp.maSanPham }}</span>
-                    <span class="text-xs text-slate-500 truncate ml-2 text-right">{{ sp.tenSanPham }}</span>
-                  </li>
-                </ul>
+              <div class="w-full md:w-2/3 md:pt-7">
+                 <div class="flex items-center w-full min-h-[42px] border border-slate-200 rounded-lg px-4 bg-slate-50 text-slate-800 font-bold overflow-hidden">
+                   <span class="truncate">{{ productsList.find(p => p.maSanPham === selectedProductIdForXuatKho)?.tenSanPham || 'Chưa chọn sản phẩm...' }}</span>
+                 </div>
               </div>
             </div>
-            
-            <div class="w-full md:w-2/3 md:pt-7">
-               <div class="flex items-center w-full min-h-[42px] border border-slate-200 rounded-lg px-4 bg-slate-50 text-slate-800 font-bold overflow-hidden">
-                 <span class="truncate">{{ productsList.find(p => p.maSanPham === selectedProductIdForXuatKho)?.tenSanPham || 'Chưa chọn sản phẩm...' }}</span>
-               </div>
-            </div>
-          </div>
 
-          <!-- Kết quả Tồn Kho -->
-          <div v-if="selectedProductIdForXuatKho" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col z-0">
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-              <h4 class="font-semibold text-slate-700">Chọn vị trí và nhập số lượng xuất</h4>
-              <button @click="fetchTonKhoLocations" class="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                Làm mới
-              </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                  <tr>
-                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Vị trí</th>
-                    <th @click="handleSortTonKho('ngaySanXuat')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
-                      NSX
-                      <span v-if="sortTonKhoKey === 'ngaySanXuat'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
-                    </th>
-                    <th @click="handleSortTonKho('hanSuDung')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
-                      HSD
-                      <span v-if="sortTonKhoKey === 'hanSuDung'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
-                    </th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Chẵn</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Lẻ</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">Xuất Chẵn</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">Xuất Lẻ</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-100">
-                  <tr v-if="loadingTonKho" class="bg-slate-50/50">
-                    <td colspan="5" class="px-4 py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
-                  </tr>
-                  <tr v-else-if="!tonKhoList.length" class="bg-slate-50/50">
-                    <td colspan="5" class="px-4 py-8 text-center text-slate-500">Không có tồn kho cho sản phẩm này</td>
-                  </tr>
-                  <tr v-for="tk in tonKhoList" :key="tk.id" class="hover:bg-slate-50 transition-colors">
-                    <td class="px-4 py-3 text-sm font-medium text-slate-900">{{ tk.viTri }}</td>
-                    <td class="px-4 py-3 text-sm text-slate-600">{{ tk.ngaySanXuat ? new Date(tk.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
-                    <td class="px-4 py-3 text-sm text-slate-600">{{ tk.hanSuDung ? new Date(tk.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
-                    <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soLuongPalletChan }}</td>
-                    <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soThungLe }}</td>
-                    <td class="px-4 py-3 text-sm text-center">
-                      <input type="number" v-model.number="tk.xuatChan" min="0" :max="tk.soLuongPalletChan" class="w-full text-center border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5" />
-                    </td>
-                    <td class="px-4 py-3 text-sm text-center">
-                      <input type="number" v-model.number="tk.xuatLe" min="0" :max="tk.soThungLe" class="w-full text-center border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div v-if="tonKhoList.length > 0" class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-               <button @click="addDraftTicket" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2">
-                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                 Thêm vào phiếu Load
-               </button>
-            </div>
-          </div>
-          
-          <!-- Bảng Phiếu Load Nháp -->
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col z-0">
-             <div class="p-4 border-b border-slate-100 bg-slate-50">
-               <h4 class="font-bold text-slate-700">Các mặt hàng đã thêm vào phiếu Load</h4>
-             </div>
-             <div class="overflow-x-auto flex-1 p-0">
+            <!-- Kết quả Tồn Kho -->
+            <div v-if="selectedProductIdForXuatKho" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col z-0">
+              <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h4 class="font-semibold text-slate-700">Chọn vị trí và nhập số lượng xuất</h4>
+                <button @click="fetchTonKhoLocations" class="text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                  Làm mới
+                </button>
+              </div>
+              
+              <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                  <thead class="bg-slate-50 sticky top-0">
+                  <thead class="bg-slate-50">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Mã SP</th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Tên Sản Phẩm</th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Vị trí</th>
-                      <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Chẵn</th>
-                      <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Lẻ</th>
-                      <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase w-16">Thao tác</th>
+                      <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Vị trí</th>
+                      <th @click="handleSortTonKho('ngaySanXuat')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
+                        NSX
+                        <span v-if="sortTonKhoKey === 'ngaySanXuat'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
+                      </th>
+                      <th @click="handleSortTonKho('hanSuDung')" scope="col" class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 select-none">
+                        HSD
+                        <span v-if="sortTonKhoKey === 'hanSuDung'" class="ml-1">{{ sortTonKhoAsc ? '↑' : '↓' }}</span>
+                      </th>
+                      <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Chẵn</th>
+                      <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn Lẻ</th>
+                      <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">Xuất Chẵn</th>
+                      <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">Xuất Lẻ</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-slate-100">
-                    <tr v-if="!draftLoadTickets[selectedXuatKhoDoc] || draftLoadTickets[selectedXuatKhoDoc].length === 0">
-                       <td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Chưa có mặt hàng nào được chọn</td>
+                    <tr v-if="loadingTonKho" class="bg-slate-50/50">
+                      <td colspan="7" class="px-4 py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
                     </tr>
-                    <tr v-for="item in draftLoadTickets[selectedXuatKhoDoc]" :key="item.id" class="hover:bg-slate-50">
-                       <td class="px-4 py-2 text-sm font-bold text-blue-700">{{ item.maHang }}</td>
-                       <td class="px-4 py-2 text-sm text-slate-700 max-w-[200px] truncate">{{ item.tenSanPham }}</td>
-                       <td class="px-4 py-2 text-sm font-medium text-slate-800">{{ item.viTri }}</td>
-                       <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.xuatChan }}</td>
-                       <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.xuatLe }}</td>
-                       <td class="px-4 py-2 text-sm text-center">
-                         <button @click="removeDraftItem(selectedXuatKhoDoc, item.id)" class="text-red-500 hover:text-red-700 p-1" title="Xóa">
-                           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                         </button>
-                       </td>
+                    <tr v-else-if="!tonKhoList.length" class="bg-slate-50/50">
+                      <td colspan="7" class="px-4 py-8 text-center text-slate-500">Không có tồn kho khả dụng cho sản phẩm này</td>
+                    </tr>
+                    <tr v-for="tk in tonKhoList" :key="tk.id" class="hover:bg-slate-50 transition-colors">
+                      <td class="px-4 py-3 text-sm font-medium text-slate-900">{{ tk.viTri }}</td>
+                      <td class="px-4 py-3 text-sm text-slate-600">{{ tk.ngaySanXuat ? new Date(tk.ngaySanXuat).toLocaleDateString('vi-VN') : '' }}</td>
+                      <td class="px-4 py-3 text-sm text-slate-600">{{ tk.hanSuDung ? new Date(tk.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soLuongPalletChan }}</td>
+                      <td class="px-4 py-3 text-sm text-center text-slate-600 font-medium">{{ tk.soThungLe }}</td>
+                      <td class="px-4 py-3 text-sm text-center">
+                        <input type="number" v-model.number="tk.xuatChan" min="0" :max="tk.soLuongPalletChan" class="w-full text-center border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5" />
+                      </td>
+                      <td class="px-4 py-3 text-sm text-center">
+                        <input type="number" v-model.number="tk.xuatLe" min="0" :max="tk.soThungLe" class="w-full text-center border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1.5" />
+                      </td>
                     </tr>
                   </tbody>
                 </table>
-             </div>
+              </div>
+              
+              <div v-if="tonKhoList.length > 0" class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                 <button @click="addDraftTicket" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                   Thêm vào phiếu Load
+                 </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Chi tiết phiếu xuất -->
+          <div v-show="xuatKhoActiveTab === 'danhSach'" class="flex flex-col gap-6 flex-1">
+            <!-- Bảng Phiếu Load Nháp -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col z-0">
+               <div class="p-4 border-b border-slate-100 bg-slate-50">
+                 <h4 class="font-bold text-slate-700">Các mặt hàng đã thêm vào phiếu Load</h4>
+               </div>
+               <div class="overflow-x-auto flex-1 p-0">
+                  <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50 sticky top-0">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Mã SP</th>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Tên Sản Phẩm</th>
+                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Vị trí</th>
+                        <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Chẵn</th>
+                        <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase">SL Lẻ</th>
+                        <th class="px-4 py-2 text-center text-xs font-semibold text-slate-500 uppercase w-16">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100">
+                      <tr v-if="!draftLoadTickets[selectedXuatKhoDoc] || draftLoadTickets[selectedXuatKhoDoc].length === 0">
+                         <td colspan="6" class="px-4 py-6 text-center text-slate-500 italic">Chưa có mặt hàng nào được chọn</td>
+                      </tr>
+                      <tr v-for="item in draftLoadTickets[selectedXuatKhoDoc]" :key="item.id" class="hover:bg-slate-50">
+                         <td class="px-4 py-2 text-sm font-bold text-blue-700">{{ item.maHang }}</td>
+                         <td class="px-4 py-2 text-sm text-slate-700 max-w-[200px] truncate">{{ item.tenSanPham }}</td>
+                         <td class="px-4 py-2 text-sm font-medium text-slate-800">{{ item.viTri }}</td>
+                         <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.xuatChan }}</td>
+                         <td class="px-4 py-2 text-sm text-center text-slate-700 font-bold">{{ item.xuatLe }}</td>
+                         <td class="px-4 py-2 text-sm text-center">
+                           <button @click="removeDraftItem(selectedXuatKhoDoc, item.id)" class="text-red-500 hover:text-red-700 p-1" title="Xóa">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                           </button>
+                         </td>
+                      </tr>
+                    </tbody>
+                  </table>
+               </div>
+            </div>
           </div>
         </div>
         
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
-          <button @click="showXuatKhoSTOModal = false" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-200 font-medium">Đóng</button>
+          <button @click="closeXuatKhoSTOModal" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-200 font-medium">Đóng</button>
         </div>
       </div>
     </div>
@@ -1533,7 +1597,7 @@
                   </button>
                 </div>
               </div>
-              <div class="flex flex-col md:flex-row gap-4 items-end mt-2 relative z-10">
+              <div v-if="selectedProductForNhapKho?.loaiSanPham === 'Thành phẩm'" class="flex flex-col md:flex-row gap-4 items-end mt-2 relative z-10">
                 <div class="w-full md:w-1/2">
                   <label class="block text-sm font-semibold text-slate-700 mb-2">Ngày sản xuất <span class="text-red-500">*</span></label>
                   <input type="date" v-model="nhapKhoNgaySanXuat" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 font-bold focus:border-blue-500 focus:ring-blue-500 outline-none shadow-sm" />
@@ -2315,6 +2379,7 @@ const selectedXuatKhoXe = ref(null)
 const showXuatKhoSTOModal = ref(false)
 const selectedXuatKhoType = ref('STO')
 const selectedXuatKhoDoc = ref('')
+const xuatKhoActiveTab = ref('xuatKho')
 const draftLoadTickets = ref({})
 
 const productsList = ref([])
@@ -2454,13 +2519,29 @@ const openXuatKhoModal = async (xe) => {
 }
 
 const openXuatKhoSTOModal = async (sto) => {
-  selectedXuatKhoType.value = 'STO'
-  selectedXuatKhoDoc.value = sto
-  showXuatKhoSTOModal.value = true
-  fetchProducts()
-  xuatKhoSearchQuery.value = ''
-  selectedProductIdForXuatKho.value = ''
-  tonKhoList.value = []
+  await initXuatKhoDocModal(sto, 'STO')
+}
+
+const closeXuatKhoSTOModal = async () => {
+  showXuatKhoSTOModal.value = false
+}
+
+const closeXuatKhoModal = async () => {
+  try {
+    const docs = selectedXuatKhoXe.value?.shipments || selectedXuatKhoXe.value?.stOs || selectedXuatKhoXe.value?.stos || []
+    const mnv = nhanvienInfo.value?.mnv
+    if (mnv) {
+      for (const doc of docs) {
+        await $fetch(`${apiBase}/XuatKhoTams/Clear?soChungTu=${doc}&maNhanVien=${mnv}`, {
+          method: 'POST'
+        })
+        draftLoadTickets.value[doc] = []
+      }
+    }
+  } catch (err) {
+    console.error(err)
+  }
+  showXuatKhoModal.value = false
 }
 
 const nhapKhoViTriSearchQuery = ref('')
@@ -2897,12 +2978,16 @@ const addNhapKhoDraftTicketFromMain = async () => {
     return
   }
 
-  if (!nhapKhoNgaySanXuat.value || !nhapKhoHanSuDung.value) {
+  const productInfo = selectedProductForNhapKho.value
+  const isThanhPham = productInfo?.loaiSanPham === 'Thành phẩm'
+
+  if (isThanhPham && (!nhapKhoNgaySanXuat.value || !nhapKhoHanSuDung.value)) {
     alert('Vui lòng chọn Ngày sản xuất và Hạn sử dụng')
     return
   }
   
-  const productInfo = productsList.value.find(p => p.maSanPham === selectedProductIdForNhapKho.value)
+  const nsx = isThanhPham ? nhapKhoNgaySanXuat.value : null
+  const hsd = isThanhPham ? nhapKhoHanSuDung.value : null
   const maHangStr = productInfo?.maSanPham || selectedProductIdForNhapKho.value
   
   if (!draftNhapKhoTickets.value[selectedNhapKhoDoc.value]) {
@@ -2913,8 +2998,8 @@ const addNhapKhoDraftTicketFromMain = async () => {
   const existingIndex = docTickets.findIndex(d => 
     d.maHang === maHangStr && 
     d.viTri === viTri &&
-    d.ngaySanXuat === nhapKhoNgaySanXuat.value &&
-    d.hanSuDung === nhapKhoHanSuDung.value
+    d.ngaySanXuat === nsx &&
+    d.hanSuDung === hsd
   )
   
   if (existingIndex > -1) {
@@ -2928,8 +3013,8 @@ const addNhapKhoDraftTicketFromMain = async () => {
       viTri: viTri,
       nhapChan: nhapKhoQuantityChan.value || 0,
       nhapLe: nhapKhoQuantityLe.value || 0,
-      ngaySanXuat: nhapKhoNgaySanXuat.value,
-      hanSuDung: nhapKhoHanSuDung.value
+      ngaySanXuat: nsx,
+      hanSuDung: hsd
     })
   }
   
@@ -2938,14 +3023,39 @@ const addNhapKhoDraftTicketFromMain = async () => {
 }
 
 
-const openXuatKhoShipmentModal = async (shipment) => {
-  selectedXuatKhoType.value = 'Shipment'
-  selectedXuatKhoDoc.value = shipment
+const initXuatKhoDocModal = async (doc, type) => {
+  selectedXuatKhoType.value = type
+  selectedXuatKhoDoc.value = doc
+  xuatKhoActiveTab.value = 'xuatKho'
   showXuatKhoSTOModal.value = true
   fetchProducts()
   xuatKhoSearchQuery.value = ''
   selectedProductIdForXuatKho.value = ''
   tonKhoList.value = []
+  
+  try {
+    const mnv = nhanvienInfo.value?.mnv
+    if (doc && mnv) {
+      const res = await $fetch(`${apiBase}/XuatKhoTams?soChungTu=${doc}&maNhanVien=${mnv}`)
+      draftLoadTickets.value[doc] = (res || []).map(x => ({
+        id: x.id,
+        maHang: x.maSanPham,
+        tenSanPham: x.tenSanPham,
+        viTri: x.viTri,
+        hanSuDung: x.hanSuDung,
+        ngaySanXuat: x.ngaySanXuat,
+        xuatChan: x.soLuongChan,
+        xuatLe: x.soLuongLe,
+        khohangId: x.khohangId
+      }))
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const openXuatKhoShipmentModal = async (shipment) => {
+  await initXuatKhoDocModal(shipment, 'Shipment')
 }
 
 const filteredXuatKhoProducts = computed(() => {
@@ -3026,7 +3136,7 @@ const scrollXuatKhoItem = async () => {
 const fetchProducts = async () => {
   if (productsList.value.length > 0 || !khohangInfo.value?.id) return
   try {
-    const res = await $fetch(`${apiBase}/Sanphamnuocs/ByKhohang/${khohangInfo.value.id}`)
+    const res = await $fetch(`${apiBase}/Sanphams/ByKhohang/${khohangInfo.value.id}`)
     productsList.value = res || []
   } catch (err) {
     console.error(err)
@@ -3064,42 +3174,101 @@ const addDraftTicket = async () => {
   
   const productInfo = productsList.value.find(p => p.maSanPham === selectedProductIdForXuatKho.value)
   const doc = selectedXuatKhoDoc.value
+  const mnv = nhanvienInfo.value?.mnv
   
-  if (!draftLoadTickets.value[doc]) {
-    draftLoadTickets.value[doc] = []
+  if (!mnv) {
+    alert('Không tìm thấy thông tin nhân viên!')
+    return
   }
-  
-  itemsToAdd.forEach(tk => {
-    const existing = draftLoadTickets.value[doc].find(d => d.maHang === tk.maHang && d.viTri === tk.viTri)
-    if (existing) {
-      existing.xuatChan = (existing.xuatChan || 0) + (tk.xuatChan || 0)
-      existing.xuatLe = (existing.xuatLe || 0) + (tk.xuatLe || 0)
-    } else {
-      draftLoadTickets.value[doc].push({
-        id: Date.now() + Math.random(),
-        maHang: tk.maHang,
-        tenSanPham: productInfo?.tenSanPham || tk.tenSanPham,
-        viTri: tk.viTri,
-        hanSuDung: tk.hanSuDung,
-        xuatChan: tk.xuatChan || 0,
-        xuatLe: tk.xuatLe || 0
+
+  try {
+    for (const tk of itemsToAdd) {
+      await $fetch(`${apiBase}/XuatKhoTams`, {
+        method: 'POST',
+        body: {
+          maNhanVien: mnv,
+          soChungTu: doc,
+          maSanPham: tk.maHang,
+          tenSanPham: productInfo?.tenSanPham || tk.tenSanPham,
+          viTri: tk.viTri,
+          soLuongChan: tk.xuatChan || 0,
+          soLuongLe: tk.xuatLe || 0,
+          ngaySanXuat: tk.ngaySanXuat,
+          hanSuDung: tk.hanSuDung,
+          khohangId: khohangInfo.value?.id
+        }
       })
+      tk.xuatChan = 0
+      tk.xuatLe = 0
     }
-    tk.xuatChan = 0
-    tk.xuatLe = 0
-  })
+
+    // Refresh draft ticket list from server
+    const res = await $fetch(`${apiBase}/XuatKhoTams?soChungTu=${doc}&maNhanVien=${mnv}`)
+    draftLoadTickets.value[doc] = (res || []).map(x => ({
+      id: x.id,
+      maHang: x.maSanPham,
+      tenSanPham: x.tenSanPham,
+      viTri: x.viTri,
+      hanSuDung: x.hanSuDung,
+      ngaySanXuat: x.ngaySanXuat,
+      xuatChan: x.soLuongChan,
+      xuatLe: x.soLuongLe,
+      khohangId: x.khohangId
+    }))
+
+    // Reload available locations
+    await fetchTonKhoLocations()
+  } catch (err) {
+    console.error(err)
+    alert(err.response?._data?.message || 'Có lỗi xảy ra khi giữ chỗ tồn kho.')
+  }
 }
 
 const removeDraftItem = async (doc, itemId) => {
-  if (draftLoadTickets.value[doc]) {
-    draftLoadTickets.value[doc] = draftLoadTickets.value[doc].filter(i => i.id !== itemId)
+  try {
+    await $fetch(`${apiBase}/XuatKhoTams/${itemId}`, {
+      method: 'DELETE'
+    })
+    
+    // Refresh draft ticket list from server
+    const mnv = nhanvienInfo.value?.mnv
+    if (doc && mnv) {
+      const res = await $fetch(`${apiBase}/XuatKhoTams?soChungTu=${doc}&maNhanVien=${mnv}`)
+      draftLoadTickets.value[doc] = (res || []).map(x => ({
+        id: x.id,
+        maHang: x.maSanPham,
+        tenSanPham: x.tenSanPham,
+        viTri: x.viTri,
+        hanSuDung: x.hanSuDung,
+        ngaySanXuat: x.ngaySanXuat,
+        xuatChan: x.soLuongChan,
+        xuatLe: x.soLuongLe,
+        khohangId: x.khohangId
+      }))
+    }
+
+    // Reload available locations
+    await fetchTonKhoLocations()
+  } catch (err) {
+    console.error(err)
+    alert('Có lỗi khi xóa mặt hàng tạm tính.')
   }
 }
+
 const rejectXuatKho = async () => {
   const reason = await prompt('Vui lòng nhập lý do hủy yêu cầu xuất kho (bắt buộc):')
   if (!reason || reason.trim() === '') return
   if (!await confirm(`Xác nhận hủy yêu cầu xuất kho với lý do: "${reason}" và cho xe ra cổng luôn?`)) return
   try {
+    // Clear temporary picks
+    const docs = selectedXuatKhoXe.value?.shipments || selectedXuatKhoXe.value?.stOs || selectedXuatKhoXe.value?.stos || []
+    for (const doc of docs) {
+      await $fetch(`${apiBase}/XuatKhoTams/Clear?soChungTu=${doc}&maNhanVien=${nhanvienInfo.value?.mnv}`, {
+        method: 'POST'
+      })
+      draftLoadTickets.value[doc] = []
+    }
+
     await $fetch(`${apiBase}/Danhsachxetrongkho/reject-xuatkho/${selectedXuatKhoXe.value.id}`, {
       method: 'POST',
       body: { lyDoHuy: reason }
@@ -3124,6 +3293,7 @@ const submitFinalXuatKho = async () => {
         maSanPham: tk.maHang,
         tenSanPham: tk.tenSanPham,
         viTri: tk.viTri,
+        ngaySanXuat: tk.ngaySanXuat,
         hanSuDung: tk.hanSuDung,
         soLuongChan: tk.xuatChan || 0,
         soLuongLe: tk.xuatLe || 0,
@@ -3153,6 +3323,13 @@ const submitFinalXuatKho = async () => {
       })
     }
     
+    // Dọn dẹp các bản ghi tạm giữ
+    for (const doc of docs) {
+      await $fetch(`${apiBase}/XuatKhoTams/Clear?soChungTu=${doc}&maNhanVien=${nhanvienInfo.value?.mnv}`, {
+        method: 'POST'
+      })
+    }
+
     // Đánh dấu là đã hoàn tất xuất kho cho xe
     await $fetch(`${apiBase}/Danhsachxetrongkho/update-xuatkho/${selectedXuatKhoXe.value.id}`, {
       method: 'POST'
@@ -3242,6 +3419,10 @@ const filteredNhapKhoProducts = computed(() => {
       return queryTokens.every(token => ten.includes(token))
     }
   }).slice(0, 50)
+})
+
+const selectedProductForNhapKho = computed(() => {
+  return productsList.value.find(p => p.maSanPham === selectedProductIdForNhapKho.value)
 })
 
 const selectNhapKhoProduct = async (sp) => {
@@ -3369,6 +3550,7 @@ const addNhapKhoDraftTicket = async () => {
         tenSanPham: productInfo?.tenSanPham || tk.tenSanPham,
         viTri: tk.viTri,
         hanSuDung: tk.hanSuDung,
+        ngaySanXuat: tk.ngaySanXuat,
         nhapChan: tk.nhapChan || 0,
         nhapLe: tk.nhapLe || 0
       })
@@ -3625,7 +3807,94 @@ const closeReport = async () => {
   activeReport.value = null
 }
 
+const parseViTri = (viTri) => {
+  if (!viTri) return { day: '', stt: '' }
+  const match = viTri.match(/^([a-zA-ZÀ-ỹ\s]+)?(\d+)?$/)
+  if (match) {
+    return {
+      day: match[1] || '',
+      stt: match[2] || ''
+    }
+  }
+  return { day: viTri, stt: '' }
+}
+
+const getRemainingShelfLifePercentage = (nsx, hsd) => {
+  if (!nsx || !hsd) return ''
+  const nsxDate = new Date(nsx)
+  const hsdDate = new Date(hsd)
+  const today = new Date()
+  
+  const totalDuration = hsdDate.getTime() - nsxDate.getTime()
+  if (totalDuration <= 0) return '0%'
+  
+  const remainingDuration = hsdDate.getTime() - today.getTime()
+  if (remainingDuration <= 0) return '0%'
+  
+  const percent = Math.round((remainingDuration / totalDuration) * 100)
+  return `${percent}%`
+}
+
 const baocaoTonKhoData = ref([])
+const baocaoTonKhoActiveTab = ref('Thành phẩm')
+
+const totalThanhPhamChan = computed(() => {
+  return baocaoTonKhoData.value
+    .filter(item => {
+      const sp = productsList.value.find(p => p.maSanPham === item.maHang)
+      return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
+    })
+    .reduce((sum, item) => sum + (item.soLuongPalletChan || 0), 0)
+})
+
+const filteredBaocaoTonKhoData = computed(() => {
+  if (baocaoTonKhoActiveTab.value === 'Vỏ') {
+    const baseVo = baocaoTonKhoData.value.filter(item => {
+      const sp = productsList.value.find(p => p.maSanPham === item.maHang)
+      return sp?.loaiSanPham === 'Vỏ'
+    })
+    
+    const palletProduct = productsList.value.find(p => p.maSanPham === '0514')
+    const palletName = palletProduct?.tenSanPham || 'Pallet Rental'
+    const palletDinhLuong = palletProduct?.dinhLuong || 11
+    
+    const virtualRow = {
+      id: 'virtual_pallet_tp',
+      viTri: 'Pallet chứa TP',
+      maHang: '0514',
+      tenSanPham: palletName,
+      ngaySanXuat: null,
+      hanSuDung: null,
+      soLuongPalletChan: null,
+      soThungLe: totalThanhPhamChan.value,
+      dinhLuong: palletDinhLuong,
+      tong: totalThanhPhamChan.value,
+      isVirtual: true
+    }
+    
+    return [virtualRow, ...baseVo]
+  } else {
+    return baocaoTonKhoData.value.filter(item => {
+      const sp = productsList.value.find(p => p.maSanPham === item.maHang)
+      return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
+    })
+  }
+})
+
+const baocaoTonKhoThanhPhamCount = computed(() => {
+  return baocaoTonKhoData.value.filter(item => {
+    const sp = productsList.value.find(p => p.maSanPham === item.maHang)
+    return (sp?.loaiSanPham || 'Thành phẩm') === 'Thành phẩm'
+  }).length
+})
+
+const baocaoTonKhoVoCount = computed(() => {
+  const baseVoCount = baocaoTonKhoData.value.filter(item => {
+    const sp = productsList.value.find(p => p.maSanPham === item.maHang)
+    return sp?.loaiSanPham === 'Vỏ'
+  }).length
+  return baseVoCount + 1
+})
 
 // ==== STATE BÁO CÁO ĐẾM KHO ====
 const baocaoDemKhoLoading = ref(false)
@@ -3772,6 +4041,12 @@ const fetchBaocaoTonKho = async () => {
     // 2. Fetch the updated TonKhoHienTai
     const res = await $fetch(`${apiBase}/TonKhoHienTais/ByKhohang/${khohangInfo.value.id}`)
     baocaoTonKhoData.value = res || []
+
+    // 3. Load products if not loaded yet
+    if (productsList.value.length === 0) {
+      const sps = await $fetch(`${apiBase}/Sanphams/ByKhohang/${khohangInfo.value.id}`)
+      productsList.value = sps || []
+    }
   } catch (err) {
     console.error(err)
     alert('Lỗi khi tải báo cáo tồn kho')
@@ -3781,21 +4056,46 @@ const fetchBaocaoTonKho = async () => {
 }
 
 const exportBaocaoTonKhoExcel = async () => {
-  if (baocaoTonKhoData.value.length === 0) return
-  const dataToExport = baocaoTonKhoData.value.map(item => ({
-    'Vị Trí': item.viTri,
-    'Mã Hàng': item.maHang,
-    'Tên Sản Phẩm': item.tenSanPham,
-    'SL Pallet Chẵn': item.soLuongPalletChan,
-    'Số Thùng Lẻ': item.soThungLe,
-    'Định Lượng (CS/PL)': item.dinhLuong,
-    'Tổng': item.tong
-  }))
+  if (filteredBaocaoTonKhoData.value.length === 0) return
+  
+  let dataToExport = []
+  if (baocaoTonKhoActiveTab.value === 'Thành phẩm') {
+    dataToExport = filteredBaocaoTonKhoData.value.map(item => {
+      const { day, stt } = parseViTri(item.viTri)
+      return {
+        'VỊ TRÍ': item.viTri,
+        'MÃ HÀNG': item.maHang,
+        'TÊN SẢN PHẨM': item.tenSanPham,
+        'HẠN SỬ DỤNG': item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '',
+        '% HẠN SỬ DỤNG CÒN LẠI': getRemainingShelfLifePercentage(item.ngaySanXuat, item.hanSuDung),
+        'SỐ LƯỢNG PALLET CHẴN': item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '',
+        'SỐ THÙNG LẺ': item.soThungLe !== null && item.soThungLe !== 0 ? item.soThungLe : '',
+        'ĐỊNH LƯỢNG (CS/PL)': item.dinhLuong !== null && item.dinhLuong !== 0 ? item.dinhLuong : '',
+        'TỔNG': item.tong !== null && item.tong !== 0 ? item.tong : '',
+        'GHI CHÚ': '',
+        'TRẠNG THÁI D.O.D': item.trangThaiDOD || 'NORMAL-BÌNH THƯỜNG',
+        'NGÀY SẢN XUẤT': item.ngaySanXuat ? new Date(item.ngaySanXuat).toLocaleDateString('vi-VN') : '',
+        'DÃY HÀNG': day,
+        'STT DÃY HÀNG': stt
+      }
+    })
+  } else {
+    dataToExport = filteredBaocaoTonKhoData.value.map(item => ({
+      'Vị trí': item.viTri,
+      'Mã hàng': item.maHang,
+      'Tên hàng': item.tenSanPham,
+      'Chẵn': item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '',
+      'Lẻ': item.soThungLe !== null && item.soThungLe !== 0 ? item.soThungLe : '',
+      'Định lượng': item.dinhLuong !== null && item.dinhLuong !== 0 ? item.dinhLuong : '',
+      'Tổng': item.tong !== null && item.tong !== 0 ? item.tong : '',
+      'GHI CHÚ': ''
+    }))
+  }
 
   const ws = XLSX.utils.json_to_sheet(dataToExport)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, "BaoCaoTonKho")
-  XLSX.writeFile(wb, `BaoCaoTonKho_${new Date().toISOString().slice(0,10)}.xlsx`)
+  XLSX.writeFile(wb, `BaoCaoTonKho_${baocaoTonKhoActiveTab.value}_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
 const exportBaocaoNhapXuatExcel = async () => {
