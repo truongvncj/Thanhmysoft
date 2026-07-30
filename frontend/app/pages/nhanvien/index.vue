@@ -2843,8 +2843,13 @@ const submitDemKho = async () => {
   
   dataToSave.chiTiets.forEach(ct => {
     if (!ct.ghiChu) ct.ghiChu = ''
-    if (ct.ngaySanXuat === '') ct.ngaySanXuat = null
-    if (ct.hanSuDung === '') ct.hanSuDung = null
+    // Đảm bảo lọc sạch các giá trị ngày trống/không hợp lệ để Backend không báo lỗi
+    if (!ct.ngaySanXuat || ct.ngaySanXuat === '' || ct.ngaySanXuat === 'Invalid Date') {
+      ct.ngaySanXuat = null
+    }
+    if (!ct.hanSuDung || ct.hanSuDung === '' || ct.hanSuDung === 'Invalid Date') {
+      ct.hanSuDung = null
+    }
   })
   
   try {
@@ -2859,7 +2864,27 @@ const submitDemKho = async () => {
     
   } catch (err) {
     console.error(err)
-    alert(err.data?.title || (err.data && typeof err.data === 'object' ? JSON.stringify(err.data) : err.data) || 'Có lỗi khi lưu bảng tạm vào Server')
+    
+    // Xử lý thông báo chi tiết khi Backend trả về lỗi Validation (400 Bad Request)
+    let errorMessage = 'Có lỗi khi lưu bảng tạm vào Server'
+    if (err.data && err.data.errors) {
+      // Đọc các trường lỗi chi tiết từ ModelState/validation của .NET
+      const errorDetails = []
+      for (const [key, value] of Object.entries(err.data.errors)) {
+        const fieldName = key.split('.').pop()
+        const messages = Array.isArray(value) ? value.join(', ') : value
+        errorDetails.push(`- ${fieldName}: ${messages}`)
+      }
+      errorMessage = `Lỗi dữ liệu nhập vào không hợp lệ:\n${errorDetails.join('\n')}`
+    } else if (err.data?.title) {
+      errorMessage = err.data.title
+    } else if (err.data?.message) {
+      errorMessage = err.data.message
+    } else if (typeof err.data === 'string') {
+      errorMessage = err.data
+    }
+    
+    alert(errorMessage)
   }
 }
 
