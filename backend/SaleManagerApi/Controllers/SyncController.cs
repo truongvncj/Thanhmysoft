@@ -119,7 +119,7 @@ public class SyncController : ControllerBase
         }
         
         // Fill missing product names from Sanphams
-        var missingNames = hienTaiDict.Values.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        var missingNames = hienTaiDict.Values.Where(t => string.IsNullOrWhiteSpace(t.TenSanPham)).ToList();
         if (missingNames.Any())
         {
             var productCodes = missingNames.Select(t => t.MaHang).Distinct().ToList();

@@ -27,7 +27,7 @@ public class TonKhoHienTaisController : ControllerBase
             .ThenBy(t => t.ViTri)
             .ToListAsync();
 
-        var missingNames = list.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        var missingNames = list.Where(t => string.IsNullOrWhiteSpace(t.TenSanPham)).ToList();
         if (missingNames.Any())
         {
             var product = await _context.Sanphams.FirstOrDefaultAsync(p => p.MaSanPham == maSanPham);
@@ -87,7 +87,7 @@ public class TonKhoHienTaisController : ControllerBase
             .ThenBy(t => t.MaHang)
             .ToListAsync();
 
-        var missingNames = list.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        var missingNames = list.Where(t => string.IsNullOrWhiteSpace(t.TenSanPham)).ToList();
         if (missingNames.Any())
         {
             var productCodes = missingNames.Select(t => t.MaHang).Distinct().ToList();
