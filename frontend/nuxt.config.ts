@@ -28,11 +28,8 @@ export default defineNuxtConfig({
     }
   },
   routeRules: {
-    // Nếu chạy trong môi trường Docker (có biến môi trường), proxy qua container 'backend', ngược lại proxy qua localhost cổng 5121
     '/api/**': { 
-      proxy: process.env.DATABASE_URL || process.env.ConnectionStrings__DefaultConnection || process.env.IS_DOCKER
-        ? 'http://backend:8080/api/**' 
-        : 'http://127.0.0.1:5121/api/**'
+      proxy: process.env.API_PROXY_TARGET || 'http://127.0.0.1:5121/api/**'
     }
   }
 })

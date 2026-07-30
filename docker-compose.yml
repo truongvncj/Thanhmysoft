@@ -37,7 +37,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - IS_DOCKER=true
+      - API_PROXY_TARGET=http://backend:8080/api/**
     depends_on:
       - backend
 
