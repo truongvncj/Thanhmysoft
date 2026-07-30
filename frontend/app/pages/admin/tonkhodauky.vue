@@ -265,7 +265,8 @@ definePageMeta({
   layout: false
 })
 
-const apiBase = 'http://localhost:5121/api'
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBaseUrl
 
 const khohangs = ref([])
 const selectedKhohangId = ref('')
