@@ -118,6 +118,26 @@ public class SyncController : ControllerBase
             }
         }
         
+        // Fill missing product names from Sanphams
+        var missingNames = hienTaiDict.Values.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        if (missingNames.Any())
+        {
+            var productCodes = missingNames.Select(t => t.MaHang).Distinct().ToList();
+            var products = await _context.Sanphams
+                .Where(p => productCodes.Contains(p.MaSanPham))
+                .GroupBy(p => p.MaSanPham)
+                .Select(g => new { MaSanPham = g.Key, TenSanPham = g.First().TenSanPham })
+                .ToDictionaryAsync(p => p.MaSanPham, p => p.TenSanPham);
+
+            foreach (var tk in missingNames)
+            {
+                if (products.TryGetValue(tk.MaHang, out var prodName))
+                {
+                    tk.TenSanPham = prodName;
+                }
+            }
+        }
+
         // 5. Save
         _context.TonKhoHienTais.AddRange(hienTaiDict.Values);
         await _context.SaveChangesAsync();

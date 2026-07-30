@@ -27,6 +27,26 @@ public class TonKhoHienTaisController : ControllerBase
             .ThenBy(t => t.ViTri)
             .ToListAsync();
 
+        var missingNames = list.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        if (missingNames.Any())
+        {
+            var product = await _context.Sanphams.FirstOrDefaultAsync(p => p.MaSanPham == maSanPham);
+            if (product != null)
+            {
+                bool changed = false;
+                foreach (var tk in missingNames)
+                {
+                    tk.TenSanPham = product.TenSanPham;
+                    _context.Entry(tk).State = EntityState.Modified;
+                    changed = true;
+                }
+                if (changed)
+                {
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
         var tempPicks = await _context.XuatKhoTams
             .Where(x => x.MaSanPham == maSanPham)
             .ToListAsync();
@@ -61,10 +81,38 @@ public class TonKhoHienTaisController : ControllerBase
     public async Task<ActionResult<IEnumerable<TonKhoHienTai>>> GetTonKhoByKhohang(int khohangId)
     {
         // Get all products with stock in a specific warehouse
-        return await _context.TonKhoHienTais
+        var list = await _context.TonKhoHienTais
             .Where(t => t.KhohangId == khohangId && (t.SoLuongPalletChan > 0 || t.SoThungLe > 0))
             .OrderBy(t => t.ViTri)
             .ThenBy(t => t.MaHang)
             .ToListAsync();
+
+        var missingNames = list.Where(t => string.IsNullOrEmpty(t.TenSanPham)).ToList();
+        if (missingNames.Any())
+        {
+            var productCodes = missingNames.Select(t => t.MaHang).Distinct().ToList();
+            var products = await _context.Sanphams
+                .Where(p => productCodes.Contains(p.MaSanPham))
+                .GroupBy(p => p.MaSanPham)
+                .Select(g => new { MaSanPham = g.Key, TenSanPham = g.First().TenSanPham })
+                .ToDictionaryAsync(p => p.MaSanPham, p => p.TenSanPham);
+
+            bool changed = false;
+            foreach (var tk in missingNames)
+            {
+                if (products.TryGetValue(tk.MaHang, out var prodName))
+                {
+                    tk.TenSanPham = prodName;
+                    _context.Entry(tk).State = EntityState.Modified;
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        return list;
     }
 }
