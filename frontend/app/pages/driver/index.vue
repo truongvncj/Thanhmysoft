@@ -1,8 +1,6 @@
 <template>
   <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-8">
-      <h1 v-if="Object.keys(checklistAnswers).length === 0" class="text-xl sm:text-2xl font-bold text-slate-800 mb-1 sm:mb-6 text-center">PRE-TRIP CHECKLIST</h1>
-      
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4">
       <div v-if="loading" class="text-center py-10">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
         <p class="mt-4 text-slate-500">Đang kiểm tra thông tin...</p>
@@ -22,8 +20,8 @@
         </NuxtLink>
       </div>
 
-      <div v-else class="pt-2 pb-4 sm:py-6">
-        <div v-if="Object.keys(checklistAnswers).length === 0" class="mb-4 sm:mb-6 text-center">
+      <div v-else class="pb-4 sm:pb-6">
+        <div v-if="Object.keys(checklistAnswers).length === 0" class="mb-3 sm:mb-4 text-center">
           <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Bạn chưa làm Pre-Trip Checklist</h2>
           <p class="text-sm sm:text-base text-slate-500 mt-0">Vui lòng kiểm tra các mục dưới đây trước khi vào kho.</p>
         </div>
