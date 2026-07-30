@@ -892,7 +892,7 @@
                       <template v-if="baocaoTonKhoActiveTab === 'Thành phẩm'">
                         <td class="py-2 px-4 border-r border-slate-100">{{ item.viTri }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 font-semibold">{{ item.maHang }}</td>
-                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs" :title="item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || ''">{{ item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || '' }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-slate-600">{{ item.hanSuDung ? new Date(item.hanSuDung).toLocaleDateString('vi-VN') : '' }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-center font-medium text-slate-600">{{ getRemainingShelfLifePercentage(item.ngaySanXuat, item.hanSuDung) }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '' }}</td>
@@ -908,7 +908,7 @@
                       <template v-else>
                         <td class="py-2 px-4 border-r border-slate-100 font-medium text-slate-800">{{ item.viTri }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 font-semibold text-slate-800">{{ item.maHang }}</td>
-                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs text-slate-800" :title="item.tenSanPham">{{ item.tenSanPham }}</td>
+                        <td class="py-2 px-4 border-r border-slate-100 min-w-[200px] truncate max-w-xs text-slate-800" :title="item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || ''">{{ item.tenSanPham || productsList.find(p => p.maSanPham === item.maHang)?.tenSanPham || '' }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soLuongPalletChan !== null && item.soLuongPalletChan !== 0 ? item.soLuongPalletChan : '' }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.soThungLe !== null && item.soThungLe !== 0 ? item.soThungLe.toLocaleString('vi-VN') : '' }}</td>
                         <td class="py-2 px-4 border-r border-slate-100 text-right">{{ item.dinhLuong !== null && item.dinhLuong !== 0 ? item.dinhLuong : '' }}</td>
