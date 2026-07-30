@@ -37,8 +37,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # TODO: NUXT_PUBLIC_API_BASE should match your backend URL if applicable
-      - NUXT_PUBLIC_API_BASE=http://103.249.158.42:8080
+      - IS_DOCKER=true
     depends_on:
       - backend
 
