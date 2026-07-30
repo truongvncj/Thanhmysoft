@@ -1,21 +1,10 @@
 <template>
   <div class="min-h-screen bg-slate-50 flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow-sm px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-10 border-b border-slate-100">
-      <div>
-        <h1 class="text-xl font-bold text-slate-800 tracking-tight">{{ nhanvienInfo?.vitri }} {{ nhanvienInfo?.chucdanh }}</h1>
-        <p class="text-sm text-slate-500 mt-1">Xin chào, <span class="font-semibold text-slate-700">{{ nhanvienInfo?.tnv }}</span> | Kho: <span class="font-semibold text-blue-600">{{ khohangInfo?.name }}</span></p>
+    <header class="bg-white shadow-sm px-4 py-2 sm:px-6 sm:py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center sticky top-0 z-10 border-b border-slate-100">
+      <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
+        <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">{{ nhanvienInfo?.vitri }} {{ nhanvienInfo?.chucdanh }}</h1>
+        <p class="text-xs sm:text-sm text-slate-500">Xin chào, <span class="font-semibold text-slate-700">{{ nhanvienInfo?.tnv }}</span> | Kho: <span class="font-semibold text-blue-600">{{ khohangInfo?.name }}</span></p>
       </div>
-      <div v-if="isBaoVe" class="flex flex-col items-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
-        <span class="text-xs text-slate-500 font-medium mb-1">Tỷ lệ Lấy mẫu kiểm tra</span>
-        <div class="text-xl font-bold" :class="checkedPercentage < 5 ? 'text-red-600' : 'text-green-600'">
-          {{ checkedPercentage }}% <span class="text-xs text-slate-400 font-normal">({{ checkedVehicles }}/{{ totalVehicles }})</span>
-        </div>
-      </div>
-      <button @click="logout" class="flex items-center gap-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-5 py-2.5 rounded-xl transition-all duration-200">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-        Đăng xuất
-      </button>
     </header>
 
     <!-- Flex container for Sidebar & Main Content -->
@@ -74,18 +63,42 @@
             </li>
           </ul>
         </nav>
+        
+        <div class="p-4 border-t border-slate-200 flex flex-col gap-4 mt-auto">
+          <div v-if="isBaoVe" class="flex flex-col items-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-medium mb-1">Tỷ lệ Lấy mẫu</span>
+            <div class="text-xl font-bold" :class="checkedPercentage < 5 ? 'text-red-600' : 'text-green-600'">
+              {{ checkedPercentage }}% <span class="text-xs text-slate-400 font-normal">({{ checkedVehicles }}/{{ totalVehicles }})</span>
+            </div>
+          </div>
+          <button @click="logout" class="flex justify-center items-center gap-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-5 py-2.5 rounded-xl transition-all duration-200 w-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Đăng xuất
+          </button>
+        </div>
       </aside>
 
       <!-- Main Content -->
       <div class="flex-1 flex flex-col w-full overflow-hidden">
         <!-- Mobile Navigation -->
-        <div class="md:hidden flex overflow-x-auto bg-white border-b border-slate-200 custom-scrollbar flex-shrink-0">
+        <div class="md:hidden flex items-center overflow-x-auto bg-white border-b border-slate-200 custom-scrollbar flex-shrink-0">
           <button @click="activeMenu = 'dashboard'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'dashboard' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">DS Xe trong sân</button>
           <button v-if="isThuKho" @click="activeMenu = 'nhapkho'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'nhapkho' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Nhập kho</button>
           <button v-if="isThuKho" @click="activeMenu = 'xuatkho'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'xuatkho' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Xuất kho</button>
           <button v-if="isThuKho" @click="activeMenu = 'demkho'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'demkho' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Đếm kho</button>
           <button v-if="isThuKho" @click="activeMenu = 'dieuchuyen'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'dieuchuyen' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Điều chuyển nội bộ</button>
           <button v-if="isThuKho" @click="activeMenu = 'baocao'" :class="['px-4 py-3 whitespace-nowrap text-sm font-medium border-b-2 transition-colors', activeMenu === 'baocao' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent']">Báo cáo</button>
+          
+          <div v-if="isBaoVe" class="flex-shrink-0 px-3 py-1 ml-2 border-l border-slate-200 flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 font-medium">Lấy mẫu</span>
+            <div class="text-sm font-bold" :class="checkedPercentage < 5 ? 'text-red-600' : 'text-green-600'">
+              {{ checkedPercentage }}% <span class="text-[10px] text-slate-400 font-normal">({{ checkedVehicles }}/{{ totalVehicles }})</span>
+            </div>
+          </div>
+          <button @click="logout" class="flex-shrink-0 flex items-center gap-1 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 mx-2 rounded-lg transition-all duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Thoát
+          </button>
         </div>
 
         <main class="flex-1 w-full p-4 sm:p-6 lg:p-8 overflow-y-auto">

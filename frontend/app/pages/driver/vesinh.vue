@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto space-y-6">
     <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 text-center mb-2 sm:mb-8 tracking-tight">KIỂM TRA VỆ SINH XE TẢI</h1>
+      <h1 v-if="Object.keys(checklistAnswers).length === 0" class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 text-center mb-2 sm:mb-8 tracking-tight">KIỂM TRA VỆ SINH XE TẢI</h1>
       
       <div v-if="loading" class="text-center py-10">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
@@ -33,8 +33,6 @@
       </div>
 
       <div v-else>
-        <p class="text-slate-600 mb-4 sm:mb-8 text-center text-base sm:text-lg">Vui lòng kiểm tra thực tế xe và đánh giá các chỉ tiêu vệ sinh dưới đây.</p>
-        
         <div v-if="loadingParams" class="text-center py-8 text-slate-500">Đang tải danh sách kiểm tra...</div>
         <div v-else-if="checklistParams.length === 0" class="text-center py-8 text-slate-500">Không có mục kiểm tra nào.</div>
         <div v-else>
