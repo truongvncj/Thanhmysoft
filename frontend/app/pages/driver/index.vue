@@ -23,7 +23,7 @@
       <div v-else class="pb-4 sm:pb-6">
         <div v-if="Object.keys(checklistAnswers).length === 0" class="mb-3 sm:mb-4 text-center">
           <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-1 sm:mb-2">Bạn chưa làm Pre-Trip Checklist</h2>
-          <p class="text-sm sm:text-base text-slate-500 mt-0">Vui lòng kiểm tra các mục dưới đây trước khi vào kho.</p>
+          <p class="text-sm sm:text-base text-slate-500 mt-0">Vui lòng kiểm tra các mục dưới đây</p>
         </div>
 
         <div v-if="loadingParams" class="flex justify-center py-8">
