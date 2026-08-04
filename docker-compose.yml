@@ -41,5 +41,7 @@ services:
     depends_on:
       - backend
 
+# BẮT BUỘC PHẢI CÓ BLOCK NÀY Ở CUỐI FILE DOCKER-COMPOSE.YML
 volumes:
   postgres_data:
+    driver: local
